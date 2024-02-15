@@ -1,0 +1,43 @@
+Android:
+* Enable NFC. Make sure that you allow to both read and write to a tag.
+* Install app "NFC Tools" by author "wakdev".
+* Open the app.
+* The app should open on the "READ" tab. If not, switch to it.
+* Hold the tag in range of your NFC reader. The NFS reader is often 
+  located in the back side of your phone, somewhere in the middle.
+* Write down the serial number. In my case 04:D9:C8:DA:A2:40:80.
+* Note that this is 7 byte UID/serial, not an 8 byte UID.
+* Remove all colons from the serial. In my case: 04D9C8DAA24080.
+* Inside app "NFC Tools", go to tab "OTHER" and tap "Advanced NFC 
+  commands".
+* You will get a disclaimer/notice. You decide whether to "cancel" or to 
+  "understand".
+* Test whether you can read the tag with these advanced commands. Do 
+  this by entering the following command: 30 00. This will read the 
+  first 16 bytes of the tag, containing, amongst other stuff, the serial 
+  of the tag.
+* Optionally: Try to read the protected page. Do this by entering the 
+  following command: 30 24
+* If the tag is password protected, you will get "Error: I/O failure". 
+  If the tag is new/fresh, you should get data, probably 4 times the 
+  zero bytes.
+* Compute the password for the serial of the tag. In my case: 519101d0.
+* Test whether the generated password is correct by entering the 
+  following command: 1B 519101d0,3024
+  "1B"      : command/opcode to do password authentication
+  "519101d0": the password for this tag.
+  ","       : command separator in app "NFC Tools"
+  "30"      : Command/opcode for reading 16 bytes.
+  "24"      : Read those 16 bytes starting at page 0x24 (offset 144).
+* Lookup the ID of the vehicle. In my case, I wanted another Batmobile, 
+  so my ID is 0x03EE (1006).
+* Note: with generic LEGO NFC tags, one can only store a vehicle on such 
+  a tag. The tag is write protected against changing from vehicle to 
+  character.
+* Write to the appropriate pages. Do this by entering the following 
+  command:
+    Write the ID as little Endian dword:
+      1B 519101d0,A2 24 ee030000
+    
+    Write the upgrades (no upgrades in our case):
+      1B 519101d0,A2 25 00000000
