@@ -23,14 +23,14 @@ if args.verbose:
 
 ## Validate UID.
 logging.debug(f"args.uid={args.uid}")
-uid = re.sub(r"[^[xdigit]]", '', args.uid)
+uid = re.sub(r"[^0-9A-Fa-f]", '', args.uid)
 uid = re.sub(r"^0x", '', uid)
+logging.debug(f"uid={uid}")
 if len(uid) == 13:
     ## People may forget the leading zero.
     uid = '0' + uid
 if len(uid) > 14:
-    raise ValueError(f"The UID is only 7 bytes, i.e. 14 hexdigits, not {len(uid)}.")
-logging.debug(f"uid={uid}")
+    raise ValueError(f"The UID is only 7 bytes, i.e. 14 hexdigits, not {len(uid)} (uid={uid}).")
 
 tag = legodimensions.Tag()
 tag.uid = int(uid, 16)
