@@ -23,8 +23,8 @@ if args.verbose:
 
 ## Validate UID.
 logging.debug(f"args.uid={args.uid}")
-uid = re.sub(r"[^0-9A-Fa-f]", '', args.uid)
 uid = re.sub(r"^0x", '', uid)
+uid = re.sub(r"[^0-9A-Fa-f]", '', args.uid)
 logging.debug(f"uid={uid}")
 if len(uid) == 13:
     ## People may forget the leading zero.
