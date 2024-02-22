@@ -31,8 +31,10 @@ logging.debug(f"uid={uid}")
 if len(uid) == 13:
     ## People may forget the leading zero.
     uid = '0' + uid
-if len(uid) > 14:
+elif len(uid) > 14:
     raise ValueError(f"The UID is only 7 bytes, i.e. 14 hexdigits, not {len(uid)} (uid={uid}).")
+elif len(uid) < 13:
+    raise ValueError(f"The UID is 7 bytes, i.e. 14 hexdigits, not {len(uid)} (uid={uid}).")
 
 def str2colon_separated(string: str):
     return ':'.join(re.findall('..', string))
@@ -65,7 +67,7 @@ for id in args.ids:
     #print(f"NFC Tools command for page 0x24: 1B:{tag.password:08X},A2:24:{encrypted[0:4].hex().upper()}")
     #print(f"NFC Tools command for page 0x25: 1B:{tag.password:08X},A2:25:{encrypted[4:8].hex().upper()}")
     if id < 1000:
-        print(f"NFC Tools command for ID={id} for pages 0x2B (set password): 1B:{tag.password:08X},A2:2B:{tag.password:08X}")
-        print(f"NFC Tools command for ID={id} for pages 0x2C (set password ack to AA:55): A2:2C:AA:55:00:00")
-    
+        print(f"NFC Tools command for ID={id} for pages 0x2B (set password): A2:2B:{tag.password:08X}")
+        print(f"NFC Tools command for ID={id} for pages 0x2C (set password ack to AA:55): 1B:{tag.password:08X},A2:2C:AA550000")
+        print(f"NFC Tools command for ID={id} for empty tag: A2:2C:AA550000, A2:24:{encrypted[0:4].hex().upper()}, A2:25:{encrypted[4:8].hex().upper()}, A2:2B:{tag.password:08X}")
     print(f"NFC Tools command for ID={id} for pages 0x24 and 0x25: 1B:{tag.password:08X},A2:24:{encrypted[0:4].hex().upper()},A2:25:{encrypted[4:8].hex().upper()}")
