@@ -37,14 +37,19 @@ elif len(uid) < 13:
     raise ValueError(f"The UID is 7 bytes, i.e. 14 hexdigits, not {len(uid)} (uid={uid}).")
 
 def str2colon_separated(string: str):
+    if len(string) & 1:
+        ## Odd number of hex digits, make it even again by adding a 
+        ## leading zero.
+        string = '0' + string
+    
     return ':'.join(re.findall('..', string))
 def int2hexcolon_separated(integer: int):
-    return str2colon_separated(f"{integer:08x}")
+    return str2colon_separated(f"{integer:x}")
 
 tag = legodimensions.Tag()
 tag.uid = int(uid, 16)
 
-logging.info(f"tag.uid={tag.uid:#010x} / {tag.uid:08x} / {int2hexcolon_separated(tag.uid)}")
+logging.info(f"tag.uid={tag.uid:#016x} / {tag.uid:014x} / {int2hexcolon_separated(tag.uid)}")
 logging.info(f"tag.password={tag.password:#010x} / {tag.password:08x} / {int2hexcolon_separated(tag.password)}")
 logging.info(f"tea_key={tag.tea_key:#034x}")
 
