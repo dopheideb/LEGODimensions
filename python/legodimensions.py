@@ -4,6 +4,16 @@ from   tea import TEA
 
 
 
+'''
+Credits:
+
+All contributors in http://www.proxmark.org/forum/viewtopic.php?id=2657
+
+ags131 for code on/in https://github.com/AlinaNova21/node-ld/
+
+'''
+
+
 def _rotate_right(n, rotations=1, width=8):
     part1 = n >> rotations
     
@@ -20,10 +30,8 @@ def _rotate_right_dword(dword, rotations):
 
 class Tag:
     password_base = (
-        b"\x00\x00\x00\x00" +
-        b"\x00\x00\x00" +
-        b"(c) Copyright LEGO 2014" +
-        b"\xAA\xAA"
+        ## Replace "UUUUUUU" with the UID.
+        b"UUUUUUU(c) Copyright LEGO 2014\xAA\xAA"
     )
     
     scramble_base = (
@@ -51,13 +59,22 @@ class Tag:
     def password(self):
         base = bytearray(Tag.password_base)
         base[0:7] = self._uid.to_bytes(length=7, byteorder='big')
+        for n in range(8):
+            logging.debug(f"n={n} base[{n * 4:2d}:{(n+1)*4:2d}]={base[n * 4 : (n + 1) * 4].hex()} little_endian={int.from_bytes(base[n * 4 : (n + 1) * 4], byteorder='little', signed=False):08x}")
         
         v2 = 0
         for n in range(8):
+            v2_old = v2
             v4 = _rotate_right_dword(v2, 25)
             v5 = _rotate_right_dword(v2, 10)
             b = int.from_bytes(base[n * 4 : (n + 1) * 4], byteorder='little', signed=False)
             v2 = (b + v4 + v5 - v2) & 0xFFFFFFFF
+            logging.debug(f"n={n} v4={v4:08x} v5={v5:08x} b={b:08x} v2={v2:08x}")
+            #logging.debug(f"n={n} v4=rl(v2,7)=rr({v2_old:032b},7)={v4:032b}={v4:08x} v5=rr(v2,10)=rr({v2_old:032b},10)={v5:032b}={v5:08x} b={b:08x} v2=b+v4+v5-v2={v2:08x}")
+            #logging.debug(f"n={n} v4={v4:032b}")
+            #logging.debug(f"n={n} v5={v5:032b}")
+            #logging.debug(f"n={n}  b={b:032b}")
+            #logging.debug(f"n={n} v2={v2_old:032b}")
         
         ## Convert v2 to little endian.
         return int.from_bytes(struct.pack('>I', v2), byteorder='little', signed=False)
@@ -82,9 +99,10 @@ class Tag:
     def scramble(self, cnt):
         base = bytearray(Tag.scramble_base)
         base[0:7] = self._uid.to_bytes(length=7, byteorder='big')
-        if cnt >= 1:
-            base[(cnt * 4) - 1] = 0xAA
-        logging.debug(f"base={base}")
+        if cnt <= 0:
+            return 0
+        base[(cnt * 4) - 1] = 0xAA
+        logging.debug(f"cnt={cnt}, uid={self._uid:014x} base={base}")
         
         v2 = 0
         for n in range(cnt):
