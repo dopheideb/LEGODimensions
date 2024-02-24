@@ -61,7 +61,7 @@ input[type=submit]
   
   <p>
     <label for="answer">Answer</label>
-    <input id="answer" name="answer" type="text" disabled placeholder="answer">
+    <input id="answer" name="answer" type="text" size="64" disabled placeholder="answer">
   </p>
 </form>
 
@@ -80,7 +80,7 @@ document.querySelector('#pwdgen').addEventListener('submit', (event) => {
 	console.log("raw_uid=" + raw_uid);
 	
 	uid = parse_uid_to_int(raw_uid);
-	console.log("uid=" + uid + ", type=" + typeof(uid));
+	console.log("uid=" + uid.toString(16).padStart(14, 0) + ", type=" + typeof(uid));
 	
 	let raw_dimensions_id = form_data.get('DIMENSIONS_ID');
 	console.log("raw_dimensions_id=" + raw_dimensions_id);
@@ -108,7 +108,11 @@ document.querySelector('#pwdgen').addEventListener('submit', (event) => {
 	encrypted_block0_hex = uint322hexstr(encrypted_block[0]);
 	encrypted_block1_hex = uint322hexstr(encrypted_block[1]);
 	document.forms['pwdgen'].elements['answer'].value =
-		encrypted_block0_hex + encrypted_block1_hex;
+		"A2:2C:AA550000, " +
+		"A2:24:" + encrypted_block0_hex +
+		"A2:25:" + encrypted_block1_hex
+		"A2:2B:" + password_hex
+		;
 });
 
 
@@ -157,27 +161,8 @@ function scramble(uid, count)
 	
 	let base = new Uint32Array(8);
 	
-	// The base starts with the UID (7 bytes), but it needs to be 
-	// written in (sort of) little Endian format.
-	// 
-	// Example: if UID is 00:11:22:33:44:55:66 then base starts with:
-	//   base[0] == 33
-	//   base[1] == 22
-	//   base[2] == 11
-	//   base[3] == 00
-	//   base[4] == 66
-	//   base[5] == 55
-	//   base[6] == 44
-	//
-	
-	// Most significant 4 bytes. Bitshifting operates on 32 bit int, 
-	// but the UID is 7 bytes (56 bits), so we have to use BigInt in 
-	// order to access to most significant 4 bytes.
-	base[0] = swap_endianness_32(Number(BigInt(uid) >> 24n));
-	
-	// Least significant 3 bytes, and the first byte of the static 
-	// password/base (0xB7).
-	base[1] = swap_endianness_32((uid << 8) | 0xB7);
+	write_uid_in_uint32array(uid, base);		// UUUU
+	base[1] |= swap_endianness_32(0xB7);		// UUU.
 	
 	base[2] = swap_endianness_32(0xD5D7E6E7);
 	base[3] = swap_endianness_32(0xBA3CA8D8);
@@ -215,14 +200,25 @@ function scramble(uid, count)
 function parse_uid_to_int(uid)
 {
 	// Remove leading 0x.
-	uid = uid.replace('/^0x/g', '');
+	uid = uid.replace(/^0x/g, '');
 	
 	// Remove all unwanted characters, keep only hexdigits.
 	uid = uid.replace('/[^0-9A-Fa-f]/g', '');
+	console.log("[parse_uid_to_int] uid=" + uid.toString(16));
 	
-	uid = parseInt(uid, 16);
+	// Note: do not use parseInt() here, because of precision. A 
+	// valid UID like 53:a7:0b:b3:11:00:01 will be converted to 
+	// 53a70bb3110000, which is off by one!
+	//uid = parseInt(uid, 16);
+	parsed_uid = BigInt("0x" + uid);
 	
-	return uid;
+	//          1 2 3 4 5 6 7
+	if (parsed_uid > 0xFFFFFFFFFFFFFF)
+	{
+		alert("[parse_uid_to_int] The UID is more than 7 bytes, which is not possible according to the NTAG213 standard. Rubbish in, rubbish out!");
+	}
+	
+	return parsed_uid;
 }
 
 
@@ -264,26 +260,51 @@ function rotate_right_uint32(/*number*/ n, /*number*/ rotations)
 
 
 
+function write_uid_in_uint32array(uid, arr)
+{
+	// The base starts with the UID (7 bytes), but it needs to be 
+	// written in (sort of) little Endian format.
+	// 
+	// Example: if UID is 00:11:22:33:44:55:66 then base starts with:
+	//   base[0] == 33
+	//   base[1] == 22
+	//   base[2] == 11
+	//   base[3] == 00
+	//   base[4] == 66
+	//   base[5] == 55
+	//   base[6] == 44
+	//
+	const msb4 = Number(uid >> 24n);
+	const lsb3 = Number(uid & 0x00FFFFFFn);
+
+	// Write most significant bytes of UID.
+	arr[0] = swap_endianness_32(msb4);
+	
+	// Write Least significant 3 bytes of UID.
+	arr[1] &= 0xFF000000;
+	arr[1] |= swap_endianness_32(lsb3 << 8);
+}
+
+
+
 // Generate the password needed for accessing the NFC tag.
 // 
 // Input:
-//   uid: number
-function uid2password(/*number*/ uid)
+//   uid: BigInt
+function uid2password(/*BigInt*/ uid)
 {
 	console.log("[uid2password] uid=" + uid.toString(16).padStart(14, 0));
+	// Upgrade to BigInt (if it was a number/int).
+	uid = BigInt(uid);
 	
 	// The password is derived from the UID (7 bytes), the small 
 	// sentence "(c) Copyright LEGO 2014", and two trailing bytes 
 	// (0xAA and 0xAA).
 	let base = new Uint32Array(8);
 	
-	// Bitshifting operates on 32 bit int, but the UID is 7 bytes 
-	// (56 bits), so we have to use BigInt in order to access to 
-	// most significant 4 bytes.
-	base[0] = swap_endianness_32(Number(BigInt(uid) >> 24n));
+	write_uid_in_uint32array(uid, base);			// UUUU
+	base[1] |= swap_endianness_32(0x28);			// UUU(
 	
-	// Least significant 3 bytes and '('.
-	base[1] = swap_endianness_32((uid << 8) | 0x28);	// ...(
 	base[2] = swap_endianness_32(0x63292043);		// c) C
 	base[3] = swap_endianness_32(0x6f707972);		// opyr
 	base[4] = swap_endianness_32(0x69676874);		// ight
