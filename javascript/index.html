@@ -1,0 +1,373 @@
+
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LEGO Dimensions Tags</title>
+  <style>
+label
+{
+	float: left;
+	//display:block;
+	margin-bottom:10px;
+	width: 15ch;
+	font-weight: bold;
+}
+label:after { content: ": " }
+
+input[type=text]
+{
+	padding: 5px;
+	margin: 5px 0;
+	border-radius: 10px;
+}
+
+input[type=submit]
+{
+	border-radius: 10px;
+	padding: 5px 15px;
+	
+	background-color: #0693e3;
+	color: #fff;
+}
+  </style>
+</head>
+<body>
+
+<p>Enter the UID of the NFC tag (type: NTAG213):</p>
+
+<form name="pwdgen" id="pwdgen" action="#">
+  <p>
+    <label for="UID">UID</label>
+    <input placeholder="00:11:22:33:44:55:66" id="UID" name="UID" type="text">
+  </p>
+  
+  <p>
+    <label for="DIMENSIONS_ID">Character ID or vehicle/token ID</label>
+    <input value="1" id="DIMENSIONS_ID" name="DIMENSIONS_ID" type="text">
+  </p>
+  
+  <input type="submit">
+  <p>
+    <label for="password">Password</label>
+    <input id="password" name="password" type="text" disabled placeholder="password">
+  </p>
+  
+  <p>
+    <label for="TEA key">TEA key</label>
+    <input id="TEA key" name="TEA key" type="text" size="32" disabled placeholder="">
+  </p>
+  
+  <p>
+    <label for="answer">Answer</label>
+    <input id="answer" name="answer" type="text" disabled placeholder="answer">
+  </p>
+</form>
+
+<p>
+<small>
+Based on work by ags131, <a href="https://github.com/AlinaNova21/node-ld/">https://github.com/AlinaNova21/node-ld/</a>
+</small>
+</p>
+
+<script>
+document.querySelector('#pwdgen').addEventListener('submit', (event) => {
+	event.preventDefault();
+	
+	const form_data = new FormData(event.target);
+	let raw_uid = form_data.get('UID');
+	console.log("raw_uid=" + raw_uid);
+	
+	uid = parse_uid_to_int(raw_uid);
+	console.log("uid=" + uid + ", type=" + typeof(uid));
+	
+	let raw_dimensions_id = form_data.get('DIMENSIONS_ID');
+	console.log("raw_dimensions_id=" + raw_dimensions_id);
+	let dimensions_id = parseInt(raw_dimensions_id);
+	
+	password = uid2password(uid);
+	password_hex = uint322hexstr(password);
+	console.log("password=" + password_hex);
+	document.forms['pwdgen'].elements['password'].value = password_hex;
+
+	const key = tea_key(uid);
+	key_hex =
+		uint322hexstr(key[0]) +
+		uint322hexstr(key[1]) +
+		uint322hexstr(key[2]) +
+		uint322hexstr(key[3])
+		;
+	document.forms['pwdgen'].elements['TEA key'].value = key_hex;
+	
+	const block = new Uint32Array(2);
+	block[0] = dimensions_id;
+	block[1] = dimensions_id;
+	
+	const encrypted_block = tea_encrypt(block, key);
+	encrypted_block0_hex = uint322hexstr(encrypted_block[0]);
+	encrypted_block1_hex = uint322hexstr(encrypted_block[1]);
+	document.forms['pwdgen'].elements['answer'].value =
+		encrypted_block0_hex + encrypted_block1_hex;
+});
+
+
+
+function tea_key(uid)
+{
+	const key = new Uint32Array(4);
+	key[0] = scramble(uid, 3);
+	key[1] = scramble(uid, 4);
+	key[2] = scramble(uid, 5);
+	key[3] = scramble(uid, 6);
+	
+	let log_msg = "[tea_key]"
+		+ " key[0]=" + uint322hexstr(key[0])
+		+ " key[1]=" + uint322hexstr(key[1])
+		+ " key[2]=" + uint322hexstr(key[2])
+		+ " key[3]=" + uint322hexstr(key[3])
+		;
+	console.log(log_msg);
+	
+	return key;
+}
+
+
+
+function rotate_right_uint32(/*number*/ n, /*number*/ rotations)
+{
+	let part1 = n >>> rotations;
+	let part2 = n << (32 - rotations);
+	return (part1 | part2) >>> 0;
+}
+
+function rotate_left_uint32(/*number*/ n, /*number*/ rotations)
+{
+	return rotate_right_uint32(n, 32 - rotations);
+}
+
+
+
+function scramble(uid, count)
+{
+	if (count <= 0)
+	{
+		return 0;
+	}
+	
+	let base = new Uint32Array(8);
+	
+	// The base starts with the UID (7 bytes), but it needs to be 
+	// written in (sort of) little Endian format.
+	// 
+	// Example: if UID is 00:11:22:33:44:55:66 then base starts with:
+	//   base[0] == 33
+	//   base[1] == 22
+	//   base[2] == 11
+	//   base[3] == 00
+	//   base[4] == 66
+	//   base[5] == 55
+	//   base[6] == 44
+	//
+	
+	// Most significant 4 bytes. Bitshifting operates on 32 bit int, 
+	// but the UID is 7 bytes (56 bits), so we have to use BigInt in 
+	// order to access to most significant 4 bytes.
+	base[0] = swap_endianness_32(Number(BigInt(uid) >> 24n));
+	
+	// Least significant 3 bytes, and the first byte of the static 
+	// password/base (0xB7).
+	base[1] = swap_endianness_32((uid << 8) | 0xB7);
+	
+	base[2] = swap_endianness_32(0xD5D7E6E7);
+	base[3] = swap_endianness_32(0xBA3CA8D8);
+	base[4] = swap_endianness_32(0x754768CF);
+	base[5] = swap_endianness_32(0x23E9FEAA);
+	
+	// Another weird way of LEGO to obfuscate things: obfuscate 
+	// based on the count.
+	base[count - 1] &= 0x00FFFFFF;
+	base[count - 1] |= 0xAA000000;
+	
+	let v2 = 0;
+	for (let n = 0; n < count; ++n)
+	{
+		let v4 = rotate_left_uint32(v2, 7);
+		let v5 = rotate_right_uint32(v2, 10);
+		let b  = base[n];
+		v2 = (b + v4 + v5 - v2) >>> 0;
+ 		
+		let log_msg = "[scramble]"
+			+ " n=" + n
+			+ " v4=" + uint322hexstr(v4)
+			+ " v5=" + uint322hexstr(v5)
+			+ " b=" + uint322hexstr(b)
+			+ " v2=" + uint322hexstr(v2)
+			;
+		console.log(log_msg);
+	}
+	
+	return v2;
+}
+
+
+
+function parse_uid_to_int(uid)
+{
+	// Remove leading 0x.
+	uid = uid.replace('/^0x/g', '');
+	
+	// Remove all unwanted characters, keep only hexdigits.
+	uid = uid.replace('/[^0-9A-Fa-f]/g', '');
+	
+	uid = parseInt(uid, 16);
+	
+	return uid;
+}
+
+
+
+function swap_endianness_32(/*number*/ uint32)
+{
+	return (
+			((uint32 & 0x000000FF) <<  24)
+			|
+			((uint32 & 0x0000FF00) <<   8)
+			|
+			((uint32 & 0x00FF0000) >>>  8)
+			|
+			((uint32 & 0xFF000000) >>> 24)
+		) >>> 0;
+		;
+}
+
+function uint322hexstr(/*number*/ int)
+{
+	return int.toString(16).padStart(8, 0);
+}
+
+// Bitwise rotate right for a uint32 number.
+// 
+// Input:
+//   n: the integer to rotate
+//   rotations: the number of right rotations to perform
+function rotate_right_uint32(/*number*/ n, /*number*/ rotations)
+{
+	let part1 = n >>> rotations;
+	
+	// Rotating to the right is basically the same as rotating to the 
+	// left.
+	let part2 = n << (32 - rotations);
+	
+	return (part1 | part2) >>> 0;
+}
+
+
+
+// Generate the password needed for accessing the NFC tag.
+// 
+// Input:
+//   uid: number
+function uid2password(/*number*/ uid)
+{
+	console.log("[uid2password] uid=" + uid.toString(16).padStart(14, 0));
+	
+	// The password is derived from the UID (7 bytes), the small 
+	// sentence "(c) Copyright LEGO 2014", and two trailing bytes 
+	// (0xAA and 0xAA).
+	let base = new Uint32Array(8);
+	
+	// Bitshifting operates on 32 bit int, but the UID is 7 bytes 
+	// (56 bits), so we have to use BigInt in order to access to 
+	// most significant 4 bytes.
+	base[0] = swap_endianness_32(Number(BigInt(uid) >> 24n));
+	
+	// Least significant 3 bytes and '('.
+	base[1] = swap_endianness_32((uid << 8) | 0x28);	// ...(
+	base[2] = swap_endianness_32(0x63292043);		// c) C
+	base[3] = swap_endianness_32(0x6f707972);		// opyr
+	base[4] = swap_endianness_32(0x69676874);		// ight
+	base[5] = swap_endianness_32(0x204c4547);		//  LEG
+	base[6] = swap_endianness_32(0x4f203230);		// O 20
+	base[7] = swap_endianness_32(0x3134aaaa);		// 14..
+	
+	console.log("[uid2password] base[0]=" + uint322hexstr(base[0]));
+	console.log("[uid2password] base[1]=" + uint322hexstr(base[1]));
+	console.log("[uid2password] base[2]=" + uint322hexstr(base[2]));
+	console.log("[uid2password] base[3]=" + uint322hexstr(base[3]));
+	console.log("[uid2password] base[4]=" + uint322hexstr(base[4]));
+	console.log("[uid2password] base[5]=" + uint322hexstr(base[5]));
+	console.log("[uid2password] base[6]=" + uint322hexstr(base[6]));
+	console.log("[uid2password] base[7]=" + uint322hexstr(base[7]));
+	
+	let v2 = 0;
+	for (let n = 0; n < 8; ++n)
+	{
+		let v4 = rotate_right_uint32(v2, 25);
+		let v5 = rotate_right_uint32(v2, 10);
+		let b = base[n];
+		v2 = (b + v4 + v5 - v2);
+		v2 >>>= 0;
+		
+		const log_msg = "[uid2password]"
+			+ " n=" + n
+			+ " v4=" + v4.toString(16).padStart(8, 0)
+			+ " v5=" + v5.toString(16).padStart(8, 0)
+			+ " b=" + b.toString(16).padStart(8, 0)
+			+ " v2=" + v2.toString(16).padStart(8, 0)
+			;
+		console.log(log_msg);
+	}
+	
+	return swap_endianness_32(v2)
+}
+
+
+
+function tea_encrypt(block, key)
+{
+	const delta = 0x9E3779B9;
+	let sum = 0;
+	v0 = block[0];
+	v1 = block[1];
+	
+	k0 = key[0];
+	k1 = key[1];
+	k2 = key[2];
+	k3 = key[3];
+	for (let n = 0; n < 32; ++n)
+	{
+		let log_msg = "[tea_encrypt]"
+			+ " n=" + n.toString(16).padStart(2, 0)
+			+ " sum=" + sum.toString(16).padStart(8, 0)
+			+ " v0=" + v0.toString(16).padStart(8, 0)
+			+ " v1=" + v1.toString(16).padStart(8, 0)
+			+ " k0=" + k0.toString(16).padStart(8, 0)
+			+ " k1=" + k1.toString(16).padStart(8, 0)
+			+ " k2=" + k2.toString(16).padStart(8, 0)
+			+ " k3=" + k3.toString(16).padStart(8, 0)
+			;
+		console.log(log_msg);
+		
+		sum += delta;
+		
+		v0 += ((v1 << 4) + k0) ^ (v1 + sum) ^ ((v1 >>> 5) + k1);
+		v1 += ((v0 << 4) + k2) ^ (v0 + sum) ^ ((v0 >>> 5) + k3);
+		
+		// Convert from signed to unsigned.
+		// 
+		// Source: https://stackoverflow.com/questions/22335853/hack-to-convert-javascript-number-to-uint32
+		sum >>>= 0;
+		v0 >>>= 0;
+		v1 >>>= 0;
+	}
+	
+	let encrypted_block = new Uint32Array(2);
+	encrypted_block[0] = swap_endianness_32(v0);
+	encrypted_block[1] = swap_endianness_32(v1);
+	
+	return encrypted_block;
+}
+</script>
+
+</body>
