@@ -22,6 +22,9 @@ if args.verbose:
     logging.basicConfig(level=logging.DEBUG)
 else:
     logging.basicConfig(level=logging.INFO)
+console_handler = logging.StreamHandler()
+logfmt = logging.Formatter(fmt='[%(asctime)s %(filename)s->%(funcName)s:%(lineno)s %(message)s')
+logging.getLogger().handlers[0].setFormatter(logfmt)
 
 ## Validate UID.
 logging.debug(f"args.uid={args.uid}")
