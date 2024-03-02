@@ -1,6 +1,7 @@
 import logging
 import struct
 from   tea import TEA
+from   typing import Self
 
 
 
@@ -14,7 +15,7 @@ ags131 for code on/in https://github.com/AlinaNova21/node-ld/
 '''
 
 
-def _rotate_right(n, rotations=1, width=8):
+def _rotate_right(n: int, rotations: int=1, width: int=8):
     part1 = n >> rotations
     
     ## Rotating to the right is almost the same as rotating to 
@@ -22,9 +23,12 @@ def _rotate_right(n, rotations=1, width=8):
     part2 = n << (width - rotations)
     return (part1 | part2) & ((1 << width) - 1)
     
-def _rotate_right_dword(dword, rotations):
+def _rotate_right_dword(dword: int, rotations: int):
     dword_size = 32
     return _rotate_right(dword, rotations, width=dword_size)
+
+def swap_endianness_32(data32: bytes) -> bytes:
+    return int.from_bytes(bytes=data32, byteorder='little').to_bytes(length=4, byteorder='big', signed=False)
 
 
 
@@ -44,21 +48,24 @@ class Tag:
         b"\x23\xE9\xFE\xAA"
     )
     
-    def __init__(self, uid=None):
-        self._uid = uid
+    def __init__(self: Self, uid: bytes) -> None:
+        self.uid = uid
     
     @property
-    def uid(self):
+    def uid(self: Self) -> bytes:
         return self._uid
     
     @uid.setter
-    def uid(self, uid):
+    def uid(self: Self, uid: bytes) -> None:
+        len_uid = len(uid)
+        assert len_uid == 7, "The UID is always 7 bytes, not f{len_uid}."
+        
         self._uid = uid
     
     @property
-    def password(self):
+    def password(self: Self) -> bytes:
         base = bytearray(Tag.password_base)
-        base[0:7] = self._uid.to_bytes(length=7, byteorder='big')
+        base[0:7] = self._uid
         for n in range(8):
             logging.debug(f"n={n} base[{n * 4:2d}:{(n+1)*4:2d}]={base[n * 4 : (n + 1) * 4].hex()} little_endian={int.from_bytes(base[n * 4 : (n + 1) * 4], byteorder='little', signed=False):08x}")
         
@@ -76,33 +83,24 @@ class Tag:
             #logging.debug(f"n={n}  b={b:032b}")
             #logging.debug(f"n={n} v2={v2_old:032b}")
         
-        ## Convert v2 to little endian.
-        return int.from_bytes(struct.pack('>I', v2), byteorder='little', signed=False)
+        return int.to_bytes(v2, length=4, byteorder='little')
     
     @property
-    def tea_key(self):
+    def tea_key(self: Self) -> bytes:
         s3 = self.scramble(3)
         s4 = self.scramble(4)
         s5 = self.scramble(5)
         s6 = self.scramble(6)
-        logging.debug(f"s3={s3:#010x} s4={s4:#010x} s5={s5:#010x} s6={s6:#010x}")
-        return (
-            s3 << 96
-            |
-            s4 << 64
-            |
-            s5 << 32
-            |
-            s6 <<  0
-        )
+        logging.debug(f"s3={s3.hex()} s4={s4.hex()} s5={s5.hex()} s6={s6.hex()}")
+        return s3 + s4 + s5 + s6
     
-    def scramble(self, cnt):
+    def scramble(self: Self, cnt: int) -> bytes:
         base = bytearray(Tag.scramble_base)
-        base[0:7] = self._uid.to_bytes(length=7, byteorder='big')
+        base[0:7] = self._uid
         if cnt <= 0:
-            return 0
+            return int.to_bytes(0, length=4, byteorder='big')
         base[(cnt * 4) - 1] = 0xAA
-        logging.debug(f"cnt={cnt}, uid={self._uid:014x} base={base}")
+        logging.debug(f"cnt={cnt}, uid={self.uid.hex()} base={base}")
         
         v2 = 0
         for n in range(cnt):
@@ -112,17 +110,13 @@ class Tag:
             v2 = (b + v4 + v5 - v2) & 0xFFFFFFFF
             logging.debug(f"n={n} v4={v4:08x} v5={v5:08x} b={b:08x} v2={v2:08x}")
         
-        return v2
-        ## Convert v2 to little endian.
-        #return int.from_bytes(struct.pack('>I', v2), byteorder='little', signed=False)
+        return int.to_bytes(v2, length=4, byteorder='big')
     
     ## Characters start at 1.
     ## Vehicles/tokens start at 1000.
-    def encrypt(self, lego_dimesions_id):
-        tea_key = int.to_bytes(self.tea_key, 16)
-        logging.debug(f"tea_key={self.tea_key:#010x}")
-        logging.debug(f"tea_key={tea_key}")
-        tea = TEA(tea_key)
+    def encrypt(self: Self, lego_dimesions_id: int) -> bytes:
+        logging.debug(f"tea_key={self.tea_key.hex()}")
+        tea = TEA(self.tea_key)
         block = bytearray(8)
         ## Weird, x86_64 is little Endian.
         block[0:4] = int.to_bytes(lego_dimesions_id, length=4, byteorder='big', signed=False)
@@ -132,22 +126,17 @@ class Tag:
         encrypted_block = tea.encrypt(block=block, rounds=32, byteorder='big')
         
         ## Note: for two bytes objects, "+" means concatenate.
-        shuffled_encrypted_block = Tag.swap_endianness_32(encrypted_block[0:4]) \
-                                 + Tag.swap_endianness_32(encrypted_block[4:8])
+        shuffled_encrypted_block = swap_endianness_32(encrypted_block[0:4]) \
+                                 + swap_endianness_32(encrypted_block[4:8])
         return shuffled_encrypted_block
     
-    def decrypt(self, data):
-        tea_key = int.to_bytes(self.tea_key, 16)
-        logging.debug(f"tea_key={self.tea_key:#010x}")
-        logging.debug(f"tea_key={tea_key}")
-        tea = TEA(tea_key)
+    def decrypt(self: Self, data: bytes) -> bytes:
+        logging.debug(f"tea_key={self.tea_key.hex()}")
+        tea = TEA(self.tea_key)
         
         ## Note: for two bytes objects, "+" means concatenate.
-        shuffled_data = Tag.swap_endianness_32(data[0:4]) \
-                      + Tag.swap_endianness_32(data[4:8])
+        shuffled_data = swap_endianness_32(data[0:4]) \
+                      + swap_endianness_32(data[4:8])
         
         buf = tea.decrypt(block=shuffled_data, rounds=32, byteorder='big')
         return buf
-        
-    def swap_endianness_32(data32):
-        return int.from_bytes(bytes=data32, byteorder='little').to_bytes(length=4, byteorder='big', signed=False)

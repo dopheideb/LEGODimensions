@@ -86,7 +86,8 @@ class TEA:
         
         v0 = bytes_to_uint32(bytes=block[0:4])
         v1 = bytes_to_uint32(bytes=block[4:8])
-        sum = 0
+        sum = np.array(0).astype(dtype=np.uint32)
+        
         k0 = bytes_to_uint32(bytes=self._key[0:4])
         k1 = bytes_to_uint32(bytes=self._key[4:8])
         k2 = bytes_to_uint32(bytes=self._key[8:12])
