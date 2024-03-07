@@ -81,18 +81,18 @@ document.querySelector('#pwdgen').addEventListener('submit', (event) => {
 	
 	const form_data = new FormData(event.target);
 	let raw_uid = form_data.get('UID');
-	console.log("raw_uid=" + raw_uid);
+	console.log("[submit] raw_uid=" + raw_uid);
 	
 	uid = parse_uid_to_int(raw_uid);
-	console.log("uid=" + uid.toString(16).padStart(14, 0) + ", type=" + typeof(uid));
+	console.log("[submit] uid=" + uid.toString(16).padStart(14, 0) + ", type=" + typeof(uid));
 	
 	let raw_dimensions_id = form_data.get('DIMENSIONS_ID');
-	console.log("raw_dimensions_id=" + raw_dimensions_id);
+	console.log("[submit] raw_dimensions_id=" + raw_dimensions_id);
 	let dimensions_id = parseInt(raw_dimensions_id);
 	
 	password = uid2password(uid);
 	password_hex = uint322hexstr(password);
-	console.log("password=" + password_hex);
+	console.log("[submit] password=" + password_hex);
 	document.forms['pwdgen'].elements['password'].value = password_hex;
 
 	const key = tea_key(uid);
@@ -106,7 +106,7 @@ document.querySelector('#pwdgen').addEventListener('submit', (event) => {
 	
 	if (dimensions_id < 1000)
 	{
-		console.log("This is a character, not a vehicle/token.");
+		console.log("[submit] This is a character, not a vehicle/token.");
 		document.forms['pwdgen'].elements['Vehicle tag'].value = 'N/A';
 		
 		const character_block = new Uint32Array(2);
@@ -125,7 +125,7 @@ document.querySelector('#pwdgen').addEventListener('submit', (event) => {
 	}
 	else
 	{
-		console.log("This is a vehicle/token, not a character.");
+		console.log("[submit] This is a vehicle/token, not a character.");
 		document.forms['pwdgen'].elements['Empty tag'].value = 'N/A';
 		document.forms['pwdgen'].elements['Vehicle tag'].value =
 			"1B:" + password_hex +
@@ -223,7 +223,7 @@ function parse_uid_to_int(uid)
 	uid = uid.replace(/^0x/g, '');
 	
 	// Remove all unwanted characters, keep only hexdigits.
-	uid = uid.replace('/[^0-9A-Fa-f]/g', '');
+	uid = uid.replace(/[^0-9A-Fa-f]/g, '');
 	console.log("[parse_uid_to_int] uid=" + uid.toString(16));
 	
 	// Note: do not use parseInt() here, because of precision. A 
@@ -232,7 +232,7 @@ function parse_uid_to_int(uid)
 	//uid = parseInt(uid, 16);
 	parsed_uid = BigInt("0x" + uid);
 	
-	//          1 2 3 4 5 6 7
+	//                  1 2 3 4 5 6 7
 	if (parsed_uid > 0xFFFFFFFFFFFFFF)
 	{
 		alert("[parse_uid_to_int] The UID is more than 7 bytes, which is not possible according to the NTAG213 standard. Rubbish in, rubbish out!");
