@@ -1,0 +1,3830 @@
+{
+    "0": {
+        "id": 0,
+        "name": "Empty",
+        "type": "token",
+        "rebuild": 0
+    },
+    "1": {
+        "id": 1,
+        "type": "character",
+        "name": "Batman",
+        "world": "DC Comics"
+    },
+    "Batman": {
+        "id": 1,
+        "type": "character",
+        "name": "Batman",
+        "world": "DC Comics"
+    },
+    "2": {
+        "id": 2,
+        "type": "character",
+        "name": "Gandalf",
+        "world": "Lord of the Rings"
+    },
+    "Gandalf": {
+        "id": 2,
+        "type": "character",
+        "name": "Gandalf",
+        "world": "Lord of the Rings"
+    },
+    "3": {
+        "id": 3,
+        "type": "character",
+        "name": "Wyldstyle",
+        "world": "The LEGO Movie"
+    },
+    "Wyldstyle": {
+        "id": 3,
+        "type": "character",
+        "name": "Wyldstyle",
+        "world": "The LEGO Movie"
+    },
+    "4": {
+        "id": 4,
+        "type": "character",
+        "name": "Aquaman",
+        "world": "DC Comics"
+    },
+    "Aquaman": {
+        "id": 4,
+        "type": "character",
+        "name": "Aquaman",
+        "world": "DC Comics"
+    },
+    "5": {
+        "id": 5,
+        "type": "character",
+        "name": "Bad Cop",
+        "world": "The LEGO Movie"
+    },
+    "Bad Cop": {
+        "id": 5,
+        "type": "character",
+        "name": "Bad Cop",
+        "world": "The LEGO Movie"
+    },
+    "6": {
+        "id": 6,
+        "type": "character",
+        "name": "Bane",
+        "world": "DC Comics"
+    },
+    "Bane": {
+        "id": 6,
+        "type": "character",
+        "name": "Bane",
+        "world": "DC Comics"
+    },
+    "7": {
+        "id": 7,
+        "type": "character",
+        "name": "Bart",
+        "world": "The Simpsons"
+    },
+    "Bart": {
+        "id": 7,
+        "type": "character",
+        "name": "Bart",
+        "world": "The Simpsons"
+    },
+    "8": {
+        "id": 8,
+        "type": "character",
+        "name": "Benny",
+        "world": "The LEGO Movie"
+    },
+    "Benny": {
+        "id": 8,
+        "type": "character",
+        "name": "Benny",
+        "world": "The LEGO Movie"
+    },
+    "9": {
+        "id": 9,
+        "type": "character",
+        "name": "Chell",
+        "world": "Portal 2"
+    },
+    "Chell": {
+        "id": 9,
+        "type": "character",
+        "name": "Chell",
+        "world": "Portal 2"
+    },
+    "10": {
+        "id": 10,
+        "type": "character",
+        "name": "Cole",
+        "world": "Ninjago"
+    },
+    "Cole": {
+        "id": 10,
+        "type": "character",
+        "name": "Cole",
+        "world": "Ninjago"
+    },
+    "11": {
+        "id": 11,
+        "type": "character",
+        "name": "Cragger",
+        "world": "Legends of Chima"
+    },
+    "Cragger": {
+        "id": 11,
+        "type": "character",
+        "name": "Cragger",
+        "world": "Legends of Chima"
+    },
+    "12": {
+        "id": 12,
+        "type": "character",
+        "name": "Cyborg",
+        "world": "DC Comics"
+    },
+    "Cyborg": {
+        "id": 12,
+        "type": "character",
+        "name": "Cyborg",
+        "world": "DC Comics"
+    },
+    "13": {
+        "id": 13,
+        "type": "character",
+        "name": "Cyberman",
+        "world": "Doctor Who"
+    },
+    "Cyberman": {
+        "id": 13,
+        "type": "character",
+        "name": "Cyberman",
+        "world": "Doctor Who"
+    },
+    "14": {
+        "id": 14,
+        "type": "character",
+        "name": "Doc Brown",
+        "world": "Back to the Future"
+    },
+    "Doc Brown": {
+        "id": 14,
+        "type": "character",
+        "name": "Doc Brown",
+        "world": "Back to the Future"
+    },
+    "15": {
+        "id": 15,
+        "type": "character",
+        "name": "The Doctor",
+        "world": "Doctor Who"
+    },
+    "The Doctor": {
+        "id": 15,
+        "type": "character",
+        "name": "The Doctor",
+        "world": "Doctor Who"
+    },
+    "16": {
+        "id": 16,
+        "type": "character",
+        "name": "Emmet",
+        "world": "The LEGO Movie"
+    },
+    "Emmet": {
+        "id": 16,
+        "type": "character",
+        "name": "Emmet",
+        "world": "The LEGO Movie"
+    },
+    "17": {
+        "id": 17,
+        "type": "character",
+        "name": "Eris",
+        "world": "Legends of Chima"
+    },
+    "Eris": {
+        "id": 17,
+        "type": "character",
+        "name": "Eris",
+        "world": "Legends of Chima"
+    },
+    "18": {
+        "id": 18,
+        "type": "character",
+        "name": "Gimli",
+        "world": "Lord of the Rings"
+    },
+    "Gimli": {
+        "id": 18,
+        "type": "character",
+        "name": "Gimli",
+        "world": "Lord of the Rings"
+    },
+    "19": {
+        "id": 19,
+        "type": "character",
+        "name": "Smeagol",
+        "world": "Lord of the Rings"
+    },
+    "Smeagol": {
+        "id": 19,
+        "type": "character",
+        "name": "Smeagol",
+        "world": "Lord of the Rings"
+    },
+    "20": {
+        "id": 20,
+        "type": "character",
+        "name": "Harley Quinn",
+        "world": "DC Comics"
+    },
+    "Harley Quinn": {
+        "id": 20,
+        "type": "character",
+        "name": "Harley Quinn",
+        "world": "DC Comics"
+    },
+    "21": {
+        "id": 21,
+        "type": "character",
+        "name": "Homer",
+        "world": "The Simpsons"
+    },
+    "Homer": {
+        "id": 21,
+        "type": "character",
+        "name": "Homer",
+        "world": "The Simpsons"
+    },
+    "22": {
+        "id": 22,
+        "type": "character",
+        "name": "Jay",
+        "world": "Ninjago"
+    },
+    "Jay": {
+        "id": 22,
+        "type": "character",
+        "name": "Jay",
+        "world": "Ninjago"
+    },
+    "23": {
+        "id": 23,
+        "type": "character",
+        "name": "Joker",
+        "world": "DC Comics"
+    },
+    "Joker": {
+        "id": 23,
+        "type": "character",
+        "name": "Joker",
+        "world": "DC Comics"
+    },
+    "24": {
+        "id": 24,
+        "type": "character",
+        "name": "Kai",
+        "world": "Ninjago"
+    },
+    "Kai": {
+        "id": 24,
+        "type": "character",
+        "name": "Kai",
+        "world": "Ninjago"
+    },
+    "25": {
+        "id": 25,
+        "type": "character",
+        "name": "ACU",
+        "world": "Jurrasic Park"
+    },
+    "ACU": {
+        "id": 25,
+        "type": "character",
+        "name": "ACU",
+        "world": "Jurrasic Park"
+    },
+    "26": {
+        "id": 26,
+        "type": "character",
+        "name": "Gamer Kid",
+        "world": "Midway Arcade"
+    },
+    "Gamer Kid": {
+        "id": 26,
+        "type": "character",
+        "name": "Gamer Kid",
+        "world": "Midway Arcade"
+    },
+    "27": {
+        "id": 27,
+        "type": "character",
+        "name": "Krusty",
+        "world": "The Simpsons"
+    },
+    "Krusty": {
+        "id": 27,
+        "type": "character",
+        "name": "Krusty",
+        "world": "The Simpsons"
+    },
+    "28": {
+        "id": 28,
+        "type": "character",
+        "name": "Laval",
+        "world": "Legends of Chima"
+    },
+    "Laval": {
+        "id": 28,
+        "type": "character",
+        "name": "Laval",
+        "world": "Legends of Chima"
+    },
+    "29": {
+        "id": 29,
+        "type": "character",
+        "name": "Legolas",
+        "world": "Lord of the Rings"
+    },
+    "Legolas": {
+        "id": 29,
+        "type": "character",
+        "name": "Legolas",
+        "world": "Lord of the Rings"
+    },
+    "30": {
+        "id": 30,
+        "type": "character",
+        "name": "Lloyd",
+        "world": "Ninjago"
+    },
+    "Lloyd": {
+        "id": 30,
+        "type": "character",
+        "name": "Lloyd",
+        "world": "Ninjago"
+    },
+    "31": {
+        "id": 31,
+        "type": "character",
+        "name": "Marty Mcfly",
+        "world": "Back to the Future"
+    },
+    "Marty Mcfly": {
+        "id": 31,
+        "type": "character",
+        "name": "Marty Mcfly",
+        "world": "Back to the Future"
+    },
+    "32": {
+        "id": 32,
+        "type": "character",
+        "name": "Nya",
+        "world": "Ninjago"
+    },
+    "Nya": {
+        "id": 32,
+        "type": "character",
+        "name": "Nya",
+        "world": "Ninjago"
+    },
+    "33": {
+        "id": 33,
+        "type": "character",
+        "name": "Owen",
+        "world": "Jurrasic Park"
+    },
+    "Owen": {
+        "id": 33,
+        "type": "character",
+        "name": "Owen",
+        "world": "Jurrasic Park"
+    },
+    "34": {
+        "id": 34,
+        "type": "character",
+        "name": "Peter Venkman",
+        "world": "Ghostbusters"
+    },
+    "Peter Venkman": {
+        "id": 34,
+        "type": "character",
+        "name": "Peter Venkman",
+        "world": "Ghostbusters"
+    },
+    "35": {
+        "id": 35,
+        "type": "character",
+        "name": "Slimer",
+        "world": "Ghostbusters"
+    },
+    "Slimer": {
+        "id": 35,
+        "type": "character",
+        "name": "Slimer",
+        "world": "Ghostbusters"
+    },
+    "36": {
+        "id": 36,
+        "type": "character",
+        "name": "Scooby Doo",
+        "world": "Scooby-Doo"
+    },
+    "Scooby Doo": {
+        "id": 36,
+        "type": "character",
+        "name": "Scooby Doo",
+        "world": "Scooby-Doo"
+    },
+    "37": {
+        "id": 37,
+        "type": "character",
+        "name": "SenseiWu",
+        "world": "Ninjago"
+    },
+    "SenseiWu": {
+        "id": 37,
+        "type": "character",
+        "name": "SenseiWu",
+        "world": "Ninjago"
+    },
+    "38": {
+        "id": 38,
+        "type": "character",
+        "name": "Shaggy",
+        "world": "Scooby-Doo"
+    },
+    "Shaggy": {
+        "id": 38,
+        "type": "character",
+        "name": "Shaggy",
+        "world": "Scooby-Doo"
+    },
+    "39": {
+        "id": 39,
+        "type": "character",
+        "name": "Stay Puft",
+        "world": "Ghostbusters"
+    },
+    "Stay Puft": {
+        "id": 39,
+        "type": "character",
+        "name": "Stay Puft",
+        "world": "Ghostbusters"
+    },
+    "40": {
+        "id": 40,
+        "type": "character",
+        "name": "Superman",
+        "world": "DC Comics"
+    },
+    "Superman": {
+        "id": 40,
+        "type": "character",
+        "name": "Superman",
+        "world": "DC Comics"
+    },
+    "41": {
+        "id": 41,
+        "type": "character",
+        "name": "Unikitty",
+        "world": "The LEGO Movie"
+    },
+    "Unikitty": {
+        "id": 41,
+        "type": "character",
+        "name": "Unikitty",
+        "world": "The LEGO Movie"
+    },
+    "42": {
+        "id": 42,
+        "type": "character",
+        "name": "Wicked Witch",
+        "world": "Wizard of OZ"
+    },
+    "Wicked Witch": {
+        "id": 42,
+        "type": "character",
+        "name": "Wicked Witch",
+        "world": "Wizard of OZ"
+    },
+    "43": {
+        "id": 43,
+        "type": "character",
+        "name": "Superwoman",
+        "world": "DC Comics"
+    },
+    "Superwoman": {
+        "id": 43,
+        "type": "character",
+        "name": "Superwoman",
+        "world": "DC Comics"
+    },
+    "44": {
+        "id": 44,
+        "type": "character",
+        "name": "Zane",
+        "world": "Ninjago"
+    },
+    "Zane": {
+        "id": 44,
+        "type": "character",
+        "name": "Zane",
+        "world": "Ninjago"
+    },
+    "45": {
+        "id": 45,
+        "type": "character",
+        "name": "Green Arrow",
+        "world": "DC Comics"
+    },
+    "Green Arrow": {
+        "id": 45,
+        "type": "character",
+        "name": "Green Arrow",
+        "world": "DC Comics"
+    },
+    "46": {
+        "id": 46,
+        "type": "character",
+        "name": "Supergirl",
+        "world": "DC Comics"
+    },
+    "Supergirl": {
+        "id": 46,
+        "type": "character",
+        "name": "Supergirl",
+        "world": "DC Comics"
+    },
+    "47": {
+        "id": 47,
+        "type": "character",
+        "name": "Abby Yates",
+        "world": "Ghostbuster 2016"
+    },
+    "Abby Yates": {
+        "id": 47,
+        "type": "character",
+        "name": "Abby Yates",
+        "world": "Ghostbuster 2016"
+    },
+    "48": {
+        "id": 48,
+        "type": "character",
+        "name": "Finn",
+        "world": "Adventure Time"
+    },
+    "Finn": {
+        "id": 48,
+        "type": "character",
+        "name": "Finn",
+        "world": "Adventure Time"
+    },
+    "49": {
+        "id": 49,
+        "type": "character",
+        "name": "Ethan Hunt",
+        "world": "Mission Impossible"
+    },
+    "Ethan Hunt": {
+        "id": 49,
+        "type": "character",
+        "name": "Ethan Hunt",
+        "world": "Mission Impossible"
+    },
+    "50": {
+        "id": 50,
+        "type": "character",
+        "name": "Lumpy Space Princess",
+        "world": "Adventure Time"
+    },
+    "Lumpy Space Princess": {
+        "id": 50,
+        "type": "character",
+        "name": "Lumpy Space Princess",
+        "world": "Adventure Time"
+    },
+    "51": {
+        "id": 51,
+        "type": "character",
+        "name": "Jake",
+        "world": "Adventure Time"
+    },
+    "Jake": {
+        "id": 51,
+        "type": "character",
+        "name": "Jake",
+        "world": "Adventure Time"
+    },
+    "52": {
+        "id": 52,
+        "type": "character",
+        "name": "Harry Potter",
+        "world": "Harry Potter"
+    },
+    "Harry Potter": {
+        "id": 52,
+        "type": "character",
+        "name": "Harry Potter",
+        "world": "Harry Potter"
+    },
+    "53": {
+        "id": 53,
+        "type": "character",
+        "name": "Voldemort",
+        "world": "Harry Potter"
+    },
+    "Voldemort": {
+        "id": 53,
+        "type": "character",
+        "name": "Voldemort",
+        "world": "Harry Potter"
+    },
+    "54": {
+        "id": 54,
+        "type": "character",
+        "name": "Michael Knight",
+        "world": "Knight Rider"
+    },
+    "Michael Knight": {
+        "id": 54,
+        "type": "character",
+        "name": "Michael Knight",
+        "world": "Knight Rider"
+    },
+    "55": {
+        "id": 55,
+        "type": "character",
+        "name": "B.A. Baracus",
+        "world": "A-Team"
+    },
+    "B.A. Baracus": {
+        "id": 55,
+        "type": "character",
+        "name": "B.A. Baracus",
+        "world": "A-Team"
+    },
+    "56": {
+        "id": 56,
+        "type": "character",
+        "name": "Newt",
+        "world": "Fantastic Beasts"
+    },
+    "Newt": {
+        "id": 56,
+        "type": "character",
+        "name": "Newt",
+        "world": "Fantastic Beasts"
+    },
+    "57": {
+        "id": 57,
+        "type": "character",
+        "name": "Sonic",
+        "world": "Sonic"
+    },
+    "Sonic": {
+        "id": 57,
+        "type": "character",
+        "name": "Sonic",
+        "world": "Sonic"
+    },
+    "58": {
+        "id": 58,
+        "type": "character",
+        "name": "Future Update",
+        "world": "N/A"
+    },
+    "Future Update": {
+        "id": 58,
+        "type": "character",
+        "name": "Future Update",
+        "world": "N/A"
+    },
+    "59": {
+        "id": 59,
+        "type": "character",
+        "name": "Gizmo",
+        "world": "Gremlins"
+    },
+    "Gizmo": {
+        "id": 59,
+        "type": "character",
+        "name": "Gizmo",
+        "world": "Gremlins"
+    },
+    "60": {
+        "id": 60,
+        "type": "character",
+        "name": "Stripe",
+        "world": "Gremlins"
+    },
+    "Stripe": {
+        "id": 60,
+        "type": "character",
+        "name": "Stripe",
+        "world": "Gremlins"
+    },
+    "61": {
+        "id": 61,
+        "type": "character",
+        "name": "E.T.",
+        "world": "E.T."
+    },
+    "E.T.": {
+        "id": 61,
+        "type": "character",
+        "name": "E.T.",
+        "world": "E.T."
+    },
+    "62": {
+        "id": 62,
+        "type": "character",
+        "name": "Tina",
+        "world": "Fantastic Beasts"
+    },
+    "Tina": {
+        "id": 62,
+        "type": "character",
+        "name": "Tina",
+        "world": "Fantastic Beasts"
+    },
+    "63": {
+        "id": 63,
+        "type": "character",
+        "name": "Marceline",
+        "world": "Adventure Time"
+    },
+    "Marceline": {
+        "id": 63,
+        "type": "character",
+        "name": "Marceline",
+        "world": "Adventure Time"
+    },
+    "64": {
+        "id": 64,
+        "type": "character",
+        "name": "Bat Girl",
+        "world": "LEGO Batman Movie"
+    },
+    "Bat Girl": {
+        "id": 64,
+        "type": "character",
+        "name": "Bat Girl",
+        "world": "LEGO Batman Movie"
+    },
+    "65": {
+        "id": 65,
+        "type": "character",
+        "name": "Robin",
+        "world": "LEGO Batman Movie"
+    },
+    "Robin": {
+        "id": 65,
+        "type": "character",
+        "name": "Robin",
+        "world": "LEGO Batman Movie"
+    },
+    "66": {
+        "id": 66,
+        "type": "character",
+        "name": "Sloth",
+        "world": "Goonies"
+    },
+    "Sloth": {
+        "id": 66,
+        "type": "character",
+        "name": "Sloth",
+        "world": "Goonies"
+    },
+    "67": {
+        "id": 67,
+        "type": "character",
+        "name": "Hermione Granger",
+        "world": "Harry Potter"
+    },
+    "Hermione Granger": {
+        "id": 67,
+        "type": "character",
+        "name": "Hermione Granger",
+        "world": "Harry Potter"
+    },
+    "68": {
+        "id": 68,
+        "type": "character",
+        "name": "Chase McCain",
+        "world": "LEGO City"
+    },
+    "Chase McCain": {
+        "id": 68,
+        "type": "character",
+        "name": "Chase McCain",
+        "world": "LEGO City"
+    },
+    "69": {
+        "id": 69,
+        "type": "character",
+        "name": "Excalibur Batman",
+        "world": "lego Batman Movie"
+    },
+    "Excalibur Batman": {
+        "id": 69,
+        "type": "character",
+        "name": "Excalibur Batman",
+        "world": "lego Batman Movie"
+    },
+    "70": {
+        "id": 70,
+        "type": "character",
+        "name": "Raven",
+        "world": "Teen Titans Go"
+    },
+    "Raven": {
+        "id": 70,
+        "type": "character",
+        "name": "Raven",
+        "world": "Teen Titans Go"
+    },
+    "71": {
+        "id": 71,
+        "type": "character",
+        "name": "Beast Boy",
+        "world": "Teen Titans Go"
+    },
+    "Beast Boy": {
+        "id": 71,
+        "type": "character",
+        "name": "Beast Boy",
+        "world": "Teen Titans Go"
+    },
+    "72": {
+        "id": 72,
+        "type": "character",
+        "name": "Beetle Juice",
+        "world": "Beetle Juice"
+    },
+    "Beetle Juice": {
+        "id": 72,
+        "type": "character",
+        "name": "Beetle Juice",
+        "world": "Beetle Juice"
+    },
+    "73": {
+        "id": 73,
+        "type": "character",
+        "name": "Lord Vortech",
+        "world": "Lego Dimensions"
+    },
+    "Lord Vortech": {
+        "id": 73,
+        "type": "character",
+        "name": "Lord Vortech",
+        "world": "Lego Dimensions"
+    },
+    "74": {
+        "id": 74,
+        "type": "character",
+        "name": "Blossom",
+        "world": "Power Puff Girls"
+    },
+    "Blossom": {
+        "id": 74,
+        "type": "character",
+        "name": "Blossom",
+        "world": "Power Puff Girls"
+    },
+    "75": {
+        "id": 75,
+        "type": "character",
+        "name": "Bubbles",
+        "world": "Power Puff Girls"
+    },
+    "Bubbles": {
+        "id": 75,
+        "type": "character",
+        "name": "Bubbles",
+        "world": "Power Puff Girls"
+    },
+    "76": {
+        "id": 76,
+        "type": "character",
+        "name": "Buttercup",
+        "world": "Power Puff Girls"
+    },
+    "Buttercup": {
+        "id": 76,
+        "type": "character",
+        "name": "Buttercup",
+        "world": "Power Puff Girls"
+    },
+    "77": {
+        "id": 77,
+        "type": "character",
+        "name": "Star Fire",
+        "world": "Teen Titans Go"
+    },
+    "Star Fire": {
+        "id": 77,
+        "type": "character",
+        "name": "Star Fire",
+        "world": "Teen Titans Go"
+    },
+    "78": {
+        "id": 78,
+        "type": "character",
+        "name": "Test 15",
+        "world": "15"
+    },
+    "Test 15": {
+        "id": 78,
+        "type": "character",
+        "name": "Test 15",
+        "world": "15"
+    },
+    "79": {
+        "id": 79,
+        "type": "character",
+        "name": "Test 16",
+        "world": "16"
+    },
+    "Test 16": {
+        "id": 81,
+        "type": "character",
+        "name": "Test 16",
+        "world": "18"
+    },
+    "80": {
+        "id": 80,
+        "type": "character",
+        "name": "Test 17",
+        "world": "17"
+    },
+    "Test 17": {
+        "id": 82,
+        "type": "character",
+        "name": "Test 17",
+        "world": "19"
+    },
+    "81": {
+        "id": 81,
+        "type": "character",
+        "name": "Test 16",
+        "world": "18"
+    },
+    "82": {
+        "id": 82,
+        "type": "character",
+        "name": "Test 17",
+        "world": "19"
+    },
+    "83": {
+        "id": 83,
+        "type": "character",
+        "name": "Test 18",
+        "world": "20"
+    },
+    "Test 18": {
+        "id": 83,
+        "type": "character",
+        "name": "Test 18",
+        "world": "20"
+    },
+    "768": {
+        "id": 768,
+        "type": "character",
+        "name": "Unknown",
+        "world": "Unknown"
+    },
+    "Unknown": {
+        "id": 770,
+        "type": "character",
+        "name": "Unknown",
+        "world": "Unknown"
+    },
+    "769": {
+        "id": 769,
+        "type": "character",
+        "name": "Supergirl Red Lantern",
+        "world": "Dc Comics"
+    },
+    "Supergirl Red Lantern": {
+        "id": 769,
+        "type": "character",
+        "name": "Supergirl Red Lantern",
+        "world": "Dc Comics"
+    },
+    "770": {
+        "id": 770,
+        "type": "character",
+        "name": "Unknown",
+        "world": "Unknown"
+    },
+    "1000": {
+        "id": 1000,
+        "type": "token",
+        "name": "Police Car",
+        "rebuild": 0
+    },
+    "Police Car": {
+        "id": 1000,
+        "type": "token",
+        "name": "Police Car",
+        "rebuild": 0
+    },
+    "1001": {
+        "id": 1001,
+        "type": "token",
+        "name": "Aerial Squad Car",
+        "rebuild": 1
+    },
+    "Aerial Squad Car": {
+        "id": 1001,
+        "type": "token",
+        "name": "Aerial Squad Car",
+        "rebuild": 1
+    },
+    "1002": {
+        "id": 1002,
+        "type": "token",
+        "name": "Missile Striker",
+        "rebuild": 2
+    },
+    "Missile Striker": {
+        "id": 1002,
+        "type": "token",
+        "name": "Missile Striker",
+        "rebuild": 2
+    },
+    "1003": {
+        "id": 1003,
+        "type": "token",
+        "name": "Gravity Sprinter",
+        "rebuild": 0
+    },
+    "Gravity Sprinter": {
+        "id": 1003,
+        "type": "token",
+        "name": "Gravity Sprinter",
+        "rebuild": 0
+    },
+    "1004": {
+        "id": 1004,
+        "type": "token",
+        "name": "Street Shredder",
+        "rebuild": 1
+    },
+    "Street Shredder": {
+        "id": 1004,
+        "type": "token",
+        "name": "Street Shredder",
+        "rebuild": 1
+    },
+    "1005": {
+        "id": 1005,
+        "type": "token",
+        "name": "Sky Clobberer",
+        "rebuild": 2
+    },
+    "Sky Clobberer": {
+        "id": 1005,
+        "type": "token",
+        "name": "Sky Clobberer",
+        "rebuild": 2
+    },
+    "1006": {
+        "id": 1006,
+        "type": "token",
+        "name": "Batmobile",
+        "rebuild": 0
+    },
+    "Batmobile": {
+        "id": 1006,
+        "type": "token",
+        "name": "Batmobile",
+        "rebuild": 0
+    },
+    "1007": {
+        "id": 1007,
+        "type": "token",
+        "name": "Batblaster",
+        "rebuild": 1
+    },
+    "Batblaster": {
+        "id": 1007,
+        "type": "token",
+        "name": "Batblaster",
+        "rebuild": 1
+    },
+    "1008": {
+        "id": 1008,
+        "type": "token",
+        "name": "Sonic Batray",
+        "rebuild": 2
+    },
+    "Sonic Batray": {
+        "id": 1008,
+        "type": "token",
+        "name": "Sonic Batray",
+        "rebuild": 2
+    },
+    "1009": {
+        "id": 1009,
+        "type": "token",
+        "name": "Benny's Spaceship",
+        "rebuild": 0
+    },
+    "Benny's Spaceship": {
+        "id": 1009,
+        "type": "token",
+        "name": "Benny's Spaceship",
+        "rebuild": 0
+    },
+    "1010": {
+        "id": 1010,
+        "type": "token",
+        "name": "Lasercraft",
+        "rebuild": 1
+    },
+    "Lasercraft": {
+        "id": 1010,
+        "type": "token",
+        "name": "Lasercraft",
+        "rebuild": 1
+    },
+    "1011": {
+        "id": 1011,
+        "type": "token",
+        "name": "The Annihilator",
+        "rebuild": 2
+    },
+    "The Annihilator": {
+        "id": 1011,
+        "type": "token",
+        "name": "The Annihilator",
+        "rebuild": 2
+    },
+    "1012": {
+        "id": 1012,
+        "type": "token",
+        "name": "Delorean",
+        "rebuild": 0
+    },
+    "Delorean": {
+        "id": 1012,
+        "type": "token",
+        "name": "Delorean",
+        "rebuild": 0
+    },
+    "1013": {
+        "id": 1013,
+        "type": "token",
+        "name": "Ultra Time Machine",
+        "rebuild": 1
+    },
+    "Ultra Time Machine": {
+        "id": 1013,
+        "type": "token",
+        "name": "Ultra Time Machine",
+        "rebuild": 1
+    },
+    "1014": {
+        "id": 1014,
+        "type": "token",
+        "name": "Electric Time Machine",
+        "rebuild": 2
+    },
+    "Electric Time Machine": {
+        "id": 1014,
+        "type": "token",
+        "name": "Electric Time Machine",
+        "rebuild": 2
+    },
+    "1015": {
+        "id": 1015,
+        "type": "token",
+        "name": "Hoverboard",
+        "rebuild": 0
+    },
+    "Hoverboard": {
+        "id": 1015,
+        "type": "token",
+        "name": "Hoverboard",
+        "rebuild": 0
+    },
+    "1016": {
+        "id": 1016,
+        "type": "token",
+        "name": "Cyclone Board",
+        "rebuild": 1
+    },
+    "Cyclone Board": {
+        "id": 1016,
+        "type": "token",
+        "name": "Cyclone Board",
+        "rebuild": 1
+    },
+    "1017": {
+        "id": 1017,
+        "type": "token",
+        "name": "Ultimate Hoverjet",
+        "rebuild": 2
+    },
+    "Ultimate Hoverjet": {
+        "id": 1017,
+        "type": "token",
+        "name": "Ultimate Hoverjet",
+        "rebuild": 2
+    },
+    "1018": {
+        "id": 1018,
+        "type": "token",
+        "name": "Eagle interceptor",
+        "rebuild": 0
+    },
+    "Eagle interceptor": {
+        "id": 1018,
+        "type": "token",
+        "name": "Eagle interceptor",
+        "rebuild": 0
+    },
+    "1019": {
+        "id": 1019,
+        "type": "token",
+        "name": "Eagle Skyblazer",
+        "rebuild": 1
+    },
+    "Eagle Skyblazer": {
+        "id": 1019,
+        "type": "token",
+        "name": "Eagle Skyblazer",
+        "rebuild": 1
+    },
+    "1020": {
+        "id": 1020,
+        "type": "token",
+        "name": "Eagle Swoop Diver",
+        "rebuild": 2
+    },
+    "Eagle Swoop Diver": {
+        "id": 1020,
+        "type": "token",
+        "name": "Eagle Swoop Diver",
+        "rebuild": 2
+    },
+    "1021": {
+        "id": 1021,
+        "type": "token",
+        "name": "Cragger's Fireship",
+        "rebuild": 0
+    },
+    "Cragger's Fireship": {
+        "id": 1021,
+        "type": "token",
+        "name": "Cragger's Fireship",
+        "rebuild": 0
+    },
+    "1022": {
+        "id": 1022,
+        "type": "token",
+        "name": "Croc Command Sub",
+        "rebuild": 1
+    },
+    "Croc Command Sub": {
+        "id": 1022,
+        "type": "token",
+        "name": "Croc Command Sub",
+        "rebuild": 1
+    },
+    "1023": {
+        "id": 1023,
+        "type": "token",
+        "name": "Swamp Skimmer",
+        "rebuild": 2
+    },
+    "Swamp Skimmer": {
+        "id": 1023,
+        "type": "token",
+        "name": "Swamp Skimmer",
+        "rebuild": 2
+    },
+    "1024": {
+        "id": 1024,
+        "type": "token",
+        "name": "Cyber Guard",
+        "rebuild": 0
+    },
+    "Cyber Guard": {
+        "id": 1024,
+        "type": "token",
+        "name": "Cyber Guard",
+        "rebuild": 0
+    },
+    "1025": {
+        "id": 1025,
+        "type": "token",
+        "name": "Cyber-Wrecker",
+        "rebuild": 1
+    },
+    "Cyber-Wrecker": {
+        "id": 1025,
+        "type": "token",
+        "name": "Cyber-Wrecker",
+        "rebuild": 1
+    },
+    "1026": {
+        "id": 1026,
+        "type": "token",
+        "name": "Laser Robot Walker",
+        "rebuild": 2
+    },
+    "Laser Robot Walker": {
+        "id": 1026,
+        "type": "token",
+        "name": "Laser Robot Walker",
+        "rebuild": 2
+    },
+    "1027": {
+        "id": 1027,
+        "type": "token",
+        "name": "K9",
+        "rebuild": 0
+    },
+    "K9": {
+        "id": 1027,
+        "type": "token",
+        "name": "K9",
+        "rebuild": 0
+    },
+    "1028": {
+        "id": 1028,
+        "type": "token",
+        "name": "K9 Ruff Rover",
+        "rebuild": 1
+    },
+    "K9 Ruff Rover": {
+        "id": 1028,
+        "type": "token",
+        "name": "K9 Ruff Rover",
+        "rebuild": 1
+    },
+    "1029": {
+        "id": 1029,
+        "type": "token",
+        "name": "K9 Laser Cutter",
+        "rebuild": 2
+    },
+    "K9 Laser Cutter": {
+        "id": 1029,
+        "type": "token",
+        "name": "K9 Laser Cutter",
+        "rebuild": 2
+    },
+    "1030": {
+        "id": 1030,
+        "type": "token",
+        "name": "TARDIS",
+        "rebuild": 0
+    },
+    "TARDIS": {
+        "id": 1030,
+        "type": "token",
+        "name": "TARDIS",
+        "rebuild": 0
+    },
+    "1031": {
+        "id": 1031,
+        "type": "token",
+        "name": "Laser-Pulse TARDIS",
+        "rebuild": 1
+    },
+    "Laser-Pulse TARDIS": {
+        "id": 1031,
+        "type": "token",
+        "name": "Laser-Pulse TARDIS",
+        "rebuild": 1
+    },
+    "1032": {
+        "id": 1032,
+        "type": "token",
+        "name": "Energy-Burst TARDIS",
+        "rebuild": 2
+    },
+    "Energy-Burst TARDIS": {
+        "id": 1032,
+        "type": "token",
+        "name": "Energy-Burst TARDIS",
+        "rebuild": 2
+    },
+    "1033": {
+        "id": 1033,
+        "type": "token",
+        "name": "Emmet's Excavator",
+        "rebuild": 0
+    },
+    "Emmet's Excavator": {
+        "id": 1033,
+        "type": "token",
+        "name": "Emmet's Excavator",
+        "rebuild": 0
+    },
+    "1034": {
+        "id": 1034,
+        "type": "token",
+        "name": "The Destroydozer",
+        "rebuild": 1
+    },
+    "The Destroydozer": {
+        "id": 1034,
+        "type": "token",
+        "name": "The Destroydozer",
+        "rebuild": 1
+    },
+    "1035": {
+        "id": 1035,
+        "type": "token",
+        "name": "Destruct-o-Mech",
+        "rebuild": 2
+    },
+    "Destruct-o-Mech": {
+        "id": 1035,
+        "type": "token",
+        "name": "Destruct-o-Mech",
+        "rebuild": 2
+    },
+    "1036": {
+        "id": 1036,
+        "type": "token",
+        "name": "Winged Monkey",
+        "rebuild": 0
+    },
+    "Winged Monkey": {
+        "id": 1036,
+        "type": "token",
+        "name": "Winged Monkey",
+        "rebuild": 0
+    },
+    "1037": {
+        "id": 1037,
+        "type": "token",
+        "name": "Battle Monkey",
+        "rebuild": 1
+    },
+    "Battle Monkey": {
+        "id": 1037,
+        "type": "token",
+        "name": "Battle Monkey",
+        "rebuild": 1
+    },
+    "1038": {
+        "id": 1038,
+        "type": "token",
+        "name": "Commander Monkey",
+        "rebuild": 2
+    },
+    "Commander Monkey": {
+        "id": 1038,
+        "type": "token",
+        "name": "Commander Monkey",
+        "rebuild": 2
+    },
+    "1039": {
+        "id": 1039,
+        "type": "token",
+        "name": "Axe Chariot",
+        "rebuild": 0
+    },
+    "Axe Chariot": {
+        "id": 1039,
+        "type": "token",
+        "name": "Axe Chariot",
+        "rebuild": 0
+    },
+    "1040": {
+        "id": 1040,
+        "type": "token",
+        "name": "Axe Hurler",
+        "rebuild": 1
+    },
+    "Axe Hurler": {
+        "id": 1040,
+        "type": "token",
+        "name": "Axe Hurler",
+        "rebuild": 1
+    },
+    "1041": {
+        "id": 1041,
+        "type": "token",
+        "name": "Soaring Chariot",
+        "rebuild": 2
+    },
+    "Soaring Chariot": {
+        "id": 1041,
+        "type": "token",
+        "name": "Soaring Chariot",
+        "rebuild": 2
+    },
+    "1042": {
+        "id": 1042,
+        "type": "token",
+        "name": "Shelob the Great",
+        "rebuild": 0
+    },
+    "Shelob the Great": {
+        "id": 1042,
+        "type": "token",
+        "name": "Shelob the Great",
+        "rebuild": 0
+    },
+    "1043": {
+        "id": 1043,
+        "type": "token",
+        "name": "8-Legged Stalker",
+        "rebuild": 1
+    },
+    "8-Legged Stalker": {
+        "id": 1043,
+        "type": "token",
+        "name": "8-Legged Stalker",
+        "rebuild": 1
+    },
+    "1044": {
+        "id": 1044,
+        "type": "token",
+        "name": "Poison Slinger",
+        "rebuild": 2
+    },
+    "Poison Slinger": {
+        "id": 1044,
+        "type": "token",
+        "name": "Poison Slinger",
+        "rebuild": 2
+    },
+    "1045": {
+        "id": 1045,
+        "type": "token",
+        "name": "Homer's Car",
+        "rebuild": 0
+    },
+    "Homer's Car": {
+        "id": 1045,
+        "type": "token",
+        "name": "Homer's Car",
+        "rebuild": 0
+    },
+    "1046": {
+        "id": 1046,
+        "type": "token",
+        "name": "Homercraft",
+        "rebuild": 1
+    },
+    "Homercraft": {
+        "id": 1046,
+        "type": "token",
+        "name": "Homercraft",
+        "rebuild": 1
+    },
+    "1047": {
+        "id": 1047,
+        "type": "token",
+        "name": "SubmaHomer",
+        "rebuild": 2
+    },
+    "SubmaHomer": {
+        "id": 1047,
+        "type": "token",
+        "name": "SubmaHomer",
+        "rebuild": 2
+    },
+    "1048": {
+        "id": 1048,
+        "type": "token",
+        "name": "Taunt-o-Vision",
+        "rebuild": 0
+    },
+    "Taunt-o-Vision": {
+        "id": 1048,
+        "type": "token",
+        "name": "Taunt-o-Vision",
+        "rebuild": 0
+    },
+    "1049": {
+        "id": 1049,
+        "type": "token",
+        "name": "Blast Cam",
+        "rebuild": 1
+    },
+    "Blast Cam": {
+        "id": 1049,
+        "type": "token",
+        "name": "Blast Cam",
+        "rebuild": 1
+    },
+    "1050": {
+        "id": 1050,
+        "type": "token",
+        "name": "The MechaHomer",
+        "rebuild": 2
+    },
+    "The MechaHomer": {
+        "id": 1050,
+        "type": "token",
+        "name": "The MechaHomer",
+        "rebuild": 2
+    },
+    "1051": {
+        "id": 1051,
+        "type": "token",
+        "name": "Velociraptor",
+        "rebuild": 0
+    },
+    "Velociraptor": {
+        "id": 1051,
+        "type": "token",
+        "name": "Velociraptor",
+        "rebuild": 0
+    },
+    "1052": {
+        "id": 1052,
+        "type": "token",
+        "name": "Spike Attack Raptor",
+        "rebuild": 1
+    },
+    "Spike Attack Raptor": {
+        "id": 1052,
+        "type": "token",
+        "name": "Spike Attack Raptor",
+        "rebuild": 1
+    },
+    "1053": {
+        "id": 1053,
+        "type": "token",
+        "name": "Venom Raptor",
+        "rebuild": 2
+    },
+    "Venom Raptor": {
+        "id": 1053,
+        "type": "token",
+        "name": "Venom Raptor",
+        "rebuild": 2
+    },
+    "1054": {
+        "id": 1054,
+        "type": "token",
+        "name": "Gyro Sphere",
+        "rebuild": 0
+    },
+    "Gyro Sphere": {
+        "id": 1054,
+        "type": "token",
+        "name": "Gyro Sphere",
+        "rebuild": 0
+    },
+    "1055": {
+        "id": 1055,
+        "type": "token",
+        "name": "Sonic Beam Gyrosphere",
+        "rebuild": 1
+    },
+    "Sonic Beam Gyrosphere": {
+        "id": 1055,
+        "type": "token",
+        "name": "Sonic Beam Gyrosphere",
+        "rebuild": 1
+    },
+    "1056": {
+        "id": 1056,
+        "type": "token",
+        "name": "Speed Boost Gyrosphere",
+        "rebuild": 2
+    },
+    "Speed Boost Gyrosphere": {
+        "id": 1056,
+        "type": "token",
+        "name": "Speed Boost Gyrosphere",
+        "rebuild": 2
+    },
+    "1057": {
+        "id": 1057,
+        "type": "token",
+        "name": "Clown Bike",
+        "rebuild": 0
+    },
+    "Clown Bike": {
+        "id": 1057,
+        "type": "token",
+        "name": "Clown Bike",
+        "rebuild": 0
+    },
+    "1058": {
+        "id": 1058,
+        "type": "token",
+        "name": "Cannon Bike",
+        "rebuild": 1
+    },
+    "Cannon Bike": {
+        "id": 1058,
+        "type": "token",
+        "name": "Cannon Bike",
+        "rebuild": 1
+    },
+    "1059": {
+        "id": 1059,
+        "type": "token",
+        "name": "Anti-Gravity Rocket Bike",
+        "rebuild": 2
+    },
+    "Anti-Gravity Rocket Bike": {
+        "id": 1059,
+        "type": "token",
+        "name": "Anti-Gravity Rocket Bike",
+        "rebuild": 2
+    },
+    "1060": {
+        "id": 1060,
+        "type": "token",
+        "name": "Mighty Lion Rider",
+        "rebuild": 0
+    },
+    "Mighty Lion Rider": {
+        "id": 1060,
+        "type": "token",
+        "name": "Mighty Lion Rider",
+        "rebuild": 0
+    },
+    "1061": {
+        "id": 1061,
+        "type": "token",
+        "name": "Lion Blazer",
+        "rebuild": 1
+    },
+    "Lion Blazer": {
+        "id": 1061,
+        "type": "token",
+        "name": "Lion Blazer",
+        "rebuild": 1
+    },
+    "1062": {
+        "id": 1062,
+        "type": "token",
+        "name": "Fire Lion",
+        "rebuild": 2
+    },
+    "Fire Lion": {
+        "id": 1062,
+        "type": "token",
+        "name": "Fire Lion",
+        "rebuild": 2
+    },
+    "1063": {
+        "id": 1063,
+        "type": "token",
+        "name": "Arrow Launcher",
+        "rebuild": 0
+    },
+    "Arrow Launcher": {
+        "id": 1063,
+        "type": "token",
+        "name": "Arrow Launcher",
+        "rebuild": 0
+    },
+    "1064": {
+        "id": 1064,
+        "type": "token",
+        "name": "Seeking Shooter",
+        "rebuild": 1
+    },
+    "Seeking Shooter": {
+        "id": 1064,
+        "type": "token",
+        "name": "Seeking Shooter",
+        "rebuild": 1
+    },
+    "1065": {
+        "id": 1065,
+        "type": "token",
+        "name": "Triple Ballista",
+        "rebuild": 2
+    },
+    "Triple Ballista": {
+        "id": 1065,
+        "type": "token",
+        "name": "Triple Ballista",
+        "rebuild": 2
+    },
+    "1066": {
+        "id": 1066,
+        "type": "token",
+        "name": "Mystery Machine",
+        "rebuild": 0
+    },
+    "Mystery Machine": {
+        "id": 1066,
+        "type": "token",
+        "name": "Mystery Machine",
+        "rebuild": 0
+    },
+    "1067": {
+        "id": 1067,
+        "type": "token",
+        "name": "Mystery Tow",
+        "rebuild": 1
+    },
+    "Mystery Tow": {
+        "id": 1067,
+        "type": "token",
+        "name": "Mystery Tow",
+        "rebuild": 1
+    },
+    "1068": {
+        "id": 1068,
+        "type": "token",
+        "name": "Mystery Monster",
+        "rebuild": 2
+    },
+    "Mystery Monster": {
+        "id": 1068,
+        "type": "token",
+        "name": "Mystery Monster",
+        "rebuild": 2
+    },
+    "1069": {
+        "id": 1069,
+        "type": "token",
+        "name": "Boulder Bomber",
+        "rebuild": 0
+    },
+    "Boulder Bomber": {
+        "id": 1069,
+        "type": "token",
+        "name": "Boulder Bomber",
+        "rebuild": 0
+    },
+    "1070": {
+        "id": 1070,
+        "type": "token",
+        "name": "Boulder Blaster",
+        "rebuild": 1
+    },
+    "Boulder Blaster": {
+        "id": 1070,
+        "type": "token",
+        "name": "Boulder Blaster",
+        "rebuild": 1
+    },
+    "1071": {
+        "id": 1071,
+        "type": "token",
+        "name": "Cyclone Jet",
+        "rebuild": 2
+    },
+    "Cyclone Jet": {
+        "id": 1071,
+        "type": "token",
+        "name": "Cyclone Jet",
+        "rebuild": 2
+    },
+    "1072": {
+        "id": 1072,
+        "type": "token",
+        "name": "Storm Fighter",
+        "rebuild": 0
+    },
+    "Storm Fighter": {
+        "id": 1072,
+        "type": "token",
+        "name": "Storm Fighter",
+        "rebuild": 0
+    },
+    "1073": {
+        "id": 1073,
+        "type": "token",
+        "name": "Lightning Jet",
+        "rebuild": 1
+    },
+    "Lightning Jet": {
+        "id": 1073,
+        "type": "token",
+        "name": "Lightning Jet",
+        "rebuild": 1
+    },
+    "1074": {
+        "id": 1074,
+        "type": "token",
+        "name": "Electro-Shooter",
+        "rebuild": 2
+    },
+    "Electro-Shooter": {
+        "id": 1074,
+        "type": "token",
+        "name": "Electro-Shooter",
+        "rebuild": 2
+    },
+    "1075": {
+        "id": 1075,
+        "type": "token",
+        "name": "Blade Bike",
+        "rebuild": 0
+    },
+    "Blade Bike": {
+        "id": 1075,
+        "type": "token",
+        "name": "Blade Bike",
+        "rebuild": 0
+    },
+    "1076": {
+        "id": 1076,
+        "type": "token",
+        "name": "Flying Fire Bike",
+        "rebuild": 1
+    },
+    "Flying Fire Bike": {
+        "id": 1076,
+        "type": "token",
+        "name": "Flying Fire Bike",
+        "rebuild": 1
+    },
+    "1077": {
+        "id": 1077,
+        "type": "token",
+        "name": "Blades of Fire",
+        "rebuild": 2
+    },
+    "Blades of Fire": {
+        "id": 1077,
+        "type": "token",
+        "name": "Blades of Fire",
+        "rebuild": 2
+    },
+    "1078": {
+        "id": 1078,
+        "type": "token",
+        "name": "Samurai Mech",
+        "rebuild": 0
+    },
+    "Samurai Mech": {
+        "id": 1078,
+        "type": "token",
+        "name": "Samurai Mech",
+        "rebuild": 0
+    },
+    "1079": {
+        "id": 1079,
+        "type": "token",
+        "name": "Samurai Shooter",
+        "rebuild": 1
+    },
+    "Samurai Shooter": {
+        "id": 1079,
+        "type": "token",
+        "name": "Samurai Shooter",
+        "rebuild": 1
+    },
+    "1080": {
+        "id": 1080,
+        "type": "token",
+        "name": "Soaring Samurai Mech",
+        "rebuild": 2
+    },
+    "Soaring Samurai Mech": {
+        "id": 1080,
+        "type": "token",
+        "name": "Soaring Samurai Mech",
+        "rebuild": 2
+    },
+    "1081": {
+        "id": 1081,
+        "type": "token",
+        "name": "Companion Cube",
+        "rebuild": 0
+    },
+    "Companion Cube": {
+        "id": 1081,
+        "type": "token",
+        "name": "Companion Cube",
+        "rebuild": 0
+    },
+    "1082": {
+        "id": 1082,
+        "type": "token",
+        "name": "Laser Deflector",
+        "rebuild": 1
+    },
+    "Laser Deflector": {
+        "id": 1082,
+        "type": "token",
+        "name": "Laser Deflector",
+        "rebuild": 1
+    },
+    "1083": {
+        "id": 1083,
+        "type": "token",
+        "name": "Gold Heart Emitter",
+        "rebuild": 2
+    },
+    "Gold Heart Emitter": {
+        "id": 1083,
+        "type": "token",
+        "name": "Gold Heart Emitter",
+        "rebuild": 2
+    },
+    "1084": {
+        "id": 1084,
+        "type": "token",
+        "name": "Sentry Turret",
+        "rebuild": 0
+    },
+    "Sentry Turret": {
+        "id": 1084,
+        "type": "token",
+        "name": "Sentry Turret",
+        "rebuild": 0
+    },
+    "1085": {
+        "id": 1085,
+        "type": "token",
+        "name": "Turret Striker",
+        "rebuild": 1
+    },
+    "Turret Striker": {
+        "id": 1085,
+        "type": "token",
+        "name": "Turret Striker",
+        "rebuild": 1
+    },
+    "1086": {
+        "id": 1086,
+        "type": "token",
+        "name": "Flying Turret Carrier",
+        "rebuild": 2
+    },
+    "Flying Turret Carrier": {
+        "id": 1086,
+        "type": "token",
+        "name": "Flying Turret Carrier",
+        "rebuild": 2
+    },
+    "1087": {
+        "id": 1087,
+        "type": "token",
+        "name": "Scooby Snack",
+        "rebuild": 0
+    },
+    "Scooby Snack": {
+        "id": 1087,
+        "type": "token",
+        "name": "Scooby Snack",
+        "rebuild": 0
+    },
+    "1088": {
+        "id": 1088,
+        "type": "token",
+        "name": "Scooby Fire Snack",
+        "rebuild": 1
+    },
+    "Scooby Fire Snack": {
+        "id": 1088,
+        "type": "token",
+        "name": "Scooby Fire Snack",
+        "rebuild": 1
+    },
+    "1089": {
+        "id": 1089,
+        "type": "token",
+        "name": "Scooby Ghost Snack",
+        "rebuild": 2
+    },
+    "Scooby Ghost Snack": {
+        "id": 1089,
+        "type": "token",
+        "name": "Scooby Ghost Snack",
+        "rebuild": 2
+    },
+    "1090": {
+        "id": 1090,
+        "type": "token",
+        "name": "Cloud Cukko Car",
+        "rebuild": 0
+    },
+    "Cloud Cukko Car": {
+        "id": 1090,
+        "type": "token",
+        "name": "Cloud Cukko Car",
+        "rebuild": 0
+    },
+    "1091": {
+        "id": 1091,
+        "type": "token",
+        "name": "X-Stream Soaker",
+        "rebuild": 1
+    },
+    "X-Stream Soaker": {
+        "id": 1091,
+        "type": "token",
+        "name": "X-Stream Soaker",
+        "rebuild": 1
+    },
+    "1092": {
+        "id": 1092,
+        "type": "token",
+        "name": "Rainbow Cannon",
+        "rebuild": 2
+    },
+    "Rainbow Cannon": {
+        "id": 1092,
+        "type": "token",
+        "name": "Rainbow Cannon",
+        "rebuild": 2
+    },
+    "1093": {
+        "id": 1093,
+        "type": "token",
+        "name": "Invisible Jet",
+        "rebuild": 0
+    },
+    "Invisible Jet": {
+        "id": 1093,
+        "type": "token",
+        "name": "Invisible Jet",
+        "rebuild": 0
+    },
+    "1094": {
+        "id": 1094,
+        "type": "token",
+        "name": "Stealth Laser Shooter",
+        "rebuild": 1
+    },
+    "Stealth Laser Shooter": {
+        "id": 1094,
+        "type": "token",
+        "name": "Stealth Laser Shooter",
+        "rebuild": 1
+    },
+    "1095": {
+        "id": 1095,
+        "type": "token",
+        "name": "Torpedo Bomber",
+        "rebuild": 2
+    },
+    "Torpedo Bomber": {
+        "id": 1095,
+        "type": "token",
+        "name": "Torpedo Bomber",
+        "rebuild": 2
+    },
+    "1096": {
+        "id": 1096,
+        "type": "token",
+        "name": "Ninja Copter",
+        "rebuild": 0
+    },
+    "Ninja Copter": {
+        "id": 1096,
+        "type": "token",
+        "name": "Ninja Copter",
+        "rebuild": 0
+    },
+    "1097": {
+        "id": 1097,
+        "type": "token",
+        "name": "Glaciator",
+        "rebuild": 1
+    },
+    "Glaciator": {
+        "id": 1097,
+        "type": "token",
+        "name": "Glaciator",
+        "rebuild": 1
+    },
+    "1098": {
+        "id": 1098,
+        "type": "token",
+        "name": "Freeze Fighter",
+        "rebuild": 2
+    },
+    "Freeze Fighter": {
+        "id": 1098,
+        "type": "token",
+        "name": "Freeze Fighter",
+        "rebuild": 2
+    },
+    "1099": {
+        "id": 1099,
+        "type": "token",
+        "name": "Traveling Time Train",
+        "rebuild": 0
+    },
+    "Traveling Time Train": {
+        "id": 1099,
+        "type": "token",
+        "name": "Traveling Time Train",
+        "rebuild": 0
+    },
+    "1100": {
+        "id": 1100,
+        "type": "token",
+        "name": "(Traveling Time Train - rebuilt 1)",
+        "rebuild": 1
+    },
+    "(Traveling Time Train - rebuilt 1)": {
+        "id": 1100,
+        "type": "token",
+        "name": "(Traveling Time Train - rebuilt 1)",
+        "rebuild": 1
+    },
+    "1101": {
+        "id": 1101,
+        "type": "token",
+        "name": "(Traveling Time Train - rebuilt 2)",
+        "rebuild": 2
+    },
+    "(Traveling Time Train - rebuilt 2)": {
+        "id": 1101,
+        "type": "token",
+        "name": "(Traveling Time Train - rebuilt 2)",
+        "rebuild": 2
+    },
+    "1102": {
+        "id": 1102,
+        "type": "token",
+        "name": "Aqua Watercraft",
+        "rebuild": 0
+    },
+    "Aqua Watercraft": {
+        "id": 1102,
+        "type": "token",
+        "name": "Aqua Watercraft",
+        "rebuild": 0
+    },
+    "1103": {
+        "id": 1103,
+        "type": "token",
+        "name": "(Aqua Watercraft - rebuilt 1)",
+        "rebuild": 1
+    },
+    "(Aqua Watercraft - rebuilt 1)": {
+        "id": 1103,
+        "type": "token",
+        "name": "(Aqua Watercraft - rebuilt 1)",
+        "rebuild": 1
+    },
+    "1104": {
+        "id": 1104,
+        "type": "token",
+        "name": "(Aqua Watercraft - rebuilt 2)",
+        "rebuild": 2
+    },
+    "(Aqua Watercraft - rebuilt 2)": {
+        "id": 1104,
+        "type": "token",
+        "name": "(Aqua Watercraft - rebuilt 2)",
+        "rebuild": 2
+    },
+    "1105": {
+        "id": 1105,
+        "type": "token",
+        "name": "Drill Driver",
+        "rebuild": 0
+    },
+    "Drill Driver": {
+        "id": 1105,
+        "type": "token",
+        "name": "Drill Driver",
+        "rebuild": 0
+    },
+    "1106": {
+        "id": 1106,
+        "type": "token",
+        "name": "(Drill Driver - rebuilt 1)",
+        "rebuild": 1
+    },
+    "(Drill Driver - rebuilt 1)": {
+        "id": 1106,
+        "type": "token",
+        "name": "(Drill Driver - rebuilt 1)",
+        "rebuild": 1
+    },
+    "1107": {
+        "id": 1107,
+        "type": "token",
+        "name": "(Drill Driver - rebuilt 2)",
+        "rebuild": 2
+    },
+    "(Drill Driver - rebuilt 2)": {
+        "id": 1107,
+        "type": "token",
+        "name": "(Drill Driver - rebuilt 2)",
+        "rebuild": 2
+    },
+    "1108": {
+        "id": 1108,
+        "type": "token",
+        "name": "Quinn-mobile",
+        "rebuild": 0
+    },
+    "Quinn-mobile": {
+        "id": 1108,
+        "type": "token",
+        "name": "Quinn-mobile",
+        "rebuild": 0
+    },
+    "1109": {
+        "id": 1109,
+        "type": "token",
+        "name": "(Quinn-mobile - rebuilt 1)",
+        "rebuild": 1
+    },
+    "(Quinn-mobile - rebuilt 1)": {
+        "id": 1109,
+        "type": "token",
+        "name": "(Quinn-mobile - rebuilt 1)",
+        "rebuild": 1
+    },
+    "1110": {
+        "id": 1110,
+        "type": "token",
+        "name": "(Quinn-mobile - rebuilt 2)",
+        "rebuild": 2
+    },
+    "(Quinn-mobile - rebuilt 2)": {
+        "id": 1110,
+        "type": "token",
+        "name": "(Quinn-mobile - rebuilt 2)",
+        "rebuild": 2
+    },
+    "1111": {
+        "id": 1111,
+        "type": "token",
+        "name": "The Jokers Chopper",
+        "rebuild": 0
+    },
+    "The Jokers Chopper": {
+        "id": 1111,
+        "type": "token",
+        "name": "The Jokers Chopper",
+        "rebuild": 0
+    },
+    "1112": {
+        "id": 1112,
+        "type": "token",
+        "name": "(The Jokers Chopper - rebuilt 1)",
+        "rebuild": 1
+    },
+    "(The Jokers Chopper - rebuilt 1)": {
+        "id": 1112,
+        "type": "token",
+        "name": "(The Jokers Chopper - rebuilt 1)",
+        "rebuild": 1
+    },
+    "1113": {
+        "id": 1113,
+        "type": "token",
+        "name": "(The Jokers Chopper - rebuilt 2)",
+        "rebuild": 2
+    },
+    "(The Jokers Chopper - rebuilt 2)": {
+        "id": 1113,
+        "type": "token",
+        "name": "(The Jokers Chopper - rebuilt 2)",
+        "rebuild": 2
+    },
+    "1114": {
+        "id": 1114,
+        "type": "token",
+        "name": "Hover Pod",
+        "rebuild": 0
+    },
+    "Hover Pod": {
+        "id": 1114,
+        "type": "token",
+        "name": "Hover Pod",
+        "rebuild": 0
+    },
+    "1115": {
+        "id": 1115,
+        "type": "token",
+        "name": "(Hover Pod - rebuilt 1)",
+        "rebuild": 1
+    },
+    "(Hover Pod - rebuilt 1)": {
+        "id": 1115,
+        "type": "token",
+        "name": "(Hover Pod - rebuilt 1)",
+        "rebuild": 1
+    },
+    "1116": {
+        "id": 1116,
+        "type": "token",
+        "name": "(Hover Pod - rebuilt 2)",
+        "rebuild": 2
+    },
+    "(Hover Pod - rebuilt 2)": {
+        "id": 1116,
+        "type": "token",
+        "name": "(Hover Pod - rebuilt 2)",
+        "rebuild": 2
+    },
+    "1117": {
+        "id": 1117,
+        "type": "token",
+        "name": "Dalek",
+        "rebuild": 0
+    },
+    "Dalek": {
+        "id": 1117,
+        "type": "token",
+        "name": "Dalek",
+        "rebuild": 0
+    },
+    "1118": {
+        "id": 1118,
+        "type": "token",
+        "name": "(Dalek - rebuilt 1)",
+        "rebuild": 1
+    },
+    "(Dalek - rebuilt 1)": {
+        "id": 1118,
+        "type": "token",
+        "name": "(Dalek - rebuilt 1)",
+        "rebuild": 1
+    },
+    "1119": {
+        "id": 1119,
+        "type": "token",
+        "name": "(Dalek - rebuilt 2)",
+        "rebuild": 2
+    },
+    "(Dalek - rebuilt 2)": {
+        "id": 1119,
+        "type": "token",
+        "name": "(Dalek - rebuilt 2)",
+        "rebuild": 2
+    },
+    "1120": {
+        "id": 1120,
+        "type": "token",
+        "name": "Ecto-1",
+        "rebuild": 0
+    },
+    "Ecto-1": {
+        "id": 1120,
+        "type": "token",
+        "name": "Ecto-1",
+        "rebuild": 0
+    },
+    "1121": {
+        "id": 1121,
+        "type": "token",
+        "name": "(Ecto-1 - rebuilt 1)",
+        "rebuild": 1
+    },
+    "(Ecto-1 - rebuilt 1)": {
+        "id": 1121,
+        "type": "token",
+        "name": "(Ecto-1 - rebuilt 1)",
+        "rebuild": 1
+    },
+    "1122": {
+        "id": 1122,
+        "type": "token",
+        "name": "(Ecto-1 - rebuilt 2)",
+        "rebuild": 2
+    },
+    "(Ecto-1 - rebuilt 2)": {
+        "id": 1122,
+        "type": "token",
+        "name": "(Ecto-1 - rebuilt 2)",
+        "rebuild": 2
+    },
+    "1123": {
+        "id": 1123,
+        "type": "token",
+        "name": "Ghost Trap",
+        "rebuild": 0
+    },
+    "Ghost Trap": {
+        "id": 1123,
+        "type": "token",
+        "name": "Ghost Trap",
+        "rebuild": 0
+    },
+    "1124": {
+        "id": 1124,
+        "type": "token",
+        "name": "(Ghost Trap - rebuilt 1)",
+        "rebuild": 1
+    },
+    "(Ghost Trap - rebuilt 1)": {
+        "id": 1124,
+        "type": "token",
+        "name": "(Ghost Trap - rebuilt 1)",
+        "rebuild": 1
+    },
+    "1125": {
+        "id": 1125,
+        "type": "token",
+        "name": "(Ghost Trap - rebuilt 2)",
+        "rebuild": 2
+    },
+    "(Ghost Trap - rebuilt 2)": {
+        "id": 1125,
+        "type": "token",
+        "name": "(Ghost Trap - rebuilt 2)",
+        "rebuild": 2
+    },
+    "1126": {
+        "id": 1126,
+        "type": "token",
+        "name": "unknown",
+        "rebuild": 0
+    },
+    "unknown": {
+        "id": 1154,
+        "type": "token",
+        "name": "unknown",
+        "rebuild": 0
+    },
+    "1127": {
+        "id": 1127,
+        "type": "token",
+        "name": "unknown",
+        "rebuild": 1
+    },
+    "1128": {
+        "id": 1128,
+        "type": "token",
+        "name": "unknown",
+        "rebuild": 2
+    },
+    "1129": {
+        "id": 1129,
+        "type": "token",
+        "name": "unknown",
+        "rebuild": 0
+    },
+    "1130": {
+        "id": 1130,
+        "type": "token",
+        "name": "unknown",
+        "rebuild": 1
+    },
+    "1131": {
+        "id": 1131,
+        "type": "token",
+        "name": "unknown",
+        "rebuild": 2
+    },
+    "1132": {
+        "id": 1132,
+        "type": "token",
+        "name": "Llyod's Golden Dragon",
+        "rebuild": 0
+    },
+    "Llyod's Golden Dragon": {
+        "id": 1132,
+        "type": "token",
+        "name": "Llyod's Golden Dragon",
+        "rebuild": 0
+    },
+    "1133": {
+        "id": 1133,
+        "type": "token",
+        "name": "(Golden Dragon - rebuilt 1)",
+        "rebuild": 1
+    },
+    "(Golden Dragon - rebuilt 1)": {
+        "id": 1133,
+        "type": "token",
+        "name": "(Golden Dragon - rebuilt 1)",
+        "rebuild": 1
+    },
+    "1134": {
+        "id": 1134,
+        "type": "token",
+        "name": "(Golden Dragon - rebuilt 2)",
+        "rebuild": 2
+    },
+    "(Golden Dragon - rebuilt 2)": {
+        "id": 1134,
+        "type": "token",
+        "name": "(Golden Dragon - rebuilt 2)",
+        "rebuild": 2
+    },
+    "1135": {
+        "id": 1135,
+        "type": "token",
+        "name": "unknown",
+        "rebuild": 0
+    },
+    "1136": {
+        "id": 1136,
+        "type": "token",
+        "name": "unknown",
+        "rebuild": 0
+    },
+    "1137": {
+        "id": 1137,
+        "type": "token",
+        "name": "unknown",
+        "rebuild": 0
+    },
+    "1138": {
+        "id": 1138,
+        "type": "token",
+        "name": "unknown",
+        "rebuild": 0
+    },
+    "1139": {
+        "id": 1139,
+        "type": "token",
+        "name": "unknown",
+        "rebuild": 0
+    },
+    "1140": {
+        "id": 1140,
+        "type": "token",
+        "name": "unknown",
+        "rebuild": 0
+    },
+    "1141": {
+        "id": 1141,
+        "type": "token",
+        "name": "unknown",
+        "rebuild": 0
+    },
+    "1142": {
+        "id": 1142,
+        "type": "token",
+        "name": "unknown",
+        "rebuild": 0
+    },
+    "1143": {
+        "id": 1143,
+        "type": "token",
+        "name": "unknown",
+        "rebuild": 0
+    },
+    "1144": {
+        "id": 1144,
+        "type": "token",
+        "name": "Mega Flight Dragon",
+        "rebuild": 0
+    },
+    "Mega Flight Dragon": {
+        "id": 1144,
+        "type": "token",
+        "name": "Mega Flight Dragon",
+        "rebuild": 0
+    },
+    "1145": {
+        "id": 1145,
+        "type": "token",
+        "name": "(Mega Flight Dragon - rebuilt 1)",
+        "rebuild": 1
+    },
+    "(Mega Flight Dragon - rebuilt 1)": {
+        "id": 1145,
+        "type": "token",
+        "name": "(Mega Flight Dragon - rebuilt 1)",
+        "rebuild": 1
+    },
+    "1146": {
+        "id": 1146,
+        "type": "token",
+        "name": "(Mega Flight Dragon - rebuilt 2)",
+        "rebuild": 2
+    },
+    "(Mega Flight Dragon - rebuilt 2)": {
+        "id": 1146,
+        "type": "token",
+        "name": "(Mega Flight Dragon - rebuilt 2)",
+        "rebuild": 2
+    },
+    "1147": {
+        "id": 1147,
+        "type": "token",
+        "name": "unknown",
+        "rebuild": 0
+    },
+    "1148": {
+        "id": 1148,
+        "type": "token",
+        "name": "unknown",
+        "rebuild": 0
+    },
+    "1149": {
+        "id": 1149,
+        "type": "token",
+        "name": "unknown",
+        "rebuild": 0
+    },
+    "1150": {
+        "id": 1150,
+        "type": "token",
+        "name": "unknown",
+        "rebuild": 0
+    },
+    "1151": {
+        "id": 1151,
+        "type": "token",
+        "name": "unknown",
+        "rebuild": 0
+    },
+    "1152": {
+        "id": 1152,
+        "type": "token",
+        "name": "unknown",
+        "rebuild": 0
+    },
+    "1153": {
+        "id": 1153,
+        "type": "token",
+        "name": "unknown",
+        "rebuild": 0
+    },
+    "1154": {
+        "id": 1154,
+        "type": "token",
+        "name": "unknown",
+        "rebuild": 0
+    },
+    "1155": {
+        "id": 1155,
+        "type": "token",
+        "name": "Flying White Dragon",
+        "rebuild": 0
+    },
+    "Flying White Dragon": {
+        "id": 1155,
+        "type": "token",
+        "name": "Flying White Dragon",
+        "rebuild": 0
+    },
+    "1156": {
+        "id": 1156,
+        "type": "token",
+        "name": "Golden Fire Dragon",
+        "rebuild": 1
+    },
+    "Golden Fire Dragon": {
+        "id": 1156,
+        "type": "token",
+        "name": "Golden Fire Dragon",
+        "rebuild": 1
+    },
+    "1157": {
+        "id": 1157,
+        "type": "token",
+        "name": "Ultra Destruction Dragon",
+        "rebuild": 2
+    },
+    "Ultra Destruction Dragon": {
+        "id": 1157,
+        "type": "token",
+        "name": "Ultra Destruction Dragon",
+        "rebuild": 2
+    },
+    "1158": {
+        "id": 1158,
+        "type": "token",
+        "name": "Arcade Machine",
+        "rebuild": 0
+    },
+    "Arcade Machine": {
+        "id": 1158,
+        "type": "token",
+        "name": "Arcade Machine",
+        "rebuild": 0
+    },
+    "1159": {
+        "id": 1159,
+        "type": "token",
+        "name": "8-bit Shooter",
+        "rebuild": 1
+    },
+    "8-bit Shooter": {
+        "id": 1159,
+        "type": "token",
+        "name": "8-bit Shooter",
+        "rebuild": 1
+    },
+    "1160": {
+        "id": 1160,
+        "type": "token",
+        "name": "The Pixelator",
+        "rebuild": 2
+    },
+    "The Pixelator": {
+        "id": 1160,
+        "type": "token",
+        "name": "The Pixelator",
+        "rebuild": 2
+    },
+    "1161": {
+        "id": 1161,
+        "type": "token",
+        "name": "G-61555 Spy Hunter",
+        "rebuild": 0
+    },
+    "G-61555 Spy Hunter": {
+        "id": 1161,
+        "type": "token",
+        "name": "G-61555 Spy Hunter",
+        "rebuild": 0
+    },
+    "1162": {
+        "id": 1162,
+        "type": "token",
+        "name": "The Interdiver",
+        "rebuild": 1
+    },
+    "The Interdiver": {
+        "id": 1162,
+        "type": "token",
+        "name": "The Interdiver",
+        "rebuild": 1
+    },
+    "1163": {
+        "id": 1163,
+        "type": "token",
+        "name": "Aerial Spyhunter",
+        "rebuild": 2
+    },
+    "Aerial Spyhunter": {
+        "id": 1163,
+        "type": "token",
+        "name": "Aerial Spyhunter",
+        "rebuild": 2
+    },
+    "1164": {
+        "id": 1164,
+        "type": "token",
+        "name": "Slime Shooter",
+        "rebuild": 0
+    },
+    "Slime Shooter": {
+        "id": 1164,
+        "type": "token",
+        "name": "Slime Shooter",
+        "rebuild": 0
+    },
+    "1165": {
+        "id": 1165,
+        "type": "token",
+        "name": "Slime Exploder",
+        "rebuild": 1
+    },
+    "Slime Exploder": {
+        "id": 1165,
+        "type": "token",
+        "name": "Slime Exploder",
+        "rebuild": 1
+    },
+    "1166": {
+        "id": 1166,
+        "type": "token",
+        "name": "Slime Streamer",
+        "rebuild": 2
+    },
+    "Slime Streamer": {
+        "id": 1166,
+        "type": "token",
+        "name": "Slime Streamer",
+        "rebuild": 2
+    },
+    "1167": {
+        "id": 1167,
+        "type": "token",
+        "name": "Terror Dog",
+        "rebuild": 0
+    },
+    "Terror Dog": {
+        "id": 1167,
+        "type": "token",
+        "name": "Terror Dog",
+        "rebuild": 0
+    },
+    "1168": {
+        "id": 1168,
+        "type": "token",
+        "name": "Terror Dog Destroyer",
+        "rebuild": 1
+    },
+    "Terror Dog Destroyer": {
+        "id": 1168,
+        "type": "token",
+        "name": "Terror Dog Destroyer",
+        "rebuild": 1
+    },
+    "1169": {
+        "id": 1169,
+        "type": "token",
+        "name": "Soaring Terror Dog",
+        "rebuild": 2
+    },
+    "Soaring Terror Dog": {
+        "id": 1169,
+        "type": "token",
+        "name": "Soaring Terror Dog",
+        "rebuild": 2
+    },
+    "1170": {
+        "id": 1170,
+        "type": "token",
+        "name": "Ancient War Elephant",
+        "rebuild": 0
+    },
+    "Ancient War Elephant": {
+        "id": 1170,
+        "type": "token",
+        "name": "Ancient War Elephant",
+        "rebuild": 0
+    },
+    "1171": {
+        "id": 1171,
+        "type": "token",
+        "name": "Cosmic Squid",
+        "rebuild": 1
+    },
+    "Cosmic Squid": {
+        "id": 1171,
+        "type": "token",
+        "name": "Cosmic Squid",
+        "rebuild": 1
+    },
+    "1172": {
+        "id": 1172,
+        "type": "token",
+        "name": "Psychic Submarine",
+        "rebuild": 2
+    },
+    "Psychic Submarine": {
+        "id": 1172,
+        "type": "token",
+        "name": "Psychic Submarine",
+        "rebuild": 2
+    },
+    "1173": {
+        "id": 1173,
+        "type": "token",
+        "name": "BMO",
+        "rebuild": 0
+    },
+    "BMO": {
+        "id": 1173,
+        "type": "token",
+        "name": "BMO",
+        "rebuild": 0
+    },
+    "1174": {
+        "id": 1174,
+        "type": "token",
+        "name": "DOGMO",
+        "rebuild": 1
+    },
+    "DOGMO": {
+        "id": 1174,
+        "type": "token",
+        "name": "DOGMO",
+        "rebuild": 1
+    },
+    "1175": {
+        "id": 1175,
+        "type": "token",
+        "name": "SNAKEMO",
+        "rebuild": 2
+    },
+    "SNAKEMO": {
+        "id": 1175,
+        "type": "token",
+        "name": "SNAKEMO",
+        "rebuild": 2
+    },
+    "1176": {
+        "id": 1176,
+        "type": "token",
+        "name": "Jakemoblie",
+        "rebuild": 0
+    },
+    "Jakemoblie": {
+        "id": 1176,
+        "type": "token",
+        "name": "Jakemoblie",
+        "rebuild": 0
+    },
+    "1177": {
+        "id": 1177,
+        "type": "token",
+        "name": "Snail Dude Jake",
+        "rebuild": 1
+    },
+    "Snail Dude Jake": {
+        "id": 1177,
+        "type": "token",
+        "name": "Snail Dude Jake",
+        "rebuild": 1
+    },
+    "1178": {
+        "id": 1178,
+        "type": "token",
+        "name": "Hover Jake",
+        "rebuild": 2
+    },
+    "Hover Jake": {
+        "id": 1178,
+        "type": "token",
+        "name": "Hover Jake",
+        "rebuild": 2
+    },
+    "1179": {
+        "id": 1179,
+        "type": "token",
+        "name": "Lumpy Car",
+        "rebuild": 0
+    },
+    "Lumpy Car": {
+        "id": 1179,
+        "type": "token",
+        "name": "Lumpy Car",
+        "rebuild": 0
+    },
+    "1180": {
+        "id": 1180,
+        "type": "token",
+        "name": "Lumpy Truck",
+        "rebuild": 1
+    },
+    "Lumpy Truck": {
+        "id": 1180,
+        "type": "token",
+        "name": "Lumpy Truck",
+        "rebuild": 1
+    },
+    "1181": {
+        "id": 1181,
+        "type": "token",
+        "name": "Lumpy Land Whale",
+        "rebuild": 2
+    },
+    "Lumpy Land Whale": {
+        "id": 1181,
+        "type": "token",
+        "name": "Lumpy Land Whale",
+        "rebuild": 2
+    },
+    "1182": {
+        "id": 1182,
+        "type": "token",
+        "name": "Lunatic Amp",
+        "rebuild": 0
+    },
+    "Lunatic Amp": {
+        "id": 1182,
+        "type": "token",
+        "name": "Lunatic Amp",
+        "rebuild": 0
+    },
+    "1183": {
+        "id": 1183,
+        "type": "token",
+        "name": "Lunatic Amp 2",
+        "rebuild": 1
+    },
+    "Lunatic Amp 2": {
+        "id": 1183,
+        "type": "token",
+        "name": "Lunatic Amp 2",
+        "rebuild": 1
+    },
+    "1184": {
+        "id": 1184,
+        "type": "token",
+        "name": "Lunatic Amp 3",
+        "rebuild": 2
+    },
+    "Lunatic Amp 3": {
+        "id": 1184,
+        "type": "token",
+        "name": "Lunatic Amp 3",
+        "rebuild": 2
+    },
+    "1185": {
+        "id": 1185,
+        "type": "token",
+        "name": "B.A.s Van",
+        "rebuild": 0
+    },
+    "B.A.s Van": {
+        "id": 1185,
+        "type": "token",
+        "name": "B.A.s Van",
+        "rebuild": 0
+    },
+    "1186": {
+        "id": 1186,
+        "type": "token",
+        "name": "Fool Smasher",
+        "rebuild": 1
+    },
+    "Fool Smasher": {
+        "id": 1186,
+        "type": "token",
+        "name": "Fool Smasher",
+        "rebuild": 1
+    },
+    "1187": {
+        "id": 1187,
+        "type": "token",
+        "name": "The Pain Plane",
+        "rebuild": 2
+    },
+    "The Pain Plane": {
+        "id": 1187,
+        "type": "token",
+        "name": "The Pain Plane",
+        "rebuild": 2
+    },
+    "1188": {
+        "id": 1188,
+        "type": "token",
+        "name": "Phone Home",
+        "rebuild": 0
+    },
+    "Phone Home": {
+        "id": 1188,
+        "type": "token",
+        "name": "Phone Home",
+        "rebuild": 0
+    },
+    "1189": {
+        "id": 1189,
+        "type": "token",
+        "name": "Phone Home 2",
+        "rebuild": 1
+    },
+    "Phone Home 2": {
+        "id": 1189,
+        "type": "token",
+        "name": "Phone Home 2",
+        "rebuild": 1
+    },
+    "1190": {
+        "id": 1190,
+        "type": "token",
+        "name": "Phone Home 3",
+        "rebuild": 2
+    },
+    "Phone Home 3": {
+        "id": 1190,
+        "type": "token",
+        "name": "Phone Home 3",
+        "rebuild": 2
+    },
+    "1191": {
+        "id": 1191,
+        "type": "token",
+        "name": "Niffler",
+        "rebuild": 0
+    },
+    "Niffler": {
+        "id": 1191,
+        "type": "token",
+        "name": "Niffler",
+        "rebuild": 0
+    },
+    "1192": {
+        "id": 1192,
+        "type": "token",
+        "name": "Niffler 2",
+        "rebuild": 1
+    },
+    "Niffler 2": {
+        "id": 1192,
+        "type": "token",
+        "name": "Niffler 2",
+        "rebuild": 1
+    },
+    "1193": {
+        "id": 1193,
+        "type": "token",
+        "name": "Niffler 3",
+        "rebuild": 2
+    },
+    "Niffler 3": {
+        "id": 1193,
+        "type": "token",
+        "name": "Niffler 3",
+        "rebuild": 2
+    },
+    "1194": {
+        "id": 1194,
+        "type": "token",
+        "name": "Swooping Evil",
+        "rebuild": 0
+    },
+    "Swooping Evil": {
+        "id": 1194,
+        "type": "token",
+        "name": "Swooping Evil",
+        "rebuild": 0
+    },
+    "1195": {
+        "id": 1195,
+        "type": "token",
+        "name": "Swooping Evil 2",
+        "rebuild": 1
+    },
+    "Swooping Evil 2": {
+        "id": 1195,
+        "type": "token",
+        "name": "Swooping Evil 2",
+        "rebuild": 1
+    },
+    "1196": {
+        "id": 1196,
+        "type": "token",
+        "name": "Swooping Evil 3",
+        "rebuild": 2
+    },
+    "Swooping Evil 3": {
+        "id": 1196,
+        "type": "token",
+        "name": "Swooping Evil 3",
+        "rebuild": 2
+    },
+    "1197": {
+        "id": 1197,
+        "type": "token",
+        "name": "Ecto 1",
+        "rebuild": 0
+    },
+    "Ecto 1": {
+        "id": 1197,
+        "type": "token",
+        "name": "Ecto 1",
+        "rebuild": 0
+    },
+    "1198": {
+        "id": 1198,
+        "type": "token",
+        "name": "Ectozer",
+        "rebuild": 1
+    },
+    "Ectozer": {
+        "id": 1198,
+        "type": "token",
+        "name": "Ectozer",
+        "rebuild": 1
+    },
+    "1199": {
+        "id": 1199,
+        "type": "token",
+        "name": "Ecto1 Rebuild 2",
+        "rebuild": 2
+    },
+    "Ecto1 Rebuild 2": {
+        "id": 1199,
+        "type": "token",
+        "name": "Ecto1 Rebuild 2",
+        "rebuild": 2
+    },
+    "1200": {
+        "id": 1200,
+        "type": "token",
+        "name": "Flash 'n' Finish",
+        "rebuild": 2
+    },
+    "Flash 'n' Finish": {
+        "id": 1200,
+        "type": "token",
+        "name": "Flash 'n' Finish",
+        "rebuild": 2
+    },
+    "1201": {
+        "id": 1201,
+        "type": "token",
+        "name": "Rampage Record Player",
+        "rebuild": 0
+    },
+    "Rampage Record Player": {
+        "id": 1201,
+        "type": "token",
+        "name": "Rampage Record Player",
+        "rebuild": 0
+    },
+    "1202": {
+        "id": 1202,
+        "type": "token",
+        "name": "Stripe's Throne",
+        "rebuild": 1
+    },
+    "Stripe's Throne": {
+        "id": 1202,
+        "type": "token",
+        "name": "Stripe's Throne",
+        "rebuild": 1
+    },
+    "1203": {
+        "id": 1203,
+        "type": "token",
+        "name": "R.C. Racer",
+        "rebuild": 2
+    },
+    "R.C. Racer": {
+        "id": 1203,
+        "type": "token",
+        "name": "R.C. Racer",
+        "rebuild": 2
+    },
+    "1204": {
+        "id": 1204,
+        "type": "token",
+        "name": "Gadet-o-matic",
+        "rebuild": 0
+    },
+    "Gadet-o-matic": {
+        "id": 1204,
+        "type": "token",
+        "name": "Gadet-o-matic",
+        "rebuild": 0
+    },
+    "1205": {
+        "id": 1205,
+        "type": "token",
+        "name": "Scarlet Scorpion",
+        "rebuild": 1
+    },
+    "Scarlet Scorpion": {
+        "id": 1205,
+        "type": "token",
+        "name": "Scarlet Scorpion",
+        "rebuild": 1
+    },
+    "1206": {
+        "id": 1206,
+        "type": "token",
+        "name": "Hogwarts Express",
+        "rebuild": 0
+    },
+    "Hogwarts Express": {
+        "id": 1206,
+        "type": "token",
+        "name": "Hogwarts Express",
+        "rebuild": 0
+    },
+    "1207": {
+        "id": 1207,
+        "type": "token",
+        "name": "Soaring Steam Plane",
+        "rebuild": 2
+    },
+    "Soaring Steam Plane": {
+        "id": 1207,
+        "type": "token",
+        "name": "Soaring Steam Plane",
+        "rebuild": 2
+    },
+    "1208": {
+        "id": 1208,
+        "type": "token",
+        "name": "Steam Warrior",
+        "rebuild": 1
+    },
+    "Steam Warrior": {
+        "id": 1208,
+        "type": "token",
+        "name": "Steam Warrior",
+        "rebuild": 1
+    },
+    "1209": {
+        "id": 1209,
+        "type": "token",
+        "name": "Enchanted Car",
+        "rebuild": 2
+    },
+    "Enchanted Car": {
+        "id": 1209,
+        "type": "token",
+        "name": "Enchanted Car",
+        "rebuild": 2
+    },
+    "1210": {
+        "id": 1210,
+        "type": "token",
+        "name": "Shark Sub",
+        "rebuild": 0
+    },
+    "Shark Sub": {
+        "id": 1210,
+        "type": "token",
+        "name": "Shark Sub",
+        "rebuild": 0
+    },
+    "1211": {
+        "id": 1211,
+        "type": "token",
+        "name": "Monstrous Mouth",
+        "rebuild": 1
+    },
+    "Monstrous Mouth": {
+        "id": 1211,
+        "type": "token",
+        "name": "Monstrous Mouth",
+        "rebuild": 1
+    },
+    "1212": {
+        "id": 1212,
+        "type": "token",
+        "name": "IMF Scrambler",
+        "rebuild": 2
+    },
+    "IMF Scrambler": {
+        "id": 1212,
+        "type": "token",
+        "name": "IMF Scrambler",
+        "rebuild": 2
+    },
+    "1213": {
+        "id": 1213,
+        "type": "token",
+        "name": "Shock Cycle",
+        "rebuild": 0
+    },
+    "Shock Cycle": {
+        "id": 1213,
+        "type": "token",
+        "name": "Shock Cycle",
+        "rebuild": 0
+    },
+    "1214": {
+        "id": 1214,
+        "type": "token",
+        "name": "IMF Covert Jet",
+        "rebuild": 1
+    },
+    "IMF Covert Jet": {
+        "id": 1214,
+        "type": "token",
+        "name": "IMF Covert Jet",
+        "rebuild": 1
+    },
+    "1215": {
+        "id": 1215,
+        "type": "token",
+        "name": "IMF Sport Car",
+        "rebuild": 2
+    },
+    "IMF Sport Car": {
+        "id": 1215,
+        "type": "token",
+        "name": "IMF Sport Car",
+        "rebuild": 2
+    },
+    "1216": {
+        "id": 1216,
+        "type": "token",
+        "name": "IMF Tank",
+        "rebuild": 0
+    },
+    "IMF Tank": {
+        "id": 1216,
+        "type": "token",
+        "name": "IMF Tank",
+        "rebuild": 0
+    },
+    "1217": {
+        "id": 1217,
+        "type": "token",
+        "name": "IMF-Splorer",
+        "rebuild": 1
+    },
+    "IMF-Splorer": {
+        "id": 1217,
+        "type": "token",
+        "name": "IMF-Splorer",
+        "rebuild": 1
+    },
+    "1218": {
+        "id": 1218,
+        "type": "token",
+        "name": "Sonic Speedster",
+        "rebuild": 0
+    },
+    "Sonic Speedster": {
+        "id": 1218,
+        "type": "token",
+        "name": "Sonic Speedster",
+        "rebuild": 0
+    },
+    "1219": {
+        "id": 1219,
+        "type": "token",
+        "name": "Sonic Speedster 2",
+        "rebuild": 1
+    },
+    "Sonic Speedster 2": {
+        "id": 1219,
+        "type": "token",
+        "name": "Sonic Speedster 2",
+        "rebuild": 1
+    },
+    "1220": {
+        "id": 1220,
+        "type": "token",
+        "name": "Sonic Speedster 3",
+        "rebuild": 2
+    },
+    "Sonic Speedster 3": {
+        "id": 1220,
+        "type": "token",
+        "name": "Sonic Speedster 3",
+        "rebuild": 2
+    },
+    "1221": {
+        "id": 1221,
+        "type": "token",
+        "name": "The Tornado",
+        "rebuild": 0
+    },
+    "The Tornado": {
+        "id": 1221,
+        "type": "token",
+        "name": "The Tornado",
+        "rebuild": 0
+    },
+    "1222": {
+        "id": 1222,
+        "type": "token",
+        "name": "The Tornado 1",
+        "rebuild": 1
+    },
+    "The Tornado 1": {
+        "id": 1222,
+        "type": "token",
+        "name": "The Tornado 1",
+        "rebuild": 1
+    },
+    "1223": {
+        "id": 1223,
+        "type": "token",
+        "name": "The Tornado 2",
+        "rebuild": 2
+    },
+    "The Tornado 2": {
+        "id": 1223,
+        "type": "token",
+        "name": "The Tornado 2",
+        "rebuild": 2
+    },
+    "1224": {
+        "id": 1224,
+        "type": "token",
+        "name": "K.I.T.T",
+        "rebuild": 0
+    },
+    "K.I.T.T": {
+        "id": 1224,
+        "type": "token",
+        "name": "K.I.T.T",
+        "rebuild": 0
+    },
+    "1225": {
+        "id": 1225,
+        "type": "token",
+        "name": "K.I.T.T. JET",
+        "rebuild": 1
+    },
+    "K.I.T.T. JET": {
+        "id": 1225,
+        "type": "token",
+        "name": "K.I.T.T. JET",
+        "rebuild": 1
+    },
+    "1226": {
+        "id": 1226,
+        "type": "token",
+        "name": "GOLIATH ARMORED SEMI",
+        "rebuild": 2
+    },
+    "GOLIATH ARMORED SEMI": {
+        "id": 1226,
+        "type": "token",
+        "name": "GOLIATH ARMORED SEMI",
+        "rebuild": 2
+    },
+    "1227": {
+        "id": 1227,
+        "type": "token",
+        "name": "Police",
+        "rebuild": 0
+    },
+    "Police": {
+        "id": 1227,
+        "type": "token",
+        "name": "Police",
+        "rebuild": 0
+    },
+    "1228": {
+        "id": 1228,
+        "type": "token",
+        "name": "Hovercraft",
+        "rebuild": 1
+    },
+    "Hovercraft": {
+        "id": 1228,
+        "type": "token",
+        "name": "Hovercraft",
+        "rebuild": 1
+    },
+    "1229": {
+        "id": 1229,
+        "type": "token",
+        "name": "Plane",
+        "rebuild": 2
+    },
+    "Plane": {
+        "id": 1229,
+        "type": "token",
+        "name": "Plane",
+        "rebuild": 2
+    },
+    "1230": {
+        "id": 1230,
+        "type": "token",
+        "name": "BIONIC STEED",
+        "rebuild": 0
+    },
+    "BIONIC STEED": {
+        "id": 1230,
+        "type": "token",
+        "name": "BIONIC STEED",
+        "rebuild": 0
+    },
+    "1231": {
+        "id": 1231,
+        "type": "token",
+        "name": "BAT RAPTOR",
+        "rebuild": 1
+    },
+    "BAT RAPTOR": {
+        "id": 1231,
+        "type": "token",
+        "name": "BAT RAPTOR",
+        "rebuild": 1
+    },
+    "1232": {
+        "id": 1232,
+        "type": "token",
+        "name": "ULTRA BAT",
+        "rebuild": 2
+    },
+    "ULTRA BAT": {
+        "id": 1232,
+        "type": "token",
+        "name": "ULTRA BAT",
+        "rebuild": 2
+    },
+    "1233": {
+        "id": 1233,
+        "type": "token",
+        "name": "BAT WING",
+        "rebuild": 0
+    },
+    "BAT WING": {
+        "id": 1233,
+        "type": "token",
+        "name": "BAT WING",
+        "rebuild": 0
+    },
+    "1234": {
+        "id": 1234,
+        "type": "token",
+        "name": "BLACK THUNDER",
+        "rebuild": 1
+    },
+    "BLACK THUNDER": {
+        "id": 1234,
+        "type": "token",
+        "name": "BLACK THUNDER",
+        "rebuild": 1
+    },
+    "1235": {
+        "id": 1235,
+        "type": "token",
+        "name": "BAT TANK",
+        "rebuild": 2
+    },
+    "BAT TANK": {
+        "id": 1235,
+        "type": "token",
+        "name": "BAT TANK",
+        "rebuild": 2
+    },
+    "1236": {
+        "id": 1236,
+        "type": "token",
+        "name": "Skeleton Organ",
+        "rebuild": 0
+    },
+    "Skeleton Organ": {
+        "id": 1236,
+        "type": "token",
+        "name": "Skeleton Organ",
+        "rebuild": 0
+    },
+    "1237": {
+        "id": 1237,
+        "type": "token",
+        "name": "Jukebox",
+        "rebuild": 1
+    },
+    "Jukebox": {
+        "id": 1237,
+        "type": "token",
+        "name": "Jukebox",
+        "rebuild": 1
+    },
+    "1238": {
+        "id": 1238,
+        "type": "token",
+        "name": "Skele-Turkey",
+        "rebuild": 2
+    },
+    "Skele-Turkey": {
+        "id": 1238,
+        "type": "token",
+        "name": "Skele-Turkey",
+        "rebuild": 2
+    },
+    "1239": {
+        "id": 1239,
+        "type": "token",
+        "name": "Pirate Ship",
+        "rebuild": 0
+    },
+    "Pirate Ship": {
+        "id": 1239,
+        "type": "token",
+        "name": "Pirate Ship",
+        "rebuild": 0
+    },
+    "1240": {
+        "id": 1240,
+        "type": "token",
+        "name": "Fanged Fortune",
+        "rebuild": 1
+    },
+    "Fanged Fortune": {
+        "id": 1240,
+        "type": "token",
+        "name": "Fanged Fortune",
+        "rebuild": 1
+    },
+    "1241": {
+        "id": 1241,
+        "type": "token",
+        "name": "Inferno",
+        "rebuild": 2
+    },
+    "Inferno": {
+        "id": 1241,
+        "type": "token",
+        "name": "Inferno",
+        "rebuild": 2
+    },
+    "1242": {
+        "id": 1242,
+        "type": "token",
+        "name": "Buckbeak",
+        "rebuild": 0
+    },
+    "Buckbeak": {
+        "id": 1242,
+        "type": "token",
+        "name": "Buckbeak",
+        "rebuild": 0
+    },
+    "1243": {
+        "id": 1243,
+        "type": "token",
+        "name": "Giant Owl",
+        "rebuild": 1
+    },
+    "Giant Owl": {
+        "id": 1243,
+        "type": "token",
+        "name": "Giant Owl",
+        "rebuild": 1
+    },
+    "1244": {
+        "id": 1244,
+        "type": "token",
+        "name": "Fierce Falcon",
+        "rebuild": 2
+    },
+    "Fierce Falcon": {
+        "id": 1244,
+        "type": "token",
+        "name": "Fierce Falcon",
+        "rebuild": 2
+    }
+}
