@@ -10,7 +10,7 @@ import re
 
 parser = argparse.ArgumentParser(
     prog='LEGO Dimensions tag toolbox',
-    description='Tis toolbox aids in changing an NFC213 tag a valid/other LEGO Dimensions character or vehicle.',
+    description='This toolbox aids in changing an NFC213 tag a valid/other LEGO Dimensions character or vehicle.',
 )
 parser.add_argument('--uid', required=True, help='The UID of the NFC tag. This is also called the serial number of the tag.')
 parser.add_argument('--id', type=int, help='The ID of the character (1 to 999), or the ID of the vehicle/token (1000 and beyond).')
