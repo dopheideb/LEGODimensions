@@ -104,6 +104,9 @@ document.querySelector('#pwdgen').addEventListener('submit', (event) => {
 		;
 	document.forms['pwdgen'].elements['TEA key'].value = key_hex;
 	
+	// Note: wakdev's NFC Tools doesn't understand lowercase 
+	// hexdigits, i.e. we must convert all our hexdigits to 
+	// uppercase.
 	if (dimensions_id < 1000)
 	{
 		console.log("[submit] This is a character, not a vehicle/token.");
@@ -118,8 +121,8 @@ document.querySelector('#pwdgen').addEventListener('submit', (event) => {
 		encrypted_character_block1_hex = uint322hexstr(encrypted_character_block[1]);
 		document.forms['pwdgen'].elements['Empty tag'].value =
 			"A2:2C:AA550000" +
-			", A2:24:" + encrypted_character_block0_hex +
-			", A2:25:" + encrypted_character_block1_hex
+			", A2:24:" + encrypted_character_block0_hex.toUpperCase() +
+			", A2:25:" + encrypted_character_block1_hex.toUpperCase()
 			", A2:2B:" + password_hex
 			;
 	}
@@ -128,8 +131,8 @@ document.querySelector('#pwdgen').addEventListener('submit', (event) => {
 		console.log("[submit] This is a vehicle/token, not a character.");
 		document.forms['pwdgen'].elements['Empty tag'].value = 'N/A';
 		document.forms['pwdgen'].elements['Vehicle tag'].value =
-			"1B:" + password_hex +
-			", A2:24:" + uint322hexstr(swap_endianness_32(dimensions_id)) +
+			"1B:" + password_hex.toUpperCase() +
+			", A2:24:" + uint322hexstr(swap_endianness_32(dimensions_id)).toUpperCase() +
 			", A2:25:00000000"
 			;
 	}
