@@ -113,28 +113,30 @@ int main()
 {
   reset();
   initialize();
-  enable_debugging_or_not();
+  if (crp_option != CRP_OPTION_1 && crp_option != CRP_OPTION_2 && crp_option != CRP_OPTION_3)
+    enable_swd();
   
   if(WATCHDOG_FLAG_SET || crp_option == CRP_OPTION_3 || crp_option == CRP_OPTION_NO_ISP)
   {
     if(user_code_is_valid())
       execute_internal_user_code()
-    else
-      /* Not of interest. */
+    else {
+      /* Not of interest; there is valid user code in our device. */
+    }
   }
   else
   {
     /* Enter ISP MODE if the correct GPIO pins have the correct logical 
-    value. PIO_1 == LOW, PIO_3 == HIGH. */
+    value. PIO_1 == LOW, PIO_3 == HIGH for USB ISP, LOW for UART ISP. */
   }
 }
 ```
 
-What if we could **manipulate** the following test:
-- WATCHDOG FLAG SET?
-- CRP3/NO_ISP ENABLED?
+enable_debugging() is the part where SWD is allowed. ISP is a more "manual" protocol for accessing the flash (but not debugging).
 
-If we could do that, then we control the boot process!
+We could get access to the flash contents, either through SWD or through ISP.
+
+SWD can be enabled by manipulating swd_option. ISP needs that as well, plus some extra things. So using SWD is easier. It is also more easily accessible on the board.
 
 ## Manipulate the boot process
 
@@ -231,7 +233,7 @@ This is known as a brownout. See
 Delivering decreased power to the LEGO Dimensions toypad seems like a 
 doable task. The LPC11U35 used on the toypad is only 5mm by 5mm, too 
 small to solder wires to (at least too small for *us*). However, the J2 
-header looks more promising.
+header looks more promising. (Note from Bas: Speak for yourself, I could solder wires to it. :-P But J2 is much more convenient, so we use that. :-D)
 
 ## The J2 header on the toypad 
 
@@ -295,13 +297,13 @@ We think we should build the following state machine for the AVR:
 4. Stop reset procedure.
 5. Start brownout delay timer (via Output Compare Register, OCRx)
 6. Burn cycles until the Output Compare Flag (OCFx) is set in the TIFRn register.
-7. Switch off "barely enough voltage"
-8. Switch on "just too low voltage"
-9. Deliberately burn a user supplied number CPU cycles
-10. Switch off "just too low voltage"
-11. Switch on "barely enough voltage"
-12. Write serial output: "DONE"
-13. Back to state 2.
+7. Switch off "barely enough voltage" and switch on "just too low voltage". This must be done in a single instruction, so the pins must be on the same AVR port.
+8. Deliberately burn a user supplied number CPU cycles
+9. Switch off "just too low voltage" and switch on "barely enough voltage", again using a single instruction.
+10. Write serial output: "DONE"
+11. Back to state 2.
+
+Step 7 is entered through an interrupt, and the interrupt handler (steps 7, 8, 9) must be naked and pure assembly, to get better timing. There must not be other interrupts enabled. Step 8 is done by selecting one of several code paths, each of which implements a specific number of cycles for the brown-out. This is because it should only last a few cycles, and an interrupt or configurable loop is too slow/too large steps.
 
 Atmel AVR130 is an application note called "Setup and Use of AVR 
 Timers".
