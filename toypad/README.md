@@ -287,7 +287,7 @@ before the brownout and the length of the brownout.
 
 We think we should build the following state machine for the AVR:
 1. Start
-2. Blocking: Read serial command "GLITCH <resetdelay> <brownoutlength>"
+2. Blocking: Read serial command "GLITCH \<resetdelay\> \<brownoutlength\>"
 3. Reset the LPC11U35X (either via reset pin or by applying 0 voltage)
 4. Stop reset procedure.
 5. Start brownout delay timer (via Output Compare Register, OCRx)
