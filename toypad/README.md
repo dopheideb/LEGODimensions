@@ -235,7 +235,7 @@ header looks more promising.
 The pinout is:
 
 | Pin number  | Connected to LPC11U35 pin | Meaning of LPC11U35 pin
-| ----------- | ------------------------: | \-----------------------
+| ----------- | ------------------------: | -----------------------
 | 1           | 33                        | `VSS` (i.e. ground)
 | 2           | 02                        | not(`RESET`)/`PIO_0`
 | 3           | 18                        | `PIO0_9`/**`MOSI0`**/`CT16B0_MAT1` (?but why?)
