@@ -235,7 +235,8 @@ int main(void)
     TIFR4 |= _BV(OCF4D);	// Clear overflow flag.
     TCNT4 = 0;			// Reset counter.
     TCCR4B = _BV(PWM4X)		// PWM Inversion Mode.
-           | CS4_DIV_16384;	// Start counting.
+           //| CS4_DIV_16384;	// Start counting.
+           | CS4_DIV_1;		// Start counting.
     
     while ((TIFR4 & _BV(OCF4D)) == 0)
     {}
