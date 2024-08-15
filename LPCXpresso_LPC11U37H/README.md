@@ -3,7 +3,8 @@
 The LEGO Dimensions toypad uses the following microcontroller: NXP 
 LPC11U35. We would like to have the boot ROM of such a chip, so we can 
 try to manipulate the boot process of the LEGO Dimensions toypad by 
-means of glitching.
+means of glitching. Having the actual boot ROM helps us with the timing 
+of the glitch; it narrows the search immensely.
 
 The LPCXpresso LPC11U37H is a development board with a chip very similar 
 to the LPC11U35.
@@ -12,7 +13,7 @@ to the LPC11U35.
 
 We assume that the boot ROM of the LPC11U35 and LPC11U37H are the same. 
 If that assumption turns out to be false, we will assume the boot ROM is 
-quit similar in the sense that code read protection checks are done 
+quite similar in the sense that code read protection checks are done 
 after roughly the same number of instructions.
 
 # Acquiring the boot ROM from the LPCXpresso LPC11U37H via USB
@@ -33,7 +34,7 @@ The User Manual also tells us we must set the following pins:
 The schematic of the LPCXpresso LPC11U37H shows switch "SW2" governing 
 PIO0_1. The same schematic shows that PIO0_3 is connected to USB_VBUS.
 
-So, in order to a USB debugging, the procedure is:
+So, in order to debug via USB, the procedure is:
 1. Hook the correct micro USB connector to the laptop/PC/USB master. This ensures PIO0_3 is high.
 2. Hold down SW2 (also labeled as "ISP").
 3. Temporarily press SW3 (also labeled as "Reset").
