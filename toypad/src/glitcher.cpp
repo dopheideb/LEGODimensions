@@ -344,8 +344,8 @@ ISR(TIMER1_OVF_vect, ISR_NAKED)
   // We have spend 7 CPU cycles so far.
 
   // Start timer/counter 4.
-  //TCCR4B = CS4_DIVIDER_16384;
   TCCR4B = CS4_DIVIDER_1;
+  //TCCR4B = CS4_DIVIDER_16384;
   // 3 CPU cycles:
   //   ldi r24,lo8(15)
   //   sts 193,r24
@@ -415,29 +415,6 @@ inline void setup_timer4(
   // "TIMSK" means "Timer/Counter4 Interrupt Mask Register"
   // "TOIE4" means "Timer/Counter4 Overflow Interrupt Enable"
   TIMSK4 |= _BV(TOIE4);
-}
-
-
-
-// This interrupt routine is called when timer 4 overflows. For us, this 
-// means that the voltage glitch has completed. (So no need to stop the 
-// glitching manually.) Timer 4 will continue to count and therefore 
-// will perform another voltage glitch stage. We must prevent another 
-// glitch from happening. Tl;dr: stop counting.
-ISR(TIMER4_OVF_vect, ISR_NAKED)
-{
-  // We want to stop counting as fast as possible, so simply set ALL 
-  // bits to 0, instead of ONLY the clock select bits (which would 
-  // require reading TCCR4B first).
-  TCCR4B = 0;
-  
-  // Mark that the glitching stage is over, so main loop can test this 
-  // boolean to see in which phase we are.
-  global__glitch_stage_not_done = false;
-  
-  // This interrupt routine was marked as "NAKED", so we have to return 
-  // manually.
-  reti();
 }
 
 

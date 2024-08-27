@@ -10,11 +10,17 @@ OPTIMIZATION	= g
 
 CPP_SOURCES	= ${TARGET}.cpp
 C_SOURCES	=
+ASM_SOURCES	= timer-interrupts.S
 
-OBJS = $(filter %.o,$(CPP_SOURCES:.cpp=.o) $(C_SOURCES:.c=.o))
+OBJS = $(filter %.o,$(CPP_SOURCES:.cpp=.o) $(C_SOURCES:.c=.o) $(ASM_SOURCES:.S=.o))
 
 CC  = avr-gcc
 CXX = avr-g++
+
+CFLAGS =
+CFLAGS += -mmcu=${MCU}
+CFLAGS += -DF_CPU=${F_CPU}
+CFLAGS += -I.
 
 CXXFLAGS =
 CXXFLAGS += -std=c++17
@@ -24,6 +30,8 @@ CXXFLAGS += -mmcu=${MCU}
 CXXFLAGS += -DF_CPU=${F_CPU}
 CXXFLAGS += -DF_USB=${F_USB}
 CXXFLAGS += -I/usr/include/simavr
+
+.INTERMEDIATE: asm-defines.h dummy.c
 
 
 
@@ -45,8 +53,18 @@ ${TARGET}.elf: ${OBJS} Makefile
 %.o: %.cpp Makefile
 	${CXX} ${CXXFLAGS} $< -o $@ -c
 
+%.o: %.S Makefile asm-defines.h
+	@echo Make $@ from $<
+	${CC} ${CFLAGS} -c -o $@   $<
+
 %.s: %.cpp Makefile
 	${CXX} ${CXXFLAGS} -S -fverbose-asm $< -o $@ -c
+
+dummy.c: Makefile
+	touch -- $@
+
+asm-defines.h: dummy.c Makefile
+	${CC} ${CFLAGS} -S -o asm-defines.h dummy.c
 
 .PHONY: clean
 clean:
