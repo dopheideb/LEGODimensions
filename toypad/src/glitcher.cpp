@@ -1,12 +1,162 @@
+#include <avr/common.h>
 #include <avr/interrupt.h>
 #include <avr/io.h>
-#include <avr/avr_mcu_section.h>
+#include <avr/sleep.h>
+#include <avr/wdt.h>
 #include <util/delay.h>
 
-//#define SERIAL_BAUDRATE (9600L)
-#define SERIAL_BAUDRATE (500L * 1000L)
+#include "usart.hpp"
+#include "glitcher.hpp"
 
-// We need 3 pins to communicate to the glitcher and the LPC11U35:
+/*
+     _____ _              _     _
+    |_   _| |__   ___    (_) __| | ___  __ _
+      | | | '_ \ / _ \   | |/ _` |/ _ \/ _` |
+      | | | | | |  __/   | | (_| |  __/ (_| |
+      |_| |_| |_|\___|   |_|\__,_|\___|\__,_|
+    
+    The LPC11U35 has a boot ROM in which it checks fuses. We want to 
+    change the outcome of 1 particular fuse check: the CRP level check. 
+    "CRP" stands for "Code Read Protection". There are only 4 special 
+    values:
+    
+        0x4E697370 "NO_ISP"
+        0x12345678 "CRP1"
+        0x87654321 "CRP2"
+        0x43218765 "CRP3"
+    
+    ALL the other 4294967292 values mean "no code protection 
+    whatsoever". The LEGO Dimensions toypad is programmed with Code Read 
+    Protection level 3 (the worst from our point of view), which does 
+    not allow us to read the firmware.
+    
+    The fuse is stored at firmware position 0x2FC according to the 
+    LPC11U35 datasheet. We cannot modify the firmware. So, we need to 
+    wait until 0x2FC is loaded into memory and is checked against the 
+    CRP3/NO_ISP. (See UM10462, chapter 20.10 Boot process flowchart.)
+    
+    We want to glitch/change either the appropriate compares, or 
+    glitch/change the register containing the value of ROM address 
+    0x2FC. The latter is easier since we need to glitch only once.
+    
+    The LPC11U35 runs at 12 MHz during the boot ROM phase. The boot ROM 
+    is 16 kB long. The Arduino Leonardo runs as 16 MHz. If we use an 
+    8-bit timer, we have a maximum count of 255. That would equate to 
+    some 191 CPU cycles on the LPC11U35. If the boot ROM hasn't checked 
+    address 0x2FC, then an 8-bit counter is simply not enough. We could 
+    use the overflow interrupt to keep count of the number of times we 
+    have overflowed. However, we opted for something a bit simpler.
+    
+    Long story short: use a regular 16-bit timer to get "close" to where 
+    we want to glitch, then change to a high speed 8-bit timer (or 
+    10-bit timer) for the final stretch.
+    
+    The duration of the brownout is probably extremely short. Perhaps 
+    even a single high speed timer tick. So do that part with timer 4 
+    only, don't use the CPU, don't busy wait.
+*/
+
+
+// We want to spend as little time as possible in the timer interrupts. 
+// Since our only goal of the interrupts is to WAKE the CPU, we can 
+// simply issue "reti" (and a "nop" for alignment).
+asm(
+	"\n" ".section .vectors"
+	"\n" ".global __vectors"
+	"\n\t" ".type __vectors, @function"
+	"\n" "__vectors:"
+	// Note: first address after jump table is 0x00AC.
+					// Note: Datasheet starts counting at 1.
+					//
+					// Vector No. | Address | Source       | Interrupt Definition
+					// -----------+---------+--------------+---------------------
+	"\n\t" "jmp 0x00ac"		//         1  |  0x0000 | RESET        | External Pin, Power-on Reset, Brown-out Reset, Watchdog Reset, and JTAG AVR Reset
+	"\n\t" "jmp __vector_default"	//         2  |  0x0004 | INT0         | External Interrupt Request 0
+	"\n\t" "jmp __vector_default"	//         3  |  0x0008 | INT1         | External Interrupt Request 1
+	"\n\t" "jmp __vector_default"	//         4  |  0x000C | INT2         | External Interrupt Request 2
+	"\n\t" "jmp __vector_default"	//         5  |  0x0010 | INT3         | External Interrupt Request 3
+	"\n\t" "jmp __vector_default"	//         6  |  0x0014 | Reserved     | Reserved
+	"\n\t" "jmp __vector_default"	//         7  |  0x0018 | Reserved     | Reserved
+	"\n\t" "jmp __vector_default"	//         8  |  0x001C | INT6         | External Interrupt Request 6
+	"\n\t" "jmp __vector_default"	//         9  |  0x0020 | Reserved     | Reserved
+	"\n\t" "jmp __vector_default"	//        10  |  0x0024 | PCINT0       | Pin Change Interrupt Request 0
+	"\n\t" "jmp __vector_default"	//        11  |  0x0028 | USB General  | USB General Interrupt request
+	"\n\t" "jmp __vector_default"	//        12  |  0x002C | USB Endpoint | USB Endpoint Interrupt request
+	"\n\t" "jmp __vector_default"	//        13  |  0x0030 | WDT          | Watchdog Time-out Interrupt
+	"\n\t" "jmp __vector_default"	//        14  |  0x0034 | Reserved     | Reserved
+	"\n\t" "jmp __vector_default"	//        15  |  0x0038 | Reserved     | Reserved
+	"\n\t" "jmp __vector_default"	//        16  |  0x003C | Reserved     | Reserved
+	"\n\t" "jmp __vector_default"	//        17  |  0x0040 | TIMER1 CAPT  | Timer/Counter1 Capture Event
+	"\n\t" "jmp __vector_default"	//        18  |  0x0044 | TIMER1 COMPA | Timer/Counter1 Compare Match A
+	"\n\t" "jmp __vector_default"	//        19  |  0x0048 | TIMER1 COMPB | Timer/Counter1 Compare Match B
+	"\n\t" "jmp __vector_default"	//        20  |  0x004C | TIMER1 COMPC | Timer/Counter1 Compare Match C
+//	"\n\t" "reti"			//        21  |  0x0050 | TIMER1 OVF   | Timer/Counter1 Overflow
+//	"\n\t" "nop"
+"\n\t" "jmp __vector_default"
+	"\n\t" "jmp __vector_default"	//        22  |  0x0054 | TIMER0 COMPA | Timer/Counter0 Compare Match A
+	"\n\t" "jmp __vector_default"	//        23  |  0x0058 | TIMER0 COMPB | Timer/Counter0 Compare match B
+	"\n\t" "jmp __vector_default"	//        24  |  0x005C | TIMER0 OVF   | Timer/Counter0 Overflow
+	"\n\t" "jmp __vector_default"	//        25  |  0x0060 | SPI (STC)    | SPI Serial Transfer Complete
+	"\n\t" "jmp __vector_default"	//        26  |  0x0064 | USART1 RX    | USART1 Rx Complete
+	"\n\t" "jmp __vector_default"	//        27  |  0x0068 | USART1 UDR   | EUSART1 Data Register Empty
+	"\n\t" "jmp __vector_default"	//        28  |  0x006C | USART1TX     | USART1 Tx Complete
+	"\n\t" "jmp __vector_default"	//        29  |  0x0070 | ANALOG COMP  | Analog Comparator
+	"\n\t" "jmp __vector_default"	//        30  |  0x0074 | ADC          | ADC Conversion Complete
+	"\n\t" "jmp __vector_default"	//        31  |  0x0078 | EE READY     | EEPROM Ready
+	"\n\t" "jmp __vector_default"	//        32  |  0x007C | TIMER3 CAPT  | Timer/Counter3 Capture Event
+	"\n\t" "jmp __vector_default"	//        33  |  0x0080 | TIMER3 COMPA | Timer/Counter3 Compare Match A
+	"\n\t" "jmp __vector_default"	//        34  |  0x0084 | TIMER3 COMPB | Timer/Counter3 Compare Match B
+	"\n\t" "jmp __vector_default"	//        35  |  0x0088 | TIMER3 COMPC | Timer/Counter3 Compare Match C
+	"\n\t" "jmp __vector_default"	//        36  |  0x008C | TIMER3 OVF   | Timer/Counter3 Overflow
+	"\n\t" "jmp __vector_default"	//        37  |  0x0090 | TWI          | 2-wire Serial Interface
+	"\n\t" "jmp __vector_default"	//        38  |  0x0094 | SPM READY    | Store Program Memory Ready
+	"\n\t" "jmp __vector_default"	//        39  |  0x0098 | TIMER4 COMPA | Timer/Counter4 Compare Match A
+//	"\n\t" "reti"			//        40  |  0x009C | TIMER4 COMPB | Timer/Counter4 Compare Match B
+//	"\n\t" "nop"
+"\n\t" "jmp __vector_default"
+	"\n\t" "jmp __vector_default"	//        41  |  0x00A0 | TIMER4 COMPD | Timer/Counter4 Compare Match D
+	"\n\t" "jmp __vector_default"	//        42  |  0x00A4 | TIMER4 OVF   | Timer/Counter4 Overflow
+	"\n\t" "jmp __vector_default"	//        43  |  0x00A8 | TIMER4 FPF   | Timer/Counter4 Fault Protection Interrupt
+					//               0x00AC --> First address after interrupt table.
+	
+	
+	
+	// Import section ".init2" manually from gcrt1.S
+	"\n" ".section .init2"
+	"\n\t" "clr __zero_reg__"		// clr	__zero_reg__
+	
+	// SREG = 0, disables interrupts. "cli" would have done the job 
+	// as well...
+	"\n\t" "out 0x3f, __zero_reg__"		// out	AVR_STATUS_ADDR, __zero_reg__
+	
+	// ATmega32u4 has 0xB00 bytes of RAM. Initialize the stack 
+	// pointer to the highest address.
+	// 
+	// 0x3e == SPH, stack pointer, high byte
+	// 0x3d == SPL, stack pointer, low byte
+	"\n\t" ".set __stack, 0xAFF"
+	"\n\t" "ldi r28, lo8(__stack)"		// ldi	r28,lo8(__stack)
+	"\n\t" "ldi r29, hi8(__stack)"		// ldi	r29,hi8(__stack)
+	"\n\t" "out 0x3e, r29"			// out	AVR_STACK_POINTER_HI_ADDR, r29
+	"\n\t" "out 0x3d, r28"			// out	AVR_STACK_POINTER_HI_ADDR, r29
+	
+	
+	
+	// Import section ".init9" manually from gcrt1.S
+	"\n" ".section .init9"
+	"\n\t" "call main"
+	"\n\t" "jmp exit"
+	
+	
+	
+	"\n" ".section .text"
+);
+ISR(BADISR_vect, ISR_NAKED) { asm("jmp 0x0000"); }
+
+
+
+// We need 3 pins to communicate to the glitcher and the 
+// toypad/LPC11U35:
 // 
 //   1. To the RESET port of the LPC11U35. (Note: Active low.)
 //   2. To the MOSFET supplying the normal voltage to the LPC11U35.
@@ -35,7 +185,7 @@
 //   OC4D (inverted) |     PD6    |        D12       |    NOT AVAILABLE   |
 //   ----------------+------------+------------------+--------------------+
 // 
-// The obvious choice is to use OC4B, since it is available on both 
+// The obvious choice is to use OC4B, since it is available on both our 
 // boards.
 // 
 // The choice for the RESET port is based on aesthetics; just use a 
@@ -48,8 +198,8 @@
 
 #define GLITCHER_VSS_DDR	DDRB
 #define GLITCHER_VSS_PORT	PORTB
-#define GLITCHER_VSS_NORMAL_PIN	PINB6
-#define GLITCHER_VSS_BAD_PIN	PINB5
+#define GLITCHER_VSS_NORMAL_PIN	PINB5
+#define GLITCHER_VSS_BAD_PIN	PINB6
 
 #define CS1_STOP		(        0 |         0 |         0)
 #define CS1_DIVIDER_1		(        0 |         0 | _BV(CS10))
@@ -60,26 +210,181 @@
 
 #define CS4_STOP		(        0 |         0 |         0 |         0)
 #define CS4_DIVIDER_1		(        0 |         0 |         0 | _BV(CS40))
-#define CS4_DIVIDER_2		(        0 |         0 | _BV(CS41) |         0)
-#define CS4_DIVIDER_8192	(_BV(CS43) | _BV(CS42) | _BV(CS41) |         0)
 #define CS4_DIVIDER_16384	(_BV(CS43) | _BV(CS42) | _BV(CS41) | _BV(CS40))
 
-#define USART_ECHO
 
 
-
-void usart_init(uint32_t baudrate=SERIAL_BAUDRATE);
-void usart_transmit_char(char ch);
-void usart_transmit_string(char const ch[]);
-uint16_t usart_receive_uint16();
-void usart_dump_byte(uint8_t byte);
-
+void setup_clocks();
 void setup_timer1(uint16_t timer_ticks_wanted_before_overflow);
 void setup_timer4(
     uint8_t timer_ticks_before_compare_match,
     uint8_t timer_ticks_before_overflow
 );
-volatile bool global__glitch_stage_not_done;
+
+
+int main()
+{
+  // Disable all USB interrupts. Otherwise an ATMega32U4 may lockup. 
+  // (USB_GEN_vect() is still called.)
+  cli();
+  USBCON = 0;
+  UDIEN = 0;
+  UEIENX = 0;
+  UEINT = 0;
+  
+  // It is safe to enable interrupts again.
+  sei();
+  
+  // Set needed pins as output.
+  GLITCHER_RESET_DDR |= _BV(GLITCHER_RESET_PIN);
+  GLITCHER_VSS_DDR |= _BV(GLITCHER_VSS_NORMAL_PIN)
+                   |  _BV(GLITCHER_VSS_BAD_PIN)
+                   ;
+  
+  usart_init(SERIAL_BAUDRATE);
+  
+  setup_clocks();
+  // See datasheet chapter 7.1. Timers/counters ARE available in idle 
+  // mode (but not in any other sleep mode).
+  set_sleep_mode(SLEEP_MODE_IDLE);
+  sleep_enable();
+  
+  while (1)
+  {
+    // 0 on reset on LP11U35 means: RESET (active low)
+    GLITCHER_RESET_PORT &= ~_BV(GLITCHER_RESET_PIN);
+    
+    // DISABLE bad voltage supply. (This is just a precaution; the bad 
+    // voltage supply should already be off.)
+    GLITCHER_VSS_PORT &= ~_BV(GLITCHER_VSS_BAD_PIN);
+    
+    // Power on the LPC11U35 (and keep resetting).
+    GLITCHER_VSS_PORT |= _BV(GLITCHER_VSS_NORMAL_PIN);
+    
+    usart_transmit_string("READY\r\n");
+    
+    uint32_t idle_counter = 0;
+    // Wait for RX to be completed.
+    while (!(UCSR1A & _BV(RXC1)))
+    {
+      _delay_us(8.0 * 1000 * 1000 / SERIAL_BAUDRATE);
+      if (++idle_counter * 8 >= SERIAL_BAUDRATE)
+      {
+        idle_counter = 0;
+        // Indicate we are still alive.
+        usart_transmit_char('.');
+      }
+    }
+    
+    // RX has completed; we can read a byte. Expect the 'G', which 
+    // stands for "glitch".
+    char magic_byte = UDR1;
+    if (magic_byte != 'G')    {
+      usart_transmit_string("FAIL\r\n");
+      continue;
+    }
+#ifdef USART_ECHO
+    usart_transmit_string("\r\n");
+    usart_transmit_char(magic_byte);
+#endif
+    
+    uint16_t post_reset_ticks_at_96MHz = usart_receive_uint16();
+    uint16_t glitch_ticks_at_96MHz = usart_receive_uint16();
+#ifdef USART_ECHO
+    usart_transmit_string("\r\n");
+#endif
+    // Assert enough ticks are available for the post reset.
+    if (glitch_ticks_at_96MHz > 15)
+    {
+      usart_transmit_string("FAIL: GLITCH TOO LONG\r\n");
+      continue;
+    }
+    
+    uint16_t timer1_ticks;
+    uint8_t  timer4_ticks;
+
+    if (post_reset_ticks_at_96MHz <= MIN_TIMER4_TICKS_BEFORE_OVERFLOW)
+    {
+      usart_transmit_string("FAIL\r\n");
+      continue;
+    }
+    
+    // We subtract ticks here so they won't be part of coarse timer 1. 
+    // We will add these ticks to timer 4 later.
+    uint16_t post_reset_ticks =
+      post_reset_ticks_at_96MHz - MIN_TIMER4_TICKS_BEFORE_OVERFLOW;
+    
+    // The CPU runs at 16 MHz (or more precise: F_CPU). But the high 
+    // speed timer 4 runs at 96 MHz (or more precise: 48 MHz times the 
+    // PLL postscalar).
+    uint8_t frequency_ratio = 6;
+    timer1_ticks =  post_reset_ticks / frequency_ratio;
+    timer4_ticks = (post_reset_ticks % frequency_ratio)
+                 + MIN_TIMER4_TICKS_BEFORE_OVERFLOW;
+    
+    // We need at least 1 clock cycle for the timer to fire.
+    if (timer1_ticks <= TIMER1_INTERRUPT_CLOCK_CYCLES_BEFORE_STARTING_TIMER4)
+    {
+      usart_transmit_string("FAIL: POST RESET TOO SHORT\r\n");
+      continue;
+    }
+    timer1_ticks -= TIMER1_INTERRUPT_CLOCK_CYCLES_BEFORE_STARTING_TIMER4;
+    
+    setup_timer1(timer1_ticks);
+    setup_timer4(timer4_ticks, glitch_ticks_at_96MHz);
+    
+    // Start the LPC11U35.
+    //
+    // Note: the RESET pin of LPC11U35 is active low, so:
+    // 
+    //   GLITCHER_RESET_PIN | Result on LPC11U35
+    //   -------------------+-------------------
+    //   1 / high / on      | Not resetting, i.e. run normally.
+    //   1 / low / off      | Resetting, i.e. does not run.
+    GLITCHER_RESET_PORT |= _BV(GLITCHER_RESET_PIN);
+    
+    // Start the coarse counter. Note: the coarse counter starts high 
+    // speed timer 4.
+#ifdef TIMER1_RUNS_ULTRA_SLOW
+    TCCR1B = CS1_DIVIDER_1024;
+#else
+    TCCR1B = CS1_DIVIDER_1;
+#endif
+    
+    
+    
+    // We want the tick count to be as precise as possible. However, the 
+    // datasheet says: "If an interrupt occurs during execution of a 
+    // multi-cycle instruction, this instruction is completed before the 
+    // interrupt is served."
+    // 
+    // A jump takes at least 2 cycles (RJMP/IJMP/EIJMP). A conditional 
+    // branch takes 2 instructions. So a while(!done) loop contains at 
+    // least one multi-cycle instruction :-/.
+    // 
+    // However, the datasheet also states: "If an interrupt occurs when 
+    // the MCU is in sleep mode, the interrupt execution response time 
+    // is increased by five clock cycles." This is a FIXED number of 
+    // cycles :-).
+    sleep_cpu();
+    
+    // CPU wakes up after servicing timer 1 overlow interrupt.
+#ifdef TIMER4_RUNS_ULTRA_SLOW
+    TCCR4B = CS4_DIVIDER_16384;
+#else
+    TCCR4B = CS4_DIVIDER_1;		// Start the high speed timer.
+#endif
+    TCCR1B = CS1_STOP;
+    
+    sleep_cpu();
+    // Post: Woken up after servicing timer 4 output compare B interrupt.
+    
+    // Glitch is done. Stop the high speed timer.
+    TCCR4B = CS4_STOP;
+    
+    usart_transmit_string("DONE\r\n");
+  }
+}
 
 
 
@@ -89,7 +394,8 @@ volatile bool global__glitch_stage_not_done;
 //   of 96 MHz. I.e. clk_TMR must be 96 MHz.
 //   
 //   Side goal: The USB must still be usable. I.e. clk_USB must be 48 
-//   MHz.
+//   MHz. (We currently do not use USB, but we could use it as a serial 
+//   port.)
 void setup_clocks()
 {
   // The datasheet contains figure 6-1, called "Clock Distribution", 
@@ -124,184 +430,6 @@ void setup_clocks()
 
 
 
-int main(void)
-{
-  // Disable all USB interrupts. Otherwise an ATMega32U4 may lockup.
-  cli();
-  USBCON = 0;
-  UDIEN = 0;
-  UEIENX = 0;
-  UEINT = 0;
-  
-  // It is safe to enable interrupts again.
-  sei();
-  
-  // Set needed pins as output.
-  GLITCHER_RESET_DDR |= _BV(GLITCHER_RESET_PIN);
-  GLITCHER_VSS_DDR |= _BV(GLITCHER_VSS_NORMAL_PIN)
-                   |  _BV(GLITCHER_VSS_BAD_PIN)
-                   ;
-  
-  usart_init();
-  
-  setup_clocks();
-  
-  while (1)
-  {
-    // 0 on reset on LP11U35 means: RESET (active low)
-    GLITCHER_RESET_PORT &= ~_BV(GLITCHER_RESET_PIN);
-    
-    // DISABLE bad voltage supply.
-    GLITCHER_VSS_PORT &= ~_BV(GLITCHER_VSS_BAD_PIN);
-    
-    // Power on the LPC11U35 (and keep resetting).
-    GLITCHER_VSS_PORT |= _BV(GLITCHER_VSS_NORMAL_PIN);
-    
-    usart_transmit_string("READY\r\n");
-    
-    uint32_t idle_counter = 0;
-    // Wait for RX to be completed.
-    while (!(UCSR1A & _BV(RXC1)))
-    {
-      _delay_us(8.0 * 1000 * 1000 / SERIAL_BAUDRATE);
-      if (++idle_counter * 8 >= SERIAL_BAUDRATE)
-      {
-        idle_counter = 0;
-        // Indicate we are still alive.
-        usart_transmit_char('.');
-      }
-    }
-    
-    // RX has completed; we can read a byte. Expect the 'G', which 
-    // stands for "glitch".
-    char magic_byte = UDR1;
-    if (magic_byte != 'G')
-    {
-      usart_transmit_string("FAIL\r\n");
-      continue;
-    }
-#ifdef USART_ECHO
-    usart_transmit_string("\r\n");
-    usart_transmit_char(magic_byte);
-#endif
-    
-/*
-    This is the idea:
-
-    The LPC11U35 has a boot ROM in which it checks fuses. We want to 
-    change the outcome of 1 particular fuse check: the CRP level check. 
-    "CRP" stands for "Code Read Protection". There are only 4 special 
-    values:
-    
-        0x4E697370 "NO_ISP"
-        0x12345678 "CRP1"
-        0x87654321 "CRP2"
-        0x43218765 "CRP3"
-    
-    ALL the other values mean "no code protection whatsoever". The LEGO 
-    Dimensions toypad is programmed with Code Read Protection level 3 
-    (the worst from our point of view), which does not allow us to read 
-    the firmware.
-    
-    The fuse is stored at firmware position 0x2FC according to the 
-    datasheet. We cannot modify the firmware. So, we need to wait until 
-    0x2FC is loaded into memory and is checked against the CRP3/NO_ISP. 
-    (See UM10462, chapter 20.10 Boot process flowchart.)
-    
-    We want to glitch/change either the appropriate compares, or 
-    glitch/change the register containing the value of ROM address 
-    0x2FC. The latter is easier since we need to glitch only once.
-    
-    The LPC11U35 runs at 12 MHz during the boot ROM phase. The boot ROM 
-    is 16 kB long. The Arduino Leonardo runs as 16 MHz. If we use an 8 
-    bit timer, we have a maximum count of 255. That would equate to some 
-    191 CPU cycles on the LPC11U35. If the boot ROM hasn't check address 
-    0x2FC, then an 8-bit counter is simply not enough. We could use the 
-    overflow interrupt to keep count of the number of times we have 
-    overflowed. However we opted for something a bit simpler.
-    
-    Long story short: use a regular 16-bit timer to get "close" to where 
-    we want to glitch, then change to a high speed 8-bit timer (or 
-    10-bit timer) for the final stretch.
-    
-    The duration of the brownout is probably extremely short. Perhaps 
-    even a single high speed timer tick. So do that part with timer 4 
-    only, don't use the CPU, don't busy wait.
-*/
-    uint16_t post_reset_ticks_at_96MHz = usart_receive_uint16();
-    uint16_t glitch_ticks_at_96MHz = usart_receive_uint16();
-#ifdef USART_ECHO
-    usart_transmit_string("\r\n");
-#endif
-    // Assert enough ticks are available for the post reset.
-    if (glitch_ticks_at_96MHz > 15)
-    {
-      usart_transmit_string("FAIL: GLITCH TOO LONG\r\n");
-      continue;
-    }
-    
-    // The interrupt routine of timer 4 switches this boolean to false 
-    // when the glitching stage is over.
-    global__glitch_stage_not_done = true;
-    
-    uint16_t timer1_ticks;
-    uint8_t  timer4_ticks;
-
-    // We only want to glitch once, i.e. we have to prevent doing a 
-    // glitch twice, so we have to be ABLE to stop timer 4 in the 
-    // interrupt routine. That means enough ticks between the initial 
-    // value of timer/counter4 and the compare match. 64 ticks should 
-    // be more than enough.
-#define MIN_TIMER4_TICKS_BEFORE_COMPARE_MATCH 64
-    if (post_reset_ticks_at_96MHz <= 64)
-    {
-      usart_transmit_string("FAIL\r\n");
-      continue;
-    }
-    uint16_t post_reset_ticks =
-      post_reset_ticks_at_96MHz - MIN_TIMER4_TICKS_BEFORE_COMPARE_MATCH;
-    
-    // The CPU runs at 16 MHz (or more precise: F_CPU). But the high 
-    // speed timer 4 runs at 96 MHz (or more precise: 48 MHz times the 
-    // PLL postscalar).
-    uint8_t frequency_ratio = 6;
-    timer1_ticks =  post_reset_ticks / frequency_ratio;
-    timer4_ticks = (post_reset_ticks % frequency_ratio) + MIN_TIMER4_TICKS_BEFORE_COMPARE_MATCH;
-    
-#define TIMER1_INTERRUPT_TICKS_BEFORE_STARTING_TIMER4 10
-    if (timer1_ticks <= TIMER1_INTERRUPT_TICKS_BEFORE_STARTING_TIMER4)
-    {
-      usart_transmit_string("FAIL: POST RESET TOO SHORT\r\n");
-      continue;
-    }
-    timer1_ticks -= TIMER1_INTERRUPT_TICKS_BEFORE_STARTING_TIMER4;
-    
-    setup_timer1(timer1_ticks);
-    setup_timer4(timer4_ticks, glitch_ticks_at_96MHz);
-    
-    // Start the LPC11U35.
-    //
-    // Note: the RESET pin of LPC11U35 is active low, so:
-    // 
-    //   GLITCHER_RESET_PIN | Result on LPC11U35
-    //   -------------------+-------------------
-    //   1 / high / on      | Not resetting, i.e. run normally.
-    //   1 / low / off      | Resetting, i.e. does not run.
-    GLITCHER_RESET_PORT |= _BV(GLITCHER_RESET_PIN);
-    
-    // Start the coarse counter. Note: the coarse counter starts high 
-    // speed timer 4.
-    //TCCR1B = CS1_DIVIDER_1024;
-    TCCR1B = CS1_DIVIDER_1;
-    
-    // Just busy wait for completion.
-    while (global__glitch_stage_not_done)
-    {}
-    usart_transmit_string("DONE\r\n");
-  }
-}
-
-
 /*  _   _
  * | |_(_)_ __ ___   ___ _ __ ___
  * | __| | '_ ` _ \ / _ \ '__/ __|
@@ -316,7 +444,7 @@ int main(void)
 // Corner case: 0 actually means 65536.
 inline void setup_timer1(uint16_t timer_ticks_wanted_before_overflow)
 {
-  uint16_t timer_ticks_left = -timer_ticks_wanted_before_overflow;
+  uint16_t timer_ticks_left = /* 65536 */ - timer_ticks_wanted_before_overflow;
   TCNT1 = timer_ticks_left;
   
   // Enable the overflow interrupt of timer 1. See ISR(TIMER1_OVF_vect, 
@@ -327,51 +455,11 @@ inline void setup_timer1(uint16_t timer_ticks_wanted_before_overflow)
   TIMSK1 |= _BV(TOIE1);
 }
 
-// This interrupt routine is called when timer 1 overflows. For us, this 
-// means that the coarse waiting is over. Switch to timer 4 for 
-// precision waiting and glitching (both at 96 MHz).
-ISR(TIMER1_OVF_vect, ISR_NAKED)
-{
-  // Timing: https://www.gammon.com.au/interrupts: "the minimal amount 
-  // of time to service an interrupt is 4 clock cycles (to push the 
-  // current program counter onto the stack) followed by the code now 
-  // executing at the interrupt vector location. This normally contains 
-  // a jump to where the interrupt routine really is, which is another 3 
-  // cycles."
-  // 
-  // The ATmega32U4 has an AVRe+ core.
-  //
-  // We have spend 7 CPU cycles so far.
-
-  // Start timer/counter 4.
-  TCCR4B = CS4_DIVIDER_1;
-  //TCCR4B = CS4_DIVIDER_16384;
-  // 3 CPU cycles:
-  //   ldi r24,lo8(15)
-  //   sts 193,r24
-  
-  // Total number of CPU cycles before timer/counter 4 starts:
-  //   7 + 3 = 10
-  
-  
-  
-  // Stop timer/counter 1.
-  TCCR1B = 0;
-  // 2 CPU cycles:
-  //   sts 129,__zero_reg__
-  
-  // This interrupt routine was marked as "NAKED", so we have to return 
-  // manually.
-  reti();
-  // 4 CPU cycles:
-  //   reti
-}
-
 
 
 inline void setup_timer4(
-    uint8_t timer_ticks_before_compare_match,
-    uint8_t timer_ticks_before_overflow
+    uint8_t timer_ticks_before_glitch,
+    uint8_t timer_ticks_glitch_length
 )
 {
   // TCCR == Timer/Counter Control Register
@@ -387,10 +475,11 @@ inline void setup_timer4(
   // 
   // For us, this means the following:
   // 
-  //   Event          | OC4B pin (good VSS) | not(OC4B) pin (bad VSS) |
-  //   ---------------+---------------------+-------------------------+
-  //   Compare Match  | Turns OFF           | Turns ON                |
-  //   Timer overflow | Turns ON            | Turns OFF               |
+  //   Event            | OC4B pin  | not(OC4B)  |
+  //                    | (bad VSS) | (good VSS) |
+  //   -----------------+-----------+------------+
+  //   Timer overflow   | Turns ON  | Turns OFF  |
+  //   Compare Match 4B | Turns OFF | Turns ON   |
   TCCR4A = _BV(COM4B0)	// Cleared on Compare Match.
          | _BV(PWM4B)	// Enables PWM mode based on comparator OCR4B.
          ;
@@ -402,127 +491,21 @@ inline void setup_timer4(
 
   // Set TOP for fast PWM. Make it an 8-bit counter, so we can use 8-bit 
   // arithmetic. (We don't need 10-bit precision.)
+  TC4H = 0;
   OCR4C = 0xFF;
   
-  uint8_t timer_ticks_left_before_overflow = -timer_ticks_before_overflow;
-  OCR4B = timer_ticks_left_before_overflow;
+  // From the datasheet, chapter 15.11 ("Accessing 10-bit Registers"):
+  // 
+  //   To do a 10-bit write, the high byte must be written to the TC4H 
+  //   register before the low byte is written.
+  TC4H = 0;
+  TCNT4L = /* 256 */ - timer_ticks_before_glitch;
+  OCR4B = +timer_ticks_glitch_length;
   
-  uint8_t timer_ticks_left_before_compare_match = timer_ticks_left_before_overflow - timer_ticks_before_compare_match;
-  TCNT4 = timer_ticks_left_before_compare_match;
   // Enable the overflow interrupt of timer 4. See ISR(TIMER4_OVF_vect, 
   // ISR_NAKED) for the actual overflow routine.
   // 
   // "TIMSK" means "Timer/Counter4 Interrupt Mask Register"
-  // "TOIE4" means "Timer/Counter4 Overflow Interrupt Enable"
-  TIMSK4 |= _BV(TOIE4);
-}
-
-
-
-/*  _   _ ____    _    ____ _____
- * | | | / ___|  / \  |  _ \_   _|
- * | | | \___ \ / _ \ | |_) || |
- * | |_| |___) / ___ \|  _ < | |
- *  \___/|____/_/   \_\_| \_\|_|
- */
-void usart_init(uint32_t baudrate)
-{
-  // Set the baudrate. The datasheet says:
-  // 
-  //   This clock is the baud rate generator clock output
-  //     (= f osc / (16(UBRRn+1))).
-  uint32_t ubrr = F_CPU / (16 * baudrate) - 1;
-  UBRR1H = (ubrr >> 8);
-  UBRR1L = (ubrr & 0xff);
-  
-  // The only writable bits of UCSR1A are:
-  // 
-  // Bit 6 – TXCn: USART Transmit Complete. "or it can be cleared by 
-  // writing a one to its bit location." We don't need that.
-  // 
-  // Bit 1 – U2Xn: Double the USART Transmission Speed. We don't need 
-  // that.
-  // 
-  // Bit 0 – MPCMn: Multi-processor Communication Mode. We definitely 
-  // don't need that feature.
-  UCSR1A = 0;
-  
-  // Note:
-  //
-  // Bit 2 – UCSZn2: Character Size n: we want 8 bit words, so this 
-  // bit must be 0. (UCSZ1 must be 0x3 for 8 bit words.)
-  UCSR1B = (_BV(RXCIE1)	* 0)	// 0x80: RX Complete Interrupt Enable 1
-         | (_BV(TXCIE1) * 0)	// 0x40: TX Complete Interrupt Enable 1
-         | (_BV(UDRIE1) * 0)	// 0x20: USART Data Register Empty Interrupt Enable 1
-         | (_BV(RXEN1)  * 1)	// 0x10: Receiver Enable 1
-         | (_BV(TXEN1)  * 1)	// 0x08: Transmitter Enable 1
-         | (_BV(UCSZ12) * 0)	// 0x04: Character Size 1
-         | (_BV(RXB81)  * 0)	// 0x02: Receive Data Bit 8 1
-         | (_BV(TXB81)  * 0)	// 0x01: Transmit Data Bit 8 1
-         ;
-  
-  UCSR1C = _BV(UCSZ11)
-         | _BV(UCSZ10)
-         ;
-  
-  UCSR1D = 0x00;
-}
-
-
-
-void usart_transmit_char(char ch)
-{
-  // UDRE = USART Data Register Empty
-  while (!(UCSR1A & _BV(UDRE1)))
-  {
-    // No-op, spinning wait.
-  }
-  // Post: Data Register is empty/ready.
-  
-  UDR1 = ch;
-}
-
-
-
-void usart_transmit_string(char const ch[])
-{
-  while (*ch != '\0')
-  {
-    usart_transmit_char(*ch);
-    ++ch;
-  }
-}
-
-
-
-uint16_t usart_receive_uint16()
-{
-  uint16_t ret = 0;
-  
-  while (1)
-  {
-    // Wait for RX to be completed.
-    while (!(UCSR1A & _BV(RXC1)))
-    {}
-    
-    uint8_t byte = UDR1;
-#ifdef USART_ECHO
-    usart_transmit_char(byte);
-#endif
-    if (byte < '0' || byte > '9')
-      return ret;
-    
-    ret = ret * 10 + (byte - '0');
-  }
-}
-
-
-
-void usart_dump_byte(uint8_t byte)
-{
-  for (uint8_t u = 0; u < 8; ++u)
-  {
-    uint8_t v = 7 - u;
-    usart_transmit_char('0' + ((byte & _BV(v)) >> v));
-  }
+  // "OCIE4B" means "Timer/Counter4 Output Compare Interrupt Enable"
+  TIMSK4 |= _BV(OCIE4B);
 }
