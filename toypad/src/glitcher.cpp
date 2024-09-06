@@ -61,7 +61,7 @@
 // Since our only goal of the interrupts is to WAKE the CPU, we can 
 // simply issue "reti" (and a "nop" for alignment).
 asm(
-	"\n" ".section .vectors"
+	".section .vectors"
 	"\n" ".global __vectors"
 	"\n\t" ".type __vectors, @function"
 	"\n" "__vectors:"
@@ -90,9 +90,8 @@ asm(
 	"\n\t" "jmp __vector_default"	//        18  |  0x0044 | TIMER1 COMPA | Timer/Counter1 Compare Match A
 	"\n\t" "jmp __vector_default"	//        19  |  0x0048 | TIMER1 COMPB | Timer/Counter1 Compare Match B
 	"\n\t" "jmp __vector_default"	//        20  |  0x004C | TIMER1 COMPC | Timer/Counter1 Compare Match C
-//	"\n\t" "reti"			//        21  |  0x0050 | TIMER1 OVF   | Timer/Counter1 Overflow
-//	"\n\t" "nop"
-"\n\t" "jmp __vector_default"
+	"\n\t" "reti"			//        21  |  0x0050 | TIMER1 OVF   | Timer/Counter1 Overflow
+	"\n\t" "nop"
 	"\n\t" "jmp __vector_default"	//        22  |  0x0054 | TIMER0 COMPA | Timer/Counter0 Compare Match A
 	"\n\t" "jmp __vector_default"	//        23  |  0x0058 | TIMER0 COMPB | Timer/Counter0 Compare match B
 	"\n\t" "jmp __vector_default"	//        24  |  0x005C | TIMER0 OVF   | Timer/Counter0 Overflow
@@ -111,9 +110,8 @@ asm(
 	"\n\t" "jmp __vector_default"	//        37  |  0x0090 | TWI          | 2-wire Serial Interface
 	"\n\t" "jmp __vector_default"	//        38  |  0x0094 | SPM READY    | Store Program Memory Ready
 	"\n\t" "jmp __vector_default"	//        39  |  0x0098 | TIMER4 COMPA | Timer/Counter4 Compare Match A
-//	"\n\t" "reti"			//        40  |  0x009C | TIMER4 COMPB | Timer/Counter4 Compare Match B
-//	"\n\t" "nop"
-"\n\t" "jmp __vector_default"
+	"\n\t" "reti"			//        40  |  0x009C | TIMER4 COMPB | Timer/Counter4 Compare Match B
+	"\n\t" "nop"
 	"\n\t" "jmp __vector_default"	//        41  |  0x00A0 | TIMER4 COMPD | Timer/Counter4 Compare Match D
 	"\n\t" "jmp __vector_default"	//        42  |  0x00A4 | TIMER4 OVF   | Timer/Counter4 Overflow
 	"\n\t" "jmp __vector_default"	//        43  |  0x00A8 | TIMER4 FPF   | Timer/Counter4 Fault Protection Interrupt
@@ -155,65 +153,6 @@ ISR(BADISR_vect, ISR_NAKED) { asm("jmp 0x0000"); }
 
 
 
-// We need 3 pins to communicate to the glitcher and the 
-// toypad/LPC11U35:
-// 
-//   1. To the RESET port of the LPC11U35. (Note: Active low.)
-//   2. To the MOSFET supplying the normal voltage to the LPC11U35.
-//   3. To the MOSFET supplying the bad voltage to the LPC11U35.
-// 
-// 
-// 
-// The hardware we already own:
-// 
-//   A. Arduino Leonardo   (ATmega32U4)
-//   B. SparkFun Pro Micro (ATmega32U4)
-// 
-// We will use timer 4 for high precision glitching/switching, with the 
-// hardware turning on/off the signal to the MOSFETs (OC4x, output 
-// compare).
-// 
-//   OC4X            | ATmega32U4 | Arduino Leonardo | SparkFun Pro Micro |
-//   ----------------+------------+------------------+--------------------+
-//   OC4A (regular)  |     PC7    |        D13       |    NOT AVAILABLE   |
-//   OC4A (inverted) |     PC6    |        D5        |           5        |
-//   ----------------+------------+------------------+--------------------+
-//   OC4B (regular)  |     PB6    |        D10       |          10        | <--- Normal voltage
-//   OC4B (inverted) |     PB5    |        D9        |           9        | <--- Bad voltage
-//   ----------------+------------+------------------+--------------------+
-//   OC4D (regular)  |     PD7    |        D6        |           6        |
-//   OC4D (inverted) |     PD6    |        D12       |    NOT AVAILABLE   |
-//   ----------------+------------+------------------+--------------------+
-// 
-// The obvious choice is to use OC4B, since it is available on both our 
-// boards.
-// 
-// The choice for the RESET port is based on aesthetics; just use a 
-// neighbouring pin. D8 is available on both boards (D11 is not). D8 is 
-// connected to ATmega pin PB4.
-
-#define GLITCHER_RESET_PORT	PORTB
-#define GLITCHER_RESET_DDR	DDRB
-#define GLITCHER_RESET_PIN	PINB4
-
-#define GLITCHER_VSS_DDR	DDRB
-#define GLITCHER_VSS_PORT	PORTB
-#define GLITCHER_VSS_NORMAL_PIN	PINB5
-#define GLITCHER_VSS_BAD_PIN	PINB6
-
-#define CS1_STOP		(        0 |         0 |         0)
-#define CS1_DIVIDER_1		(        0 |         0 | _BV(CS10))
-#define CS1_DIVIDER_8		(        0 | _BV(CS11) |        0 )
-#define CS1_DIVIDER_64		(        0 | _BV(CS11) | _BV(CS10))
-#define CS1_DIVIDER_256		(_BV(CS12) |         0 |        0 )
-#define CS1_DIVIDER_1024	(_BV(CS12) |         0 | _BV(CS10))
-
-#define CS4_STOP		(        0 |         0 |         0 |         0)
-#define CS4_DIVIDER_1		(        0 |         0 |         0 | _BV(CS40))
-#define CS4_DIVIDER_16384	(_BV(CS43) | _BV(CS42) | _BV(CS41) | _BV(CS40))
-
-
-
 void setup_clocks();
 void setup_timer1(uint16_t timer_ticks_wanted_before_overflow);
 void setup_timer4(
@@ -236,13 +175,12 @@ int main()
   sei();
   
   // Set needed pins as output.
-  GLITCHER_RESET_DDR |= _BV(GLITCHER_RESET_PIN);
-  GLITCHER_VSS_DDR |= _BV(GLITCHER_VSS_NORMAL_PIN)
-                   |  _BV(GLITCHER_VSS_BAD_PIN)
-                   ;
+  GLITCHER_DDR = _BV(GLITCHER_NOT_RESET_PIN)
+               | _BV(GLITCHER_VSS_REGULAR_PIN)
+               | _BV(GLITCHER_VSS_BAD_PIN)
+               ;
   
   usart_init(SERIAL_BAUDRATE);
-  
   setup_clocks();
   // See datasheet chapter 7.1. Timers/counters ARE available in idle 
   // mode (but not in any other sleep mode).
@@ -251,15 +189,9 @@ int main()
   
   while (1)
   {
-    // 0 on reset on LP11U35 means: RESET (active low)
-    GLITCHER_RESET_PORT &= ~_BV(GLITCHER_RESET_PIN);
-    
-    // DISABLE bad voltage supply. (This is just a precaution; the bad 
-    // voltage supply should already be off.)
-    GLITCHER_VSS_PORT &= ~_BV(GLITCHER_VSS_BAD_PIN);
-    
-    // Power on the LPC11U35 (and keep resetting).
-    GLITCHER_VSS_PORT |= _BV(GLITCHER_VSS_NORMAL_PIN);
+    // The port has 8 pins, but only our 3 pins are in use. In other 
+    // words: we can simply write 0 to the other pins.
+    GLITCHER_PORT = GLITCHER_PORT_STATE_RESET_LPC11U35_WITH_REGULAR_VOLTAGE;
     
     usart_transmit_string("READY\r\n");
     
@@ -289,7 +221,7 @@ int main()
 #endif
     
     uint16_t post_reset_ticks_at_96MHz = usart_receive_uint16();
-    uint16_t glitch_ticks_at_96MHz = usart_receive_uint16();
+    uint16_t glitch_ticks_at_96MHz     = usart_receive_uint16();
 #ifdef USART_ECHO
     usart_transmit_string("\r\n");
 #endif
@@ -322,65 +254,84 @@ int main()
     timer4_ticks = (post_reset_ticks % frequency_ratio)
                  + MIN_TIMER4_TICKS_BEFORE_OVERFLOW;
     
-    // We need at least 1 clock cycle for the timer to fire.
-    if (timer1_ticks <= TIMER1_INTERRUPT_CLOCK_CYCLES_BEFORE_STARTING_TIMER4)
+    // We will start timer 1 precisely 3 CPU cycle later than starting 
+    // the LPC11U35, compensate.
+    timer1_ticks += 3;
+    
+    // We need at least 1 CPU cycle for the timer to fire.
+    if (timer1_ticks <= TIMER1_INTERRUPT_CPU_CYCLES_BEFORE_STARTING_TIMER4)
     {
       usart_transmit_string("FAIL: POST RESET TOO SHORT\r\n");
       continue;
     }
-    timer1_ticks -= TIMER1_INTERRUPT_CLOCK_CYCLES_BEFORE_STARTING_TIMER4;
+    timer1_ticks -= TIMER1_INTERRUPT_CPU_CYCLES_BEFORE_STARTING_TIMER4;
     
     setup_timer1(timer1_ticks);
     setup_timer4(timer4_ticks, glitch_ticks_at_96MHz);
     
+    
+    
     // Start the LPC11U35.
-    //
-    // Note: the RESET pin of LPC11U35 is active low, so:
-    // 
-    //   GLITCHER_RESET_PIN | Result on LPC11U35
-    //   -------------------+-------------------
-    //   1 / high / on      | Not resetting, i.e. run normally.
-    //   1 / low / off      | Resetting, i.e. does not run.
-    GLITCHER_RESET_PORT |= _BV(GLITCHER_RESET_PIN);
+    GLITCHER_PORT = GLITCHER_PORT_STATE_RUN_LPC11U35_WITH_REGULAR_VOLTAGE;
     
-    // Start the coarse counter. Note: the coarse counter starts high 
-    // speed timer 4.
-#ifdef TIMER1_RUNS_ULTRA_SLOW
-    TCCR1B = CS1_DIVIDER_1024;
-#else
-    TCCR1B = CS1_DIVIDER_1;
-#endif
-    
-    
-    
-    // We want the tick count to be as precise as possible. However, the 
-    // datasheet says: "If an interrupt occurs during execution of a 
-    // multi-cycle instruction, this instruction is completed before the 
-    // interrupt is served."
-    // 
-    // A jump takes at least 2 cycles (RJMP/IJMP/EIJMP). A conditional 
-    // branch takes 2 instructions. So a while(!done) loop contains at 
-    // least one multi-cycle instruction :-/.
-    // 
-    // However, the datasheet also states: "If an interrupt occurs when 
-    // the MCU is in sleep mode, the interrupt execution response time 
-    // is increased by five clock cycles." This is a FIXED number of 
-    // cycles :-).
-    sleep_cpu();
-    
-    // CPU wakes up after servicing timer 1 overlow interrupt.
-#ifdef TIMER4_RUNS_ULTRA_SLOW
-    TCCR4B = CS4_DIVIDER_16384;
-#else
-    TCCR4B = CS4_DIVIDER_1;		// Start the high speed timer.
-#endif
-    TCCR1B = CS1_STOP;
-    
-    sleep_cpu();
-    // Post: Woken up after servicing timer 4 output compare B interrupt.
-    
-    // Glitch is done. Stop the high speed timer.
-    TCCR4B = CS4_STOP;
+    register uint8_t tmpreg;
+#define NT "\n\t"
+    asm volatile(
+      // Start timer 1, this is the coarse counter.
+      //
+      // Note: 0x81 is outside the reach of the faster OUT instruction.
+      NT";; TCCR1B = CS1_DIVIDER"
+      NT"ldi %[tmpreg], " STRINGIFY(CS1_DIVIDER)	// 1 CPU cycle
+      NT"sts 0x81, %[tmpreg]"				// 2 CPU cycles
+      NT
+      NT
+      NT
+      // We want the tick count to be as precise as possible. However, 
+      // the datasheet says: "If an interrupt occurs during execution of 
+      // a multi-cycle instruction, this instruction is completed before 
+      // the interrupt is served."
+      // 
+      // A jump takes at least 2 cycles (RJMP/IJMP/EIJMP). A conditional 
+      // branch takes 2 instructions. So a while(!done) loop contains at 
+      // least one multi-cycle instruction :-/.
+      // 
+      // However, the datasheet also states: "If an interrupt occurs 
+      // when the MCU is in sleep mode, the interrupt execution response 
+      // time is increased by five clock cycles." This is a FIXED number 
+      // of cycles :-).
+      NT";; Will wake up after servicing timer 1 overflow interrupt."
+      NT"sleep"
+      NT
+      NT
+      NT
+      // Start timer 4, this is the high speed timer (96 MHz).
+      //
+      // Note: 0xC1 is outside the reach of the faster OUT instruction.
+      NT";; TCCR4B = CS4_DIVIDER"
+      NT"ldi %[tmpreg], " STRINGIFY(CS4_DIVIDER)	// 1 CPU cycle
+      NT"sts 0xC1, %[tmpreg]"				// 2 CPU cycles
+      NT
+      NT
+      NT
+      // Stop timer 1.
+      NT";; TCCR1B = 0"
+      NT"sts 0x81, __zero_reg__"
+      NT
+      NT
+      NT
+      NT";; Will wake up after servicing timer 4 output compare B interrupt."
+      NT"sleep"
+      NT
+      NT
+      NT
+      // Stop timer 4.
+      NT";; TCCR4B = 0"
+      NT"sts 0xC1, __zero_reg__"
+      //
+      //
+      // Output operands
+      : [tmpreg] "=r" (tmpreg)
+    );
     
     usart_transmit_string("DONE\r\n");
   }
@@ -396,7 +347,7 @@ int main()
 //   Side goal: The USB must still be usable. I.e. clk_USB must be 48 
 //   MHz. (We currently do not use USB, but we could use it as a serial 
 //   port.)
-void setup_clocks()
+inline void setup_clocks()
 {
   // The datasheet contains figure 6-1, called "Clock Distribution", 
   // page 27. It shows which clock is connected to which prescaler, 

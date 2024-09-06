@@ -10,7 +10,7 @@ OPTIMIZATION	= g
 
 CPP_SOURCES	= ${TARGET}.cpp usart.cpp
 C_SOURCES	=
-ASM_SOURCES	= timer-interrupts.S
+ASM_SOURCES	=
 
 OBJS = $(filter %.o,$(CPP_SOURCES:.cpp=.o) $(C_SOURCES:.c=.o) $(ASM_SOURCES:.S=.o))
 
@@ -30,6 +30,7 @@ CXXFLAGS += -Wformat -Werror=format-security -Wall -Wextra -O${OPTIMIZATION}
 CXXFLAGS += -mmcu=${MCU}
 CXXFLAGS += -DF_CPU=${F_CPU}
 CXXFLAGS += -DUSART_ECHO
+#CXXFLAGS += -ffixed-r16
 #CXXFLAGS += -I/usr/include/simavr
 
 LDFLAGS =
