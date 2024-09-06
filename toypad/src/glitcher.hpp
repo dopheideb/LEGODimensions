@@ -7,6 +7,9 @@
 #define CONCAT3(x,y,z) _CONCAT3(x,y,z)
 #define STRINGIFY(s) _STR(s)
 #define _STR(s) #s
+#define NX "\n"
+#define NT "\n\t"
+#define ASM_FILE_LINE ";; " __FILE__ ":" STRINGIFY(__LINE__)
 
 // We need 3 pins to communicate to the glitcher and the 
 // toypad/LPC11U35:
