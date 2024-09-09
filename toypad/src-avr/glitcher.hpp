@@ -99,9 +99,8 @@
 //     (three bytes) is popped back from the Stack, the Stack Pointer is 
 //     incremented by three, and the I-bit in SREG is set."
 // 
-// [1] ldi rXX, CS4_DIVIDER
-// [2] sts TCCR4B, ldi
-#define TIMER1_INTERRUPT_CPU_CYCLES_BEFORE_STARTING_TIMER4 (5+5+5+1+2)
+// [2] sts TCCR4B, rXX
+#define TIMER1_INTERRUPT_CPU_CYCLES_BEFORE_STARTING_TIMER4 (5+5+5+2)
 
 #if 0
 #define TIMER1_RUNS_ULTRA_SLOW

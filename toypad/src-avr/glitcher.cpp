@@ -196,7 +196,11 @@ int main()
   {
     // The port has 8 pins, but only our 3 pins are in use. In other 
     // words: we can simply write 0 to the other pins.
-    GLITCHER_PORT = GLITCHER_PORT_STATE_RESET_LPC11U35_WITH_REGULAR_VOLTAGE;
+    // 
+    // Don't reset the LPC11U35 yet: the previous loop may have been a 
+    // successful glitch. So postpone reset until a new command is given 
+    // by the user/operator.
+    GLITCHER_PORT = GLITCHER_PORT_STATE_RUN_LPC11U35_WITH_REGULAR_VOLTAGE;
     
     usart_transmit_string("READY\r\n");
     
@@ -276,24 +280,38 @@ int main()
     
     
     
-    // Start the LPC11U35.
-    GLITCHER_PORT = GLITCHER_PORT_STATE_RUN_LPC11U35_WITH_REGULAR_VOLTAGE;
+    // From the datasheet of the LPC11U35:
+    // 
+    //   A LOW-going pulse as short as 50 ns on this pin resets the 
+    //   device, causing I/O ports and peripherals to take on their 
+    //   default states and processor execution to begin at address 0.
+    GLITCHER_PORT = GLITCHER_PORT_STATE_RESET_LPC11U35_WITH_REGULAR_VOLTAGE;
+    _delay_us(100);
     
-    register uint8_t tmpreg;
+    
+    
+    // We fancy a very precise glitch. Therefore, we must be able to 
+    // count cycles/instructions. And the only way to actually know 
+    // which instructions are executed, is to write assembly.
     asm volatile(
       NT ASM_FILE_LINE
-      NT".set TCCR1B, 0x0081"
-      NT".set TCCR4B, 0x00C1"
+      NT";; Start the LPC11U35. (Stop resetting.)"
+      NT";; "
+      NT";; PORTB = regular voltage for LPC11U35, don't reset."
+      NT"out %[port], %[regular_voltage_no_reset]"
       NT
       NT
       NT
-      // Start timer 1, this is the coarse counter.
-      //
-      // Note: 0x81 is outside the reach of the faster OUT instruction.
+      // Note: TCCR registers are outside the reach of the faster OUT 
+      // instruction.
       NT ASM_FILE_LINE
-      NT";; TCCR1B = CS1_DIVIDER"
-      NT"ldi %[tmpreg], " STRINGIFY(CS1_DIVIDER)	// 1 CPU cycle
-      NT"sts TCCR1B, %[tmpreg]"				// 2 CPU cycles
+      NT";; Start low speed timer."
+      NT";;   0x1: divide clock source by    1 (don't divide)"
+      NT";;   0x2: divide clock source by    8"
+      NT";;   0x3: divide clock source by   64"
+      NT";;   0x4: divide clock source by  256"
+      NT";;   0x5: divide clock source by 1024"
+      NT"sts %[tccr_low_speed], %[cs1_divider]"	// 2 CPU cycles
       NT
       NT
       NT
@@ -315,19 +333,21 @@ int main()
       NT
       NT
       NT
-      // Start timer 4, this is the high speed timer (96 MHz).
-      //
-      // Note: 0xC1 is outside the reach of the faster OUT instruction.
+      // Note: TCCR registers are outside the reach of the faster OUT 
+      // instruction.
       NT ASM_FILE_LINE
-      NT";; TCCR4B = CS4_DIVIDER"
-      NT"ldi %[tmpreg], " STRINGIFY(CS4_DIVIDER)	// 1 CPU cycle
-      NT"sts TCCR4B, %[tmpreg]"				// 2 CPU cycles
+      NT";; Start the high speed timer (96 MHz)."
+      NT";;   0x1: divide clock source by     1 (96 MHz)"
+      NT";;   0x1: divide clock source by     2 (48 MHz)"
+      NT";;   (...)"
+      NT";;   0xE: divide clock source by  8192 (11.718 kHz)"
+      NT";;   0xF: divide clock source by 16384 ( 5.859 kHz)"
+      NT"sts %[tccr_high_speed], %[cs4_divider]"	// 2 CPU cycles
       NT
       NT
       NT
-      // Stop timer 1.
-      NT";; TCCR1B = 0"
-      NT"sts TCCR1B, __zero_reg__"
+      NT";; Stop low speed timer."
+      NT"sts %[tccr_low_speed], __zero_reg__"
       NT
       NT
       NT
@@ -336,13 +356,29 @@ int main()
       NT
       NT
       NT
-      // Stop timer 4.
-      NT";; TCCR4B = 0"
-      NT"sts TCCR4B, __zero_reg__"
+      NT";; Stop high speed timer."
+      NT"sts %[tccr_high_speed], __zero_reg__"
       //
       //
       // Output operands
-      : [tmpreg] "=r" (tmpreg)
+      :
+      // Input operands
+      :
+        // I: Constant greater than −1, less than 64
+        [port] "I" _SFR_IO_ADDR(GLITCHER_PORT),
+        
+        // d: Registers from r16 to r31
+        // 
+        // Without the cast to byte/char/uint8, the compiler assumes a 
+        // 16-bit value and uses 2 registers.
+        [cs1_divider] "d" ((uint8_t) CS1_DIVIDER),
+        [cs4_divider] "d" ((uint8_t) CS4_DIVIDER),
+        [regular_voltage_no_reset] "d" ((uint8_t) GLITCHER_PORT_STATE_RUN_LPC11U35_WITH_REGULAR_VOLTAGE),
+        
+        // M: Constant that fits in 8 bits
+        [tccr_low_speed]  "M" (_SFR_MEM_ADDR(TCCR1B)),
+        [tccr_high_speed] "M" (_SFR_MEM_ADDR(TCCR4B))
+      // Clobbered registers.
     );
     
     usart_transmit_string("DONE\r\n");
