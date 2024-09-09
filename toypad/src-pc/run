@@ -1,0 +1,70 @@
+#!/usr/bin/python3
+
+import sys
+import subprocess
+import serial
+
+# Glitch mode must be one of these constants. This determines how a glitch is checked.
+GLITCH_MODE_FIND_LENGTH = 'find-length'
+GLITCH_MODE_FIND_DELAY = 'find-delay'
+GLITCH_MODE_FINAL = 'final'
+
+mode = GLITCH_MODE_FIND_LENGTH
+
+avr = serial.Serial('/dev/ttyUSB0')
+glitched = False
+ocd = None
+
+def glitch(glitch_time):
+	'''Attempt a glitch through the AVR'''
+	pass
+
+def start_ocd():
+	'''Attempt to start the on-chip debugger'''
+	global ocd
+	global glitched
+	ocd = subprocess.Popen(('openocd', '-f', 'interface/cmsis-dap.cfg', '-f', 'target/lpc11xx.cfg', '-c', 'adapter speed 5000'), shell = False, stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.PIPE, close_fds = True)
+	for line in ocd.stderr:
+		if b'3333' in line:
+			if mode == GLITCH_MODE_FINAL:
+				glitched = True
+			return
+	if mode == GLITCH_MODE_FINAL:
+		glitched = False
+		return
+	print('ocd not started')
+	for line in ocd.stderr:
+		print(line)
+	sys.exit(1)
+
+def kill_ocd():
+	'''Ensure OCD no longer runs'''
+	ocd.kill()
+
+def run_gdb():
+	'''Run gdb and figure out if the device has been glitched'''
+	global glitched
+	gdb = subprocess.Popen(('gdb-multiarch', '-x', 'commands.gdb', '--batch'), shell = False, close_fds = True, stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+	output = gdb.communicate()[0]
+	addr = int(output.split(b'#')[1].split(b' ')[2][2:], 16)
+
+	# XXX These tests are not what they should be.
+	if mode == GLITCH_MODE_FIND_LENGTH:
+		glitched = 0x1fff0350 <= addr <= 0x1fff0352
+	elif mode == GLITCH_MODE_FIND_DELAY:
+		glitched = 0x1fff0350 <= addr <= 0x1fff0352
+
+for i in range(1, 10):
+	sys.stdout.write('%4d: ' % i)
+	for t in range(10):
+		glitched = None
+		glitch(i)
+		try:
+			start_ocd()
+			if glitched is not True:
+				run_gdb()
+		finally:
+			kill_ocd()
+		sys.stdout.write('#' if glitched else '?' if glitched is None else '.')
+		sys.stdout.flush()
+	sys.stdout.write('\n')
