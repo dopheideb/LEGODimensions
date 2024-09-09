@@ -308,6 +308,29 @@ Step 7 is entered through an interrupt, and the interrupt handler (steps 7, 8, 9
 Atmel AVR130 is an application note called "Setup and Use of AVR 
 Timers".
 
+## Glitch Controller Software
+
+Glitch attempts usually fail. For this reason, it is important to automate the process, so a glitch can be attempted many times in a short time. For this, some software on the main computer is required. This software needs to have the following connections:
+
+1. Serial port to the AVR that does the glitching.
+2. USB port to the AVR that does the glitching (only for programming the firmware; it may be disconnected while it is running. However, it also provides power to the AVR).
+3. USB port to the PicoProbe for the SWD connection.
+
+First, the firmware needs to be programmed into the AVR. After that, the following procure should be used to glitch:
+
+1. Send reset command to AVR firmware. This will hold the LPC11U35X in reset.
+2. Send glitch command to AVR firmware with the current settings. This will stop resetting and then attempt a glitch.
+3. Wait for the AVR firmware to report that the glitch attempt has been completed.
+4. Start gdb and attempt to connect over swd. The outcome is recorded.
+5. Exit gdb, regardless of the outcome.
+5. If the SWD connection could not be made, restart from point 1.
+
+After this, the device has been glitched. A new manual SWD connection can be made and a memory dump can be performed.
+
+The clean LPC11U35X that is used for testing will initially not be programmed into a CRP mode. For this reason, the SWD connection will never fail. For that test, gdb should instead test where it is executing. This will indicate whether or not a glitch has happened.
+
+For the test, after reporting whether it worked, the program is always restarted from point 1. This way, it is easy to see the probability of a glitch with these settings. The process is repeated a number of times for several glitch lengths or timings.
+
 # Unsorted
 
 - <https://github.com/vekexasia/lpc_voltage_glitch_test>
