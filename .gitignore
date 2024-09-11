@@ -1,6 +1,7 @@
 # Generated files
 *.o
 *.elf
+*.hex
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

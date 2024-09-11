@@ -180,7 +180,7 @@ int main()
   sei();
   
   // Set needed pins as output.
-  GLITCHER_DDR = _BV(GLITCHER_NOT_RESET_PIN)
+  GLITCHER_DDR = _BV(GLITCHER_RESET_PIN)
                | _BV(GLITCHER_VSS_REGULAR_PIN)
                | _BV(GLITCHER_VSS_BAD_PIN)
                ;
@@ -235,7 +235,7 @@ int main()
     usart_transmit_string("\r\n");
 #endif
     // Assert enough ticks are available for the post reset.
-    if (glitch_ticks_at_96MHz > 15)
+    if (glitch_ticks_at_96MHz > 150)
     {
       usart_transmit_string("FAIL: GLITCH TOO LONG\r\n");
       continue;

@@ -2,6 +2,8 @@
 #define NT "\n\t"
 #define NX "\n"
 
+#include <stdint.h>
+
 int main()
 {
 	asm volatile (
@@ -13,3 +15,10 @@ int main()
 	);
 	while (1) {}
 }
+
+struct vectors {
+	uint32_t stack;
+	void *entry;
+};
+
+const struct vectors vectors __attribute__((section (".isr_vector"))) = { 0x10000ffc, &main };
