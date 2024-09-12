@@ -3,13 +3,32 @@
 
 
 
+// When running with F_CPU = 16 MHz with U2Xn = 0:
+// 
+// Wanted baudrate | Nearest UBBRn | Actual baudrate | Error
+// ----------------+---------------+-----------------+-------------
+//       1,000,000 |             0 |       1,000,000 |  0 (perfect!)
+//         500,000 |             1 |         500,000 |  0 (perfect!)
+//         250,000 |             3 |         250,000 |  0 (perfect!)
+//         230,400 |             3 |         250,000 | +8.5%
+//         200,000 |             4 |         200,000 |  0 (perfect!)
+//         125,000 |             7 |         125,000 |  0 (perfect!)
+//         115,200 |             8 |         111,111 | -3.5%
+//         100,000 |             9 |         100,000 |  0 (perfect!)
+//          57,600 |            16 |          58,823 | +2.1%
+//          38,400 |            25 |          38,461 | +0.2%
+//          19,200 |            51 |          19,230 | +0.2%
+//           9,600 |           103 |           9,615 | +0.2%
 void usart_init(uint32_t baudrate)
 {
-  // Set the baudrate. The datasheet says:
+  // Set the baudrate. The datasheet says in table 18-1 for U2Xn = 0:
   // 
-  //   This clock is the baud rate generator clock output
-  //     (= f osc / (16(UBRRn+1))).
-  uint32_t ubrr = F_CPU / (16 * baudrate) - 1;
+  //   UBBRn = f_{OSC} / (16 * BAUD) - 1
+  // 
+  // Version that implicitly floors the answer:
+  //uint16_t ubrr = F_CPU / (16 * baudrate) - 1;
+  // Version that rounds the answer:
+  uint16_t ubrr = ((F_CPU << 1) / (16 * baudrate) - 1) >> 1;
   UBRR1H = (ubrr >> 8);
   UBRR1L = (ubrr & 0xff);
   
