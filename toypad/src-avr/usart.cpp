@@ -28,21 +28,31 @@ void usart_init(uint32_t baudrate)
   // Version that implicitly floors the answer:
   //uint16_t ubrr = F_CPU / (16 * baudrate) - 1;
   // Version that rounds the answer:
-  uint16_t ubrr = ((F_CPU << 1) / (16 * baudrate) - 1) >> 1;
+  //uint16_t ubrr = (((F_CPU << 1) + 1) / (16 * baudrate) - 1) >> 1;
+
+  // Using U2X never makes it less accurate, and usually makes it more
+  // accurate. So we use that.
+  // The datasheet says: UBRRn = f_{OSC} / (8 * BAUD) - 1
+  // The division must be rounded for the best value.
+  uint16_t ubrr = (F_CPU + 4 * baudrate) / (8 * baudrate) - 1;
   UBRR1H = (ubrr >> 8);
   UBRR1L = (ubrr & 0xff);
+
   
   // The only writable bits of UCSR1A are:
   // 
   // Bit 6 – TXCn: USART Transmit Complete. "or it can be cleared by 
   // writing a one to its bit location." We don't need that.
   // 
-  // Bit 1 – U2Xn: Double the USART Transmission Speed. We don't need 
+  // Bit 1 – U2Xn: Double the USART Transmission Speed. We do need 
   // that.
   // 
   // Bit 0 – MPCMn: Multi-processor Communication Mode. We definitely 
   // don't need that feature.
-  UCSR1A = 0;
+  UCSR1A = (_BV(TXC1) * 0)	// 0x60: clear pending transmit interrupt 1
+	  | (_BV(U2X1) * 1)	// 0x02: double transmission speed 1
+	  | (_BV(MPCM1) * 0)	// 0x01: multi processor communication mode 1
+	  ;
   
   // Note:
   //

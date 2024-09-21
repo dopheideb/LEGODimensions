@@ -11,29 +11,38 @@ GLITCH_MODE_FINAL = 'final'
 
 mode = GLITCH_MODE_FIND_LENGTH
 
-avr = serial.Serial('/dev/ttyUSB0', 500000)
+avr = serial.Serial('/dev/ttyUSB0', 115200)
 glitched = False
 ocd = None
 
+trace = print
+trace = lambda *args: None
+
 def glitch(glitch_time):
 	'''Attempt a glitch through the AVR'''
+	trace('start glitch attempt')
 	#for line in avr:
 	#	if b'READY' in line:
 	#		break
 	#	print(b'avr: ' + line)
-	avr.write(b'G9999,%d\n' % glitch_time)
+	avr.write(b'G99999,%d\n' % glitch_time)
 	for line in avr:
 		if b'DONE' in line:
 			break
-		#print(b'avr: ' + line)
+		trace(b'avr: ' + line)
+	trace('glitch attempt done')
 
 def start_ocd():
 	'''Attempt to start the on-chip debugger'''
+	trace('start ocd')
 	global ocd
 	global glitched
+	# For programming: openocd -f interface/cmsis-dap.cfg -f target/lpc11xx.cfg -c "adapter speed 5000" -c "program test-lpc.elf verify reset exit"
+	# For debugging: openocd -f interface/cmsis-dap.cfg -f target/lpc11xx.cfg -c 'adapter speed 5000'
 	ocd = subprocess.Popen(('openocd', '-f', 'interface/cmsis-dap.cfg', '-f', 'target/lpc11xx.cfg', '-c', 'adapter speed 5000'), shell = False, stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.PIPE, close_fds = True)
 	for line in ocd.stderr:
-		if b'3333' in line:
+		if b'Listening on port 3333' in line:
+			trace('ocd started')
 			if mode == GLITCH_MODE_FINAL:
 				glitched = True
 			return
@@ -48,6 +57,7 @@ def start_ocd():
 def kill_ocd():
 	'''Ensure OCD no longer runs'''
 	ocd.kill()
+	trace('ocd killed')
 
 def run_gdb():
 	'''Run gdb and figure out if the device has been glitched'''
@@ -56,7 +66,8 @@ def run_gdb():
 	output = gdb.communicate()[0]
 	addr = int(output.split(b'#')[1].split(b' ')[2][2:], 16)
 
-	print('%x' % addr)
+	print(output)
+	#print('%x' % addr)
 	if mode == GLITCH_MODE_FIND_LENGTH:
 		glitched = addr == 0x5d8
 	elif mode == GLITCH_MODE_FIND_DELAY:
@@ -65,7 +76,7 @@ def run_gdb():
 
 for i in range(10, 100):
 	sys.stdout.write('%4d: ' % i)
-	for t in range(10):
+	for t in range(50, 55):
 		glitched = None
 		glitch(i)
 		try:

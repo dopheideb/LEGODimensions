@@ -8,7 +8,7 @@ SECTIONS {
 
 .isr_vector :
 {
-	* (.isr_vector)
+	KEEP(*(.isr_vector))
 } > VECTORS
 
 .text :

@@ -1,4 +1,10 @@
 test-lpc.elf:
 
+CFLAGS = -mthumb -specs=nosys.specs -ffunction-sections -Wl,--gc-sections
+PREFIX = arm-none-eabi-
+
 %.elf: %.c Makefile memory.ld
-	arm-none-eabi-gcc -mthumb -specs=nosys.specs -T memory.ld $< -o $@
+	$(PREFIX)gcc $(CFLAGS) -T memory.ld $< -o $@
+
+disasm: test-lpc.elf
+	$(PREFIX)objdump -d $<
