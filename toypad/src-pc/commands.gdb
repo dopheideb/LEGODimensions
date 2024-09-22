@@ -1,2 +1,3 @@
-target remote localhost:3333
+file ../src-lpc/test-lpc.elf
+target extended-remote :3333
 bt

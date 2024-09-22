@@ -3,6 +3,7 @@
 import sys
 import subprocess
 import serial
+import time
 
 # Glitch mode must be one of these constants. This determines how a glitch is checked.
 GLITCH_MODE_FIND_LENGTH = 'find-length'
@@ -15,21 +16,22 @@ avr = serial.Serial('/dev/ttyUSB0', 115200)
 glitched = False
 ocd = None
 
-trace = print
-trace = lambda *args: None
+do_trace = True
+
+if do_trace:
+	trace = print
+else:
+	trace = lambda *args: None
 
 def glitch(glitch_time):
 	'''Attempt a glitch through the AVR'''
 	trace('start glitch attempt')
-	#for line in avr:
-	#	if b'READY' in line:
-	#		break
-	#	print(b'avr: ' + line)
-	avr.write(b'G99999,%d\n' % glitch_time)
-	for line in avr:
-		if b'DONE' in line:
-			break
-		trace(b'avr: ' + line)
+	if False:
+		avr.write(b'G99999,%d\n' % glitch_time)
+		for line in avr:
+			if b'DONE' in line:
+				break
+			trace(b'avr: ' + line)
 	trace('glitch attempt done')
 
 def start_ocd():
@@ -43,9 +45,12 @@ def start_ocd():
 	for line in ocd.stderr:
 		if b'Listening on port 3333' in line:
 			trace('ocd started')
+			if do_trace:
+				time.sleep(1)
 			if mode == GLITCH_MODE_FINAL:
 				glitched = True
 			return
+		trace('OCD: %s' % line)
 	if mode == GLITCH_MODE_FINAL:
 		glitched = False
 		return
@@ -69,7 +74,7 @@ def run_gdb():
 	print(output)
 	#print('%x' % addr)
 	if mode == GLITCH_MODE_FIND_LENGTH:
-		glitched = addr == 0x5d8
+		glitched = addr == 0x600
 	elif mode == GLITCH_MODE_FIND_DELAY:
 		# XXX This test is not what it should be.
 		glitched = 0x1fff0350 <= addr <= 0x1fff0352
