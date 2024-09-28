@@ -15,8 +15,8 @@ parser = argparse.ArgumentParser(
 )
 parser.add_argument('--list-ids', action='store_true', help='List all known IDs.')
 parser.add_argument('--list-names', action='store_true', help='List all known names.')
-parser.add_argument('--write', type=str, help='The ID or name of the vehicle.')
-parser.add_argument('--verbose', '-v', action='store_true', help='The ID of the character (1 to 999), or the ID of the vehicle/token (1000 and beyond).')
+parser.add_argument('--write', type=str, help='The ID of the character (1 to 999), or the ID of the vehicle/token (1000 and beyond).')
+parser.add_argument('--verbose', '-v', action='store_true', help='Be verbose.')
 
 args = parser.parse_args()
 
