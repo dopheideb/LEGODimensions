@@ -56,105 +56,37 @@
     only, don't use the CPU, don't busy wait.
 */
 
-
 // We want to spend as little time as possible in the timer interrupts. 
-// Since our only goal of the interrupts is to WAKE the CPU, we can 
-// simply issue "reti" (and a "nop" for alignment).
-asm(
-  ASM_FILE_LINE
-  NX".section .vectors"
-  NX".global __vectors"
-  NT".type __vectors, @function"
-  NX"__vectors:"
-  // Note: first address after jump table is 0x00AC.
-				// Note: Datasheet starts counting at 1.
-				//
-				// Vector No. | Address | Source       | Interrupt Definition
-				// -----------+---------+--------------+---------------------
-  NT"jmp 0x00ac"		//         1  |  0x0000 | RESET        | External Pin, Power-on Reset, Brown-out Reset, Watchdog Reset, and JTAG AVR Reset
-  NT"jmp __vector_default"	//         2  |  0x0004 | INT0         | External Interrupt Request 0
-  NT"jmp __vector_default"	//         3  |  0x0008 | INT1         | External Interrupt Request 1
-  NT"jmp __vector_default"	//         4  |  0x000C | INT2         | External Interrupt Request 2
-  NT"jmp __vector_default"	//         5  |  0x0010 | INT3         | External Interrupt Request 3
-  NT"jmp __vector_default"	//         6  |  0x0014 | Reserved     | Reserved
-  NT"jmp __vector_default"	//         7  |  0x0018 | Reserved     | Reserved
-  NT"jmp __vector_default"	//         8  |  0x001C | INT6         | External Interrupt Request 6
-  NT"jmp __vector_default"	//         9  |  0x0020 | Reserved     | Reserved
-  NT"jmp __vector_default"	//        10  |  0x0024 | PCINT0       | Pin Change Interrupt Request 0
-  NT"jmp __vector_default"	//        11  |  0x0028 | USB General  | USB General Interrupt request
-  NT"jmp __vector_default"	//        12  |  0x002C | USB Endpoint | USB Endpoint Interrupt request
-  NT"jmp __vector_default"	//        13  |  0x0030 | WDT          | Watchdog Time-out Interrupt
-  NT"jmp __vector_default"	//        14  |  0x0034 | Reserved     | Reserved
-  NT"jmp __vector_default"	//        15  |  0x0038 | Reserved     | Reserved
-  NT"jmp __vector_default"	//        16  |  0x003C | Reserved     | Reserved
-  NT"jmp __vector_default"	//        17  |  0x0040 | TIMER1 CAPT  | Timer/Counter1 Capture Event
-  NT"jmp __vector_default"	//        18  |  0x0044 | TIMER1 COMPA | Timer/Counter1 Compare Match A
-  NT"jmp __vector_default"	//        19  |  0x0048 | TIMER1 COMPB | Timer/Counter1 Compare Match B
-  NT"jmp __vector_default"	//        20  |  0x004C | TIMER1 COMPC | Timer/Counter1 Compare Match C
-  NT"reti"			//        21  |  0x0050 | TIMER1 OVF   | Timer/Counter1 Overflow
-  NT"nop"
-  NT"jmp __vector_default"	//        22  |  0x0054 | TIMER0 COMPA | Timer/Counter0 Compare Match A
-  NT"jmp __vector_default"	//        23  |  0x0058 | TIMER0 COMPB | Timer/Counter0 Compare match B
-  NT"jmp __vector_default"	//        24  |  0x005C | TIMER0 OVF   | Timer/Counter0 Overflow
-  NT"jmp __vector_default"	//        25  |  0x0060 | SPI (STC)    | SPI Serial Transfer Complete
-  NT"jmp __vector_default"	//        26  |  0x0064 | USART1 RX    | USART1 Rx Complete
-  NT"jmp __vector_default"	//        27  |  0x0068 | USART1 UDR   | EUSART1 Data Register Empty
-  NT"jmp __vector_default"	//        28  |  0x006C | USART1TX     | USART1 Tx Complete
-  NT"jmp __vector_default"	//        29  |  0x0070 | ANALOG COMP  | Analog Comparator
-  NT"jmp __vector_default"	//        30  |  0x0074 | ADC          | ADC Conversion Complete
-  NT"jmp __vector_default"	//        31  |  0x0078 | EE READY     | EEPROM Ready
-  NT"jmp __vector_default"	//        32  |  0x007C | TIMER3 CAPT  | Timer/Counter3 Capture Event
-  NT"jmp __vector_default"	//        33  |  0x0080 | TIMER3 COMPA | Timer/Counter3 Compare Match A
-  NT"jmp __vector_default"	//        34  |  0x0084 | TIMER3 COMPB | Timer/Counter3 Compare Match B
-  NT"jmp __vector_default"	//        35  |  0x0088 | TIMER3 COMPC | Timer/Counter3 Compare Match C
-  NT"jmp __vector_default"	//        36  |  0x008C | TIMER3 OVF   | Timer/Counter3 Overflow
-  NT"jmp __vector_default"	//        37  |  0x0090 | TWI          | 2-wire Serial Interface
-  NT"jmp __vector_default"	//        38  |  0x0094 | SPM READY    | Store Program Memory Ready
-  NT"jmp __vector_default"	//        39  |  0x0098 | TIMER4 COMPA | Timer/Counter4 Compare Match A
-  NT"reti"			//        40  |  0x009C | TIMER4 COMPB | Timer/Counter4 Compare Match B
-  NT"nop"
-  NT"jmp __vector_default"	//        41  |  0x00A0 | TIMER4 COMPD | Timer/Counter4 Compare Match D
-  NT"jmp __vector_default"	//        42  |  0x00A4 | TIMER4 OVF   | Timer/Counter4 Overflow
-  NT"jmp __vector_default"	//        43  |  0x00A8 | TIMER4 FPF   | Timer/Counter4 Fault Protection Interrupt
-  				//               0x00AC --> First address after interrupt table.
-  
-  
-  
-  // Import section ".init2" manually from gcrt1.S
-  NT ASM_FILE_LINE
-  NX".section .init2"
-  NT"clr __zero_reg__"		// clr	__zero_reg__
-  
-  // SREG = 0, disables interrupts. "cli" would have done the job as 
-  // well...
-  NT ASM_FILE_LINE
-  NT";; SREG = 0"
-  NT"out " STRINGIFY(__SREG__) ", __zero_reg__"		// out	AVR_STATUS_ADDR, __zero_reg__
-  
-  // ATmega32u4 has 0xB00 bytes of RAM. Initialize the stack 
-  // pointer to the highest address.
-  // 
-  // 0x3e == SPH, stack pointer, high byte
-  // 0x3d == SPL, stack pointer, low byte
-  NT".set __stack, 0xAFF"
-  NT"ldi r28, lo8(__stack)"		// ldi	r28,lo8(__stack)
-  NT"ldi r29, hi8(__stack)"		// ldi	r29,hi8(__stack)
-  NT"out " STRINGIFY(__SP_H__) ", r29"	// out	AVR_STACK_POINTER_HI_ADDR, r29
-  NT"out " STRINGIFY(__SP_L__) ", r28"	// out	AVR_STACK_POINTER_LO_ADDR, r29
-  
-  
-  
-  // Import section ".init9" manually from gcrt1.S
-  NT ASM_FILE_LINE
-  NX".section .init9"
-  NT"call main"
-  NT"jmp exit"
-  
-  
-  
-  NX".section .text"
-);
-ISR(BADISR_vect, ISR_NAKED) { asm("jmp 0x0000"); }
+// Since our only goal of the timer interrupts is to WAKE the CPU, we 
+// can simply issue "reti" (and a "nop" for alignment).
+#define ISR_ELEMENT_SIZE 4
+#define ISR_NUM_ELEMENTS (_VECTORS_SIZE / ISR_ELEMENT_SIZE)
+#define JMP_00AC {0x0c, 0x94, (_VECTORS_SIZE >> 1), 0x00}
+#define JMP_0000 {0x0c, 0x94, 0x00, 0x00}
+#define RETI_NOP { 0b00011000, 0b10010101, 0x00, 0x00 }
+uint8_t vector[ISR_NUM_ELEMENTS][ISR_ELEMENT_SIZE]
+__attribute__((section (".vectors")))
+__attribute__((__used__))
+=
+{
+	// RESET
+	[ 0] = JMP_00AC,
+			[ 1] = JMP_0000,[ 2] = JMP_0000,[ 3] = JMP_0000,
+	[ 4] = JMP_0000,[ 5] = JMP_0000,[ 6] = JMP_0000,[ 7] = JMP_0000,
+	[ 8] = JMP_0000,[ 9] = JMP_0000,[10] = JMP_0000,[11] = JMP_0000,
+	[12] = JMP_0000,[13] = JMP_0000,[14] = JMP_0000,[15] = JMP_0000,
+	[16] = JMP_0000,[17] = JMP_0000,[18] = JMP_0000,[19] = JMP_0000,
+	// TIMER1 OVF
+	[20] = RETI_NOP,
+			[21] = JMP_0000,[22] = JMP_0000,[23] = JMP_0000,
+	[24] = JMP_0000,[25] = JMP_0000,[26] = JMP_0000,[27] = JMP_0000,
+	[28] = JMP_0000,[29] = JMP_0000,[30] = JMP_0000,[31] = JMP_0000,
+	[32] = JMP_0000,[33] = JMP_0000,[34] = JMP_0000,[35] = JMP_0000,
+	[36] = JMP_0000,[37] = JMP_0000,[38] = JMP_0000,
+	// TIMER4 COMPB
+							[39] = RETI_NOP,
+	[40] = JMP_0000,[41] = JMP_0000,[42] = JMP_0000,
+};
 
 
 
@@ -165,9 +97,31 @@ void setup_timer4(
     uint8_t timer_ticks_before_overflow
 );
 
+/* The downside of using linker flag "-nostartfiles" is that section 
+ .init2 and .init9 are not linked in. Hence, we must borrow code from 
+ avr-libc/crt1/gcrt1.S */
+inline void _init()
+{
+	asm(
+		   "clr __zero_reg__"
+		// Disable interrupts.
+		NT "cli"
+		// Setup the stack pointer.
+		NT "out %[sp_l], %[sp_l_val]"
+		NT "out %[sp_h], %[sp_h_val]"
+		:
+		:
+			[sp_l] "i" (0x3d),
+			[sp_h] "i" (0x3e),
+			[sp_l_val] "r" (RAMEND & 0xff),
+			[sp_h_val] "r" (RAMEND >> 8)
+	);
+}
 
 int main()
 {
+  _init();
+  
   // Disable all USB interrupts. Otherwise an ATMega32U4 may lockup. 
   // (USB_GEN_vect() is still called.)
   cli();
@@ -287,7 +241,6 @@ int main()
     //   default states and processor execution to begin at address 0.
     GLITCHER_PORT = GLITCHER_PORT_STATE_RESET_LPC11U35_WITH_REGULAR_VOLTAGE;
     _delay_us(100);
-    
     
     
     // We fancy a very precise glitch. Therefore, we must be able to 
