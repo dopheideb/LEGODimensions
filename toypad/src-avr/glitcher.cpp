@@ -183,28 +183,28 @@ int main()
     usart_transmit_char(magic_byte);
 #endif
     
-    uint16_t post_reset_ticks_at_96MHz = usart_receive_uint16();
-    uint16_t glitch_ticks_at_96MHz     = usart_receive_uint16();
+    uint16_t post_reset_ticks_at_48MHz = usart_receive_uint16();
+    uint16_t glitch_ticks_at_48MHz     = usart_receive_uint16();
 #ifdef USART_ECHO
     usart_transmit_string("\r\n");
 #endif
     // Assert enough ticks are available for the post reset.
-    if (glitch_ticks_at_96MHz > 10000)
+    if (glitch_ticks_at_48MHz > 10000)
     {
       usart_transmit_string("FAIL: GLITCH TOO LONG\r\n");
       continue;
     }
 
     usart_transmit_string("Glitching: post reset = ");
-    usart_transmit_num(post_reset_ticks_at_96MHz);
+    usart_transmit_num(post_reset_ticks_at_48MHz);
     usart_transmit_string("; glitch = ");
-    usart_transmit_num(glitch_ticks_at_96MHz);
+    usart_transmit_num(glitch_ticks_at_48MHz);
     usart_transmit_string(".\n");
     
     uint16_t timer1_ticks;
     uint8_t  timer4_ticks;
 
-    if (post_reset_ticks_at_96MHz <= MIN_TIMER4_TICKS_BEFORE_OVERFLOW)
+    if (post_reset_ticks_at_48MHz <= MIN_TIMER4_TICKS_BEFORE_OVERFLOW)
     {
       usart_transmit_string("FAIL\r\n");
       continue;
@@ -213,7 +213,7 @@ int main()
     // We subtract ticks here so they won't be part of coarse timer 1. 
     // We will add these ticks to timer 4 later.
     uint16_t post_reset_ticks =
-      post_reset_ticks_at_96MHz - MIN_TIMER4_TICKS_BEFORE_OVERFLOW;
+      post_reset_ticks_at_48MHz - MIN_TIMER4_TICKS_BEFORE_OVERFLOW;
     
     // The CPU runs at 16 MHz (or more precise: F_CPU). But the high 
     // speed timer 4 runs at 48 MHz (or more precise: 48 MHz times the 
@@ -236,7 +236,7 @@ int main()
     timer1_ticks -= TIMER1_INTERRUPT_CPU_CYCLES_BEFORE_STARTING_TIMER4;
     
     setup_timer1(timer1_ticks);
-    setup_timer4(timer4_ticks, glitch_ticks_at_96MHz);
+    setup_timer4(timer4_ticks, glitch_ticks_at_48MHz);
     
     
     
@@ -448,7 +448,7 @@ inline void setup_timer4(
   //   -----------------+-----------+------------+
   //   Timer overflow   | Turns ON  | Turns OFF  |
   //   Compare Match 4B | Turns OFF | Turns ON   |
-  TCCR4A = _BV(COM4B1)	// Cleared on Compare Match.
+  TCCR4A = _BV(COM4B0)	// Toggled on Compare Match.
          | _BV(PWM4B)	// Enables PWM mode based on comparator OCR4B.
          ;
   
