@@ -185,6 +185,12 @@ int main()
     
     uint16_t post_reset_ticks_at_48MHz = usart_receive_uint16();
     uint16_t glitch_ticks_at_48MHz     = usart_receive_uint16();
+    if (glitch_ticks_at_48MHz <= 1)
+    {
+      usart_transmit_string("FAIL: GLITCH TOO SHORT\r\n");
+      continue;
+    }
+    
 #ifdef USART_ECHO
     usart_transmit_string("\r\n");
 #endif
@@ -197,9 +203,9 @@ int main()
 
     usart_transmit_string("Glitching: post reset = ");
     usart_transmit_num(post_reset_ticks_at_48MHz);
-    usart_transmit_string("; glitch = ");
+    usart_transmit_string("; glitch ticks = ");
     usart_transmit_num(glitch_ticks_at_48MHz);
-    usart_transmit_string(".\n");
+    usart_transmit_string(".\r\n");
     
     uint16_t timer1_ticks;
     uint8_t  timer4_ticks;
@@ -222,6 +228,11 @@ int main()
     timer1_ticks =  post_reset_ticks / frequency_ratio;
     timer4_ticks = (post_reset_ticks % frequency_ratio)
                  + MIN_TIMER4_TICKS_BEFORE_OVERFLOW;
+    usart_transmit_string("Timer 1 ticks before glitch: ");
+    usart_transmit_num(timer1_ticks);
+    usart_transmit_string("; timer 4 ticks before glitch: ");
+    usart_transmit_num(timer4_ticks);
+    usart_transmit_string(".\r\n");
     
     // We will start timer 1 precisely 3 CPU cycle later than starting 
     // the LPC11U35, compensate.
@@ -448,7 +459,7 @@ inline void setup_timer4(
   //   -----------------+-----------+------------+
   //   Timer overflow   | Turns ON  | Turns OFF  |
   //   Compare Match 4B | Turns OFF | Turns ON   |
-  TCCR4A = _BV(COM4B0)	// Toggled on Compare Match.
+  TCCR4A = _BV(COM4B0)	// Cleared on Compare Match.
          | _BV(PWM4B)	// Enables PWM mode based on comparator OCR4B.
          ;
   
@@ -470,7 +481,11 @@ inline void setup_timer4(
   TCNT4L = /* 256 */ - timer_ticks_before_glitch;
 
   TC4H = 0;
-  OCR4B = +timer_ticks_glitch_length;
+  // The extreme values for the OCR0A Register represents special cases 
+  // when generating a PWM waveform output in the fast PWM mode. If the 
+  // OCR0A is set equal to BOTTOM, the output will be a narrow spike for 
+  // each MAX+1 timer clock cycle.
+  OCR4B = +timer_ticks_glitch_length - 1;
   
   // Enable the overflow interrupt of timer 4. See ISR(TIMER4_OVF_vect, 
   // ISR_NAKED) for the actual overflow routine.
