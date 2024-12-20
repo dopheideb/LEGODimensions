@@ -216,9 +216,9 @@ int main()
       post_reset_ticks_at_96MHz - MIN_TIMER4_TICKS_BEFORE_OVERFLOW;
     
     // The CPU runs at 16 MHz (or more precise: F_CPU). But the high 
-    // speed timer 4 runs at 96 MHz (or more precise: 48 MHz times the 
+    // speed timer 4 runs at 48 MHz (or more precise: 48 MHz times the 
     // PLL postscalar).
-    uint8_t frequency_ratio = 6;
+    uint8_t frequency_ratio = 3;
     timer1_ticks =  post_reset_ticks / frequency_ratio;
     timer4_ticks = (post_reset_ticks % frequency_ratio)
                  + MIN_TIMER4_TICKS_BEFORE_OVERFLOW;
@@ -295,9 +295,9 @@ int main()
       // Note: TCCR registers are outside the reach of the faster OUT 
       // instruction.
       NT ASM_FILE_LINE
-      NT";; Start the high speed timer (96 MHz)."
+      NT";; Start the high speed timer (48 MHz)."
       NT";;   0x1: divide clock source by     1 (96 MHz)"
-      NT";;   0x1: divide clock source by     2 (48 MHz)"
+      NT";;   0x2: divide clock source by     2 (48 MHz)"
       NT";;   (...)"
       NT";;   0xE: divide clock source by  8192 (11.718 kHz)"
       NT";;   0xF: divide clock source by 16384 ( 5.859 kHz)"
@@ -348,8 +348,8 @@ int main()
 
 // This routine serves 2 goals:
 // 
-//   Main goal: Let high speed timer 4 operate at the maximum frequency 
-//   of 96 MHz. I.e. clk_TMR must be 96 MHz.
+//   Main goal: Let high speed timer 4 operate at the maximum stable frequency 
+//   of 48 MHz. I.e. clk_TMR must be 48 MHz.
 //   
 //   Side goal: The USB must still be usable. I.e. clk_USB must be 48 
 //   MHz. (We currently do not use USB, but we could use it as a serial 
@@ -374,16 +374,26 @@ inline void setup_clocks()
                  ;
   // Bit 5:4 – PLLTM1:0: PLL Postcaler for High Speed Timer
   // 
-  // 10 == PLL postscaler factor is 1, i.e. clk_TMR is 96 MHz
-  uint8_t plltm10 = (_BV(PLLTM1) * 0)	// PLLFRQ bit 5
+  // 11 == PLL postscaler factor is 1, i.e. clk_TMR is 48 MHz
+  uint8_t plltm10 = (_BV(PLLTM1) * 1)	// PLLFRQ bit 5
                   | (_BV(PLLTM0) * 1)	// PLLFRQ bit 4
                   ;
   
-  PLLFRQ = (_BV(PINMUX) * 1)	// Bit 7: Use internal RC oscillator
-         | (_BV(PLLUSB) * 1)	// Bit 6: Set PLL Postscaler to 2 since PLL output is 96 MHz.
+  PLLCSR = (_BV(PINDIV) * 1)	// Bit 4: Use 16 MHz system clock.
+	 | (_BV(PLLE) * 0)	// Bit 1: Disable PLL.
+	 ;
+
+  PLLFRQ = (_BV(PINMUX) * 0)	// Bit 7: Use prescaled system clock (from external crystal) as clock source.
+         | (_BV(PLLUSB) * 1)	// Bit 6: Set PLL Postscaler to 2 since PLL output is 48 MHz.
          | plltm10		// Bits 5:4
          | pdiv30		// Bits 3:0
          ;
+
+  PLLCSR = (_BV(PINDIV) * 1)	// Bit 4: Use 16 MHz system clock.
+	 | (_BV(PLLE) * 1)	// Bit 1: Enable PLL.
+	 ;
+
+  while (!(PLLCSR & _BV(PLOCK))) {}	// Wait for PLL lock.
 }
 
 
@@ -438,7 +448,7 @@ inline void setup_timer4(
   //   -----------------+-----------+------------+
   //   Timer overflow   | Turns ON  | Turns OFF  |
   //   Compare Match 4B | Turns OFF | Turns ON   |
-  TCCR4A = _BV(COM4B0)	// Cleared on Compare Match.
+  TCCR4A = _BV(COM4B1)	// Cleared on Compare Match.
          | _BV(PWM4B)	// Enables PWM mode based on comparator OCR4B.
          ;
   
