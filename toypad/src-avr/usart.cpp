@@ -148,3 +148,15 @@ void usart_dump_byte(uint8_t byte)
     usart_transmit_char('0' + ((byte & _BV(v)) >> v));
   }
 }
+
+void usart_transmit_num(uint16_t num)
+{
+  for (uint8_t digit = 0; digit < 4; ++digit)
+  {
+    uint8_t d = (num >> ((3 - digit) * 4)) & 0xf;
+    if (d < 10)
+      usart_transmit_char('0' + d);
+    else
+      usart_transmit_char('a' + d - 10);
+  }
+}

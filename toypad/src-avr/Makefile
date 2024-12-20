@@ -38,6 +38,8 @@ LDFLAGS =
 LDFLAGS += -nostartfiles
 #LDFLAGS += -Wl,-Map=$(@:.elf=.map),--cref
 
+PORT ?= /dev/ttyACM1
+
 #.INTERMEDIATE: asm-defines.h dummy.c
 
 
@@ -53,7 +55,7 @@ upload: ${TARGET}.hex Makefile
 	avrdude\
 		-p ${MCU}\
 		-c avr109\
-		-P /dev/ttyACM0\
+		-P ${PORT}\
 		-D\
 		-U flash:w:${TARGET}.hex:i
 

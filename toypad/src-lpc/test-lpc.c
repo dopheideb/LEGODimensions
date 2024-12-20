@@ -7,13 +7,29 @@
 int main()
 {
 	asm volatile (
-		NX "loop: cmp %0, %1"
-		NT "beq loop"
+		NX "1: b 1b"
+		NX "1: cmp %0, %1"
+		NT "bne 1f"
+		NT "cmp %0, %2"
+		NT "bne 1f"
+		NT "cmp %0, %3"
+		NT "bne 1f"
+		NT "cmp %0, %4"
+		NT "bne 1f"
+		NT "cmp %0, %5"
+		NT "bne 1f"
+		NT "cmp %0, %6"
+		NT "beq 1b"
+		NX "1: b 1b"
 	::
+		"r" (MAGIC),
+		"r" (MAGIC),
+		"r" (MAGIC),
+		"r" (MAGIC),
+		"r" (MAGIC),
 		"r" (MAGIC),
 		"r" (MAGIC)
 	);
-	while (1) {}
 }
 
 struct vectors {

@@ -8,5 +8,6 @@ void usart_transmit_char(char ch);
 void usart_transmit_string(char const ch[]);
 uint16_t usart_receive_uint16();
 void usart_dump_byte(uint8_t byte);
+void usart_transmit_num(uint16_t num);
 
 #endif /* _USART_HPP_ */

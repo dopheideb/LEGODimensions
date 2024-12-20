@@ -135,8 +135,8 @@ int main()
   
   // Set needed pins as output.
   GLITCHER_DDR = _BV(GLITCHER_RESET_PIN)
-               | _BV(GLITCHER_VSS_REGULAR_PIN)
-               | _BV(GLITCHER_VSS_BAD_PIN)
+               | _BV(GLITCHER_VCC_REGULAR_PIN)
+               | _BV(GLITCHER_VCC_INVERTED_PIN)
                ;
   
   usart_init(SERIAL_BAUDRATE);
@@ -189,11 +189,17 @@ int main()
     usart_transmit_string("\r\n");
 #endif
     // Assert enough ticks are available for the post reset.
-    if (glitch_ticks_at_96MHz > 150)
+    if (glitch_ticks_at_96MHz > 10000)
     {
       usart_transmit_string("FAIL: GLITCH TOO LONG\r\n");
       continue;
     }
+
+    usart_transmit_string("Glitching: post reset = ");
+    usart_transmit_num(post_reset_ticks_at_96MHz);
+    usart_transmit_string("; glitch = ");
+    usart_transmit_num(glitch_ticks_at_96MHz);
+    usart_transmit_string(".\n");
     
     uint16_t timer1_ticks;
     uint8_t  timer4_ticks;
@@ -369,8 +375,8 @@ inline void setup_clocks()
   // Bit 5:4 – PLLTM1:0: PLL Postcaler for High Speed Timer
   // 
   // 10 == PLL postscaler factor is 1, i.e. clk_TMR is 96 MHz
-  uint8_t plltm10 = (_BV(PLLTM1) * 1)	// PLLFRQ bit 5
-                  | (_BV(PLLTM0) * 0)	// PLLFRQ bit 4
+  uint8_t plltm10 = (_BV(PLLTM1) * 0)	// PLLFRQ bit 5
+                  | (_BV(PLLTM0) * 1)	// PLLFRQ bit 4
                   ;
   
   PLLFRQ = (_BV(PINMUX) * 1)	// Bit 7: Use internal RC oscillator
@@ -428,7 +434,7 @@ inline void setup_timer4(
   // For us, this means the following:
   // 
   //   Event            | OC4B pin  | not(OC4B)  |
-  //                    | (bad VSS) | (good VSS) |
+  //                    | (crowbar) |            |
   //   -----------------+-----------+------------+
   //   Timer overflow   | Turns ON  | Turns OFF  |
   //   Compare Match 4B | Turns OFF | Turns ON   |
@@ -452,6 +458,8 @@ inline void setup_timer4(
   //   register before the low byte is written.
   TC4H = 0;
   TCNT4L = /* 256 */ - timer_ticks_before_glitch;
+
+  TC4H = 0;
   OCR4B = +timer_ticks_glitch_length;
   
   // Enable the overflow interrupt of timer 4. See ISR(TIMER4_OVF_vect, 

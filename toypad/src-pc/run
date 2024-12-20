@@ -2,8 +2,11 @@
 
 import sys
 import subprocess
+import signal
 import serial
 import time
+import os
+import traceback
 
 # Glitch mode must be one of these constants. This determines how a glitch is checked.
 GLITCH_MODE_FIND_LENGTH = 'find-length'
@@ -17,17 +20,21 @@ glitched = False
 ocd = None
 
 do_trace = True
+#do_trace = False
+raw = False;
 
 if do_trace:
 	trace = print
 else:
 	trace = lambda *args: None
 
-def glitch(glitch_time):
+def glitch(post_reset_delay, glitch_duration):
 	'''Attempt a glitch through the AVR'''
 	trace('start glitch attempt')
-	if False:
-		avr.write(b'G99999,%d\n' % glitch_time)
+	if True:
+		command = b'G%d,%d\n' % (post_reset_delay, glitch_duration)
+		avr.write(command)
+		#print('avr write: %s' % command)
 		for line in avr:
 			if b'DONE' in line:
 				break
@@ -36,6 +43,8 @@ def glitch(glitch_time):
 
 def start_ocd():
 	'''Attempt to start the on-chip debugger'''
+	if raw:
+		return
 	trace('start ocd')
 	global ocd
 	global glitched
@@ -45,8 +54,6 @@ def start_ocd():
 	for line in ocd.stderr:
 		if b'Listening on port 3333' in line:
 			trace('ocd started')
-			if do_trace:
-				time.sleep(1)
 			if mode == GLITCH_MODE_FINAL:
 				glitched = True
 			return
@@ -60,36 +67,103 @@ def start_ocd():
 	sys.exit(1)
 
 def kill_ocd():
-	'''Ensure OCD no longer runs'''
-	ocd.kill()
+	'''Ensure OCD no longer runs.'''
+	if raw:
+		return
+	global glitched
+	ocd.send_signal(signal.SIGHUP)
+	final_output = ocd.communicate()
+	if b'external reset detected' in final_output[1]:
+		trace('RESET!')
+		glitched = None
+	trace('Ocd final output: ', final_output)
 	trace('ocd killed')
 
-def run_gdb():
-	'''Run gdb and figure out if the device has been glitched'''
+gdb_process = None
+def start_gdb():
+	global gdb_process
+	gdb_process = subprocess.Popen(('gdb-multiarch', '--command', 'startup.gdb'), shell = False, close_fds = True, stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+	os.set_blocking(gdb_process.stdout.fileno(), False)
+	os.set_blocking(gdb_process.stderr.fileno(), False)
+
+def execute_gdb_script(script):
+	'''Run a script in gdb.'''
+	trace('running gdb script: ' + script)
+	gdb_process.stdin.write(b'source -v %s\n' % script.encode('utf-8'))
+	gdb_process.stdin.flush()
+	output = b''
+	hang_counter = 0
+	old_output = gdb_process.stdout.read()
+	old_error = gdb_process.stderr.read()
+	while True:
+		new_output = gdb_process.stdout.read()
+		new_error = gdb_process.stderr.read()
+		if new_error is not None and len(new_error) != 0:
+			for line in new_error.split(b'\n'):
+				if len(line) > 0 and line != b'[lpc11xx.cpu] halted due to debug-request, current mode: Thread ' and not line.startswith(b'xPSR: 0xa1000000 pc:'):
+					print('Error: %s' % line)
+		if new_output is not None and len(new_output) != 0:
+			trace('new output: %s' % new_output)
+			output += new_output
+		else:
+			time.sleep(.001)
+			hang_counter += 1
+			if hang_counter > 2000:
+				print('HANG!')
+				traceback.print_stack()
+				sys.exit(1)
+
+		if output.endswith(b'\n(gdb) '):
+			break
+	return output
+
+def check_glitch():
+	if raw:
+		return
 	global glitched
-	gdb = subprocess.Popen(('gdb-multiarch', '-x', 'commands.gdb', '--batch'), shell = False, close_fds = True, stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
-	output = gdb.communicate()[0]
+	output = execute_gdb_script('test.gdb')
+	print('output: %s' % output)
 	addr = int(output.split(b'#')[1].split(b' ')[2][2:], 16)
 
-	print(output)
-	#print('%x' % addr)
+	trace(output)
+	trace('%x' % addr)
 	if mode == GLITCH_MODE_FIND_LENGTH:
-		glitched = addr == 0x600
+		if addr in (0x8e6, 0x8e8):
+			glitched = False
+		elif addr == 0x8ea:
+			glitched = True
+		else:
+			trace('Weird glitch: %x' % addr)
+			glitched = None
 	elif mode == GLITCH_MODE_FIND_DELAY:
 		# XXX This test is not what it should be.
 		glitched = 0x1fff0350 <= addr <= 0x1fff0352
 
-for i in range(10, 100):
-	sys.stdout.write('%4d: ' % i)
-	for t in range(50, 55):
-		glitched = None
-		glitch(i)
-		try:
-			start_ocd()
-			if glitched is not True:
-				run_gdb()
-		finally:
-			kill_ocd()
-		sys.stdout.write('#' if glitched else '?' if glitched is None else '.')
-		sys.stdout.flush()
-	sys.stdout.write('\n')
+def main_iteration(post_reset_delay, glitch_duration):
+	global glitched
+	glitched = None
+	execute_gdb_script('setup.gdb')
+	glitch(post_reset_delay, glitch_duration)
+	if glitched is not True:
+		check_glitch()
+	sys.stdout.write('#' if glitched else '?' if glitched is None else '.')
+	sys.stdout.flush()
+
+def main():
+	start_ocd()
+	start_gdb()
+	try:
+		while True:
+			for post_reset_delay in range(9900, 9909):
+				sys.stdout.write('post-reset delay %4d: ' % post_reset_delay)
+				for glitch_duration in range(31, 35):
+					main_iteration(post_reset_delay, glitch_duration)
+				sys.stdout.write('\n')
+	finally:
+		traceback.print_exc()
+		print('shutting down')
+		execute_gdb_script('shutdown1.gdb')
+		execute_gdb_script('shutdown2.gdb')
+
+if __name__ == '__main__':
+	main()

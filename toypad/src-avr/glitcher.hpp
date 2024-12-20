@@ -34,8 +34,8 @@
 //   OC4A (regular)  |     PC7    |        D13       |    NOT AVAILABLE   |
 //   OC4A (inverted) |     PC6    |        D5        |           5        |
 //   ----------------+------------+------------------+--------------------+
-//   OC4B (regular)  |     PB6    |        D10       |          10        | <--- Normal voltage
-//   OC4B (inverted) |     PB5    |        D9        |           9        | <--- Bad voltage
+//   OC4B (regular)  |     PB6    |        D10       |          10        | <--- If high, cause glitch
+//   OC4B (inverted) |     PB5    |        D9        |           9        |
 //   ----------------+------------+------------------+--------------------+
 //   OC4D (regular)  |     PD7    |        D6        |           6        |
 //   OC4D (inverted) |     PD6    |        D12       |    NOT AVAILABLE   |
@@ -52,8 +52,8 @@
 #define GLITCHER_PORT			CONCAT3(PORT, GLITCHER_PORT_GROUP, )
 #define GLITCHER_DDR			CONCAT3(DDR, GLITCHER_PORT_GROUP, )
 #define GLITCHER_RESET_PIN		CONCAT3(PIN, GLITCHER_PORT_GROUP, 4)
-#define GLITCHER_VSS_REGULAR_PIN	CONCAT3(PIN, GLITCHER_PORT_GROUP, 5)
-#define GLITCHER_VSS_BAD_PIN		CONCAT3(PIN, GLITCHER_PORT_GROUP, 6)
+#define GLITCHER_VCC_INVERTED_PIN	CONCAT3(PIN, GLITCHER_PORT_GROUP, 5)
+#define GLITCHER_VCC_REGULAR_PIN	CONCAT3(PIN, GLITCHER_PORT_GROUP, 6)
 
 // Note: the RESET pin of LPC11U35 is active low, but the pin is connected through an invertor, so:
 // 
@@ -61,8 +61,8 @@
 //   -----------------------+-------------------
 //   0 / low / off          | Not resetting, i.e. run normally.
 //   1 / high / on          | Resetting, i.e. does not run.
-#define GLITCHER_PORT_STATE_RESET_LPC11U35_WITH_REGULAR_VOLTAGE	(_BV(GLITCHER_RESET_PIN) | _BV(GLITCHER_VSS_REGULAR_PIN))
-#define GLITCHER_PORT_STATE_RUN_LPC11U35_WITH_REGULAR_VOLTAGE	(                      0 | _BV(GLITCHER_VSS_REGULAR_PIN))
+#define GLITCHER_PORT_STATE_RESET_LPC11U35_WITH_REGULAR_VOLTAGE	(_BV(GLITCHER_RESET_PIN) | _BV(GLITCHER_VCC_INVERTED_PIN))
+#define GLITCHER_PORT_STATE_RUN_LPC11U35_WITH_REGULAR_VOLTAGE	(                      0 | _BV(GLITCHER_VCC_INVERTED_PIN))
 
 
 #define CS1_STOP		(        0 |         0 |         0)
