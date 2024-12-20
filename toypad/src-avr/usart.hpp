@@ -3,7 +3,7 @@
 
 #include <avr/common.h>
 
-void usart_init(uint32_t baudrate);
+void usart_init(uint32_t baudrate, uint8_t u2x=2);	// u2x=2: select best matching U2X value automatically.
 void usart_transmit_char(char ch);
 void usart_transmit_string(char const ch[]);
 uint16_t usart_receive_uint16();
