@@ -50,7 +50,7 @@ ${TARGET}.hex:
 
 
 upload: ${TARGET}.hex Makefile
-	timeout 5 bash -c 'while [ ! -e /dev/ttyACM0 ]; do sleep 0.1; done' &&\
+	timeout 5 bash -c 'while [ ! -e ${PORT} ]; do sleep 0.1; done' &&\
 	sleep 0.5 &&\
 	avrdude\
 		-p ${MCU}\

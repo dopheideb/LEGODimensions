@@ -93,8 +93,8 @@ __attribute__((__used__))
 void setup_clocks();
 void setup_timer1(uint16_t timer_ticks_wanted_before_overflow);
 void setup_timer4(
-    uint8_t timer_ticks_before_compare_match,
-    uint8_t timer_ticks_before_overflow
+    uint16_t timer_ticks_before_compare_match,
+    uint16_t timer_ticks_before_overflow
 );
 
 /* The downside of using linker flag "-nostartfiles" is that section 
@@ -208,7 +208,7 @@ int main()
     usart_transmit_string(".\r\n");
     
     uint16_t timer1_ticks;
-    uint8_t  timer4_ticks;
+    uint16_t  timer4_ticks;
 
     if (post_reset_ticks_at_48MHz <= MIN_TIMER4_TICKS_BEFORE_OVERFLOW)
     {
@@ -437,10 +437,12 @@ inline void setup_timer1(uint16_t timer_ticks_wanted_before_overflow)
 
 
 inline void setup_timer4(
-    uint8_t timer_ticks_before_glitch,
-    uint8_t timer_ticks_glitch_length
+    uint16_t timer_ticks_before_glitch,
+    uint16_t timer_ticks_glitch_length
 )
 {
+  // Disable interrupts during this function.
+  cli();
   // TCCR == Timer/Counter Control Register
   // 
   // From datasheet table 15-11 for COM4B1..0 (fast PWM mode):
@@ -468,29 +470,33 @@ inline void setup_timer4(
          | (0 << WGM40)	// Necessary for fast PWM mode.
          ;
 
-  // Set TOP for fast PWM. Make it an 8-bit counter, so we can use 8-bit 
-  // arithmetic. (We don't need 10-bit precision.)
-  TC4H = 0;
+  // Set TOP for fast PWM. Use full 10 bit range.
+  // The extreme values for the OCR4C Register represents special cases 
+  // when generating a PWM waveform output in the fast PWM mode. If the 
+  // OCR4C is set equal to BOTTOM, the output will be a narrow spike for 
+  // each MAX+1 timer clock cycle.
+  TC4H = 0x03;
   OCR4C = 0xFF;
   
   // From the datasheet, chapter 15.11 ("Accessing 10-bit Registers"):
   // 
   //   To do a 10-bit write, the high byte must be written to the TC4H 
   //   register before the low byte is written.
-  TC4H = 0;
-  TCNT4L = /* 256 */ - timer_ticks_before_glitch;
+  uint16_t value = (1 << 10) - timer_ticks_before_glitch;
+  TC4H = value >> 8;
+  TCNT4L = value & 0xff;
 
-  TC4H = 0;
-  // The extreme values for the OCR0A Register represents special cases 
-  // when generating a PWM waveform output in the fast PWM mode. If the 
-  // OCR0A is set equal to BOTTOM, the output will be a narrow spike for 
-  // each MAX+1 timer clock cycle.
-  OCR4B = +timer_ticks_glitch_length - 1;
+  // Set glitch length in OCR4B.
+  value = timer_ticks_glitch_length - 1;
+  TC4H = value >> 8;
+  OCR4B = value & 0xff;
   
-  // Enable the overflow interrupt of timer 4. See ISR(TIMER4_OVF_vect, 
-  // ISR_NAKED) for the actual overflow routine.
+  // Enable the overflow interrupt of timer 4.
+  // See ISR(TIMER4_OVF_vect, ISR_NAKED) for the actual overflow routine.
   // 
   // "TIMSK" means "Timer/Counter4 Interrupt Mask Register"
   // "OCIE4B" means "Timer/Counter4 Output Compare Interrupt Enable"
   TIMSK4 |= _BV(OCIE4B);
+  // Enable interrupts again.
+  sei();
 }
