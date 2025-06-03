@@ -29,14 +29,15 @@ static inline void flip_red() { GPIO_LED_NOT = 1 << LED_RED; }
 static inline void flip_green() { GPIO_LED_NOT = 1 << LED_GREEN; }
 static inline void flip_blue() { GPIO_LED_NOT = 1 << LED_BLUE; }
 
+// Note: internal pull-up is enabled on these pins after reset.
 #define PIN_A 2
 #define PIN_B 7
-#define PIN_IN 5
+#define PIN_IN 13
 
 #define GPIO_DIR (*(volatile uint32_t *)(GPIO_BASE | 0x2000))
 #define GPIO_DIR_MASK ((1 << PIN_A) | (1 << PIN_B))
 
-#define GPIO_PBYTE_IN (*(volatile uint32_t *)(GPIO_BASE | 0x0000 | PIN_IN))
+#define GPIO_PBYTE_IN (*(volatile uint8_t *)(GPIO_BASE | 0x0000 | PIN_IN))
 
 #define GPIO_NOT (*(volatile uint32_t *)(GPIO_BASE | 0x2300))
 #define GPIO_MASK_A (1 << PIN_A)
@@ -54,8 +55,12 @@ int main()
 	set_red();
 	while (GPIO_PBYTE_IN) {}	// Wait for avr to be ready.
 	GPIO_NOT = GPIO_MASK_A;
+	clear_red();
+
 	set_green();
 	while (!GPIO_PBYTE_IN) {}	// Wait for avr pulse.
+	clear_green();
+
 	set_blue();
 	GPIO_NOT = GPIO_MASK_B;
 	asm volatile (
@@ -82,6 +87,10 @@ int main()
 		"r" (MAGIC)
 	);
 	GPIO_NOT = GPIO_MASK_A;
+	// Glitched! White smoke!
+	set_red();
+	set_green();
+	set_blue();
 	while (1) {}
 }
 
