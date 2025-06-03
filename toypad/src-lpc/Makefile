@@ -14,6 +14,7 @@ disasm: test-lpc.elf
 	$(PREFIX)objdump -D $<
 
 upload: test-lpc.elf
+	/usr/local/LinkServer_1.6.133/binaries/boot_link2 cmsis
 	openocd -f interface/cmsis-dap.cfg -f target/lpc11xx.cfg -c "adapter speed 5000" -c "program $< verify reset exit"
 
 dfu: test-lpc.bin
