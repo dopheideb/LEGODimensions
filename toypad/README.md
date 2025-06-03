@@ -242,7 +242,7 @@ The pinout is:
 | Pin number  | Connected to LPC11U35 pin | Meaning of LPC11U35 pin
 | ----------- | ------------------------: | -----------------------
 | 1           | 33                        | `VSS` (i.e. ground)
-| 2           | 02                        | not(`RESET`)/`PIO_0`
+| 2           | 02                        | not(`RESET`)/`PIO0_0`
 | 3           | 18                        | `PIO0_9`/**`MOSI0`**/`CT16B0_MAT1` (?but why?)
 | 4           | 19                        | **`SWCLK`**/`PIO0_10`/`SCK0`/`CT16B0_MAT2`
 | 5           | 25                        | **`SWDIO`**/`PIO0_15`/`AD4`/`CT32B1_MAT2`

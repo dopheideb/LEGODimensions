@@ -2,6 +2,7 @@
 *.o
 *.elf
 *.hex
+*.bin
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -38,7 +38,7 @@ LDFLAGS =
 LDFLAGS += -nostartfiles
 #LDFLAGS += -Wl,-Map=$(@:.elf=.map),--cref
 
-PORT ?= /dev/ttyACM1
+PORT ?= /dev/ttyACM0
 
 #.INTERMEDIATE: asm-defines.h dummy.c
 
