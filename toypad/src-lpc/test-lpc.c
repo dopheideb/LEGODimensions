@@ -67,6 +67,7 @@ static inline void flip_blue() { GPIO_LED_NOT = 1 << LED_BLUE; }
 #define WDTOSCCTRL_DIVSEL_64 (0x1F)
 #define WDTOSCCTRL_FREQSEL_0_6_MHZ (0x1)
 #define WDTOSCCTRL_FREQSEL_4_6_MHZ (0xF)
+/* 0.6 MHz / 64 = 9375 Hz */
 #define WDTOSCCTRL_FREQ_9375_HZ ((WDTOSCCTRL_DIVSEL_64 << 0) | (WDTOSCCTRL_FREQSEL_0_6_MHZ << 5))
 #define PDRUNCFG (*((volatile unsigned int *) 0x40048238))
 #define PDRUNCFG_WDTOSC_PD (_BV(6))
@@ -81,6 +82,8 @@ static inline void watchdog_feed()
 static inline void watchdog_start()
 {
 	watchdog_feed();
+	// We have to wait 3 WDLCK cycles before setting WDPROTECT.
+	//WDMOD |= WDMOD_WDPROTECT;
 }
 static inline void watchdog_init()
 {
@@ -91,26 +94,23 @@ static inline void watchdog_init()
 	// Allow access to WDT registers.
 	SYSAHBCLKCTRL |= SYSAHBCLKCTRL_WWDT;
 
-	// Use watchdog oscillator, not the IRC.
-	WDCLKSEL = WDCLKSEL_CLKSEL;
-
-	// Lock our CLKSEL choice. We cannot combine this with the 
-	// previous command due to UM10462 17.7.2.
-	WDCLKSEL = WDCLKSEL_LOCK;
+	// Use watchdog oscillator, not the IRC. And lock our choice.
+	WDCLKSEL = WDCLKSEL_CLKSEL
+		| WDCLKSEL_LOCK
+		;
 
 	// UM10462 states: "Remark: The frequency of the watchdog 
 	// oscillator is undefined after reset."
 	WDTOSCCTRL = WDTOSCCTRL_FREQ_9375_HZ;
 
-	// Set timer to 5 seconds.
-	WDTC = 5000 * 9375;
+	// Set timer to 1 second.
+	WDTC = 1 * 9375 / 4;	// 4 is the pre scaler (fixed divider).
 
 	// Enable the watchdog. This does NOT start it (feeding once 
 	// does).
 	WDMOD =   WDMOD_WDEN
 		| WDMOD_WDRESET
-		//| WDMOD_WDPROTECT
-		//| WDMOD_LOCK
+		| WDMOD_LOCK
 		;
 }
 
