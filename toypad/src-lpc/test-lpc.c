@@ -1,5 +1,7 @@
 #include <stdint.h>
 
+#define _BV(bit) (1ULL << (bit))
+
 #define MAGIC 0x015ac37f
 #define NT "\n\t"
 #define NX "\n"
@@ -43,6 +45,75 @@ static inline void flip_blue() { GPIO_LED_NOT = 1 << LED_BLUE; }
 #define GPIO_MASK_A (1 << PIN_A)
 #define GPIO_MASK_B (1 << PIN_B)
 
+#define SYSAHBCLKCTRL (*((volatile unsigned int *) 0x40048080))
+#define SYSAHBCLKCTRL_WWDT (_BV(15))
+
+#define WDMOD (*((volatile unsigned int *) 0x40004000))
+#define WDMOD_WDEN	(_BV(0))
+#define WDMOD_WDRESET	(_BV(1))
+#define WDMOD_WDTOF	(_BV(2))
+#define WDMOD_WDINT	(_BV(3))
+#define WDMOD_WDPROTECT	(_BV(4))
+#define WDMOD_LOCK	(_BV(5))
+
+#define WDTC (*((volatile unsigned int *) 0x40004004))
+#define WDFEED (*((volatile unsigned int *) 0x40004008))
+#define WDCLKSEL   (*((volatile unsigned int *) 0x40004010))
+#define WDCLKSEL_CLKSEL (_BV( 0))
+#define WDCLKSEL_LOCK   (_BV(31))
+
+#define WDTOSCCTRL (*((volatile unsigned int *) 0x40048024))
+#define WDTOSCCTRL_DIVSEL_2  (0x00)
+#define WDTOSCCTRL_DIVSEL_64 (0x1F)
+#define WDTOSCCTRL_FREQSEL_0_6_MHZ (0x1)
+#define WDTOSCCTRL_FREQSEL_4_6_MHZ (0xF)
+#define WDTOSCCTRL_FREQ_9375_HZ ((WDTOSCCTRL_DIVSEL_64 << 0) | (WDTOSCCTRL_FREQSEL_0_6_MHZ << 5))
+#define PDRUNCFG (*((volatile unsigned int *) 0x40048238))
+#define PDRUNCFG_WDTOSC_PD (_BV(6))
+
+static inline void watchdog_feed()
+{
+	__asm volatile (NX "cpsid i" ::: "memory");
+	WDFEED = 0xAA;
+	WDFEED = 0x55;
+	__asm volatile (NX "cpsie i" ::: "memory");
+}
+static inline void watchdog_start()
+{
+	watchdog_feed();
+}
+static inline void watchdog_init()
+{
+	// Power up the watchdog oscillator, since it is not powered by 
+	// default. Note: active-low logic.
+	PDRUNCFG &= ~PDRUNCFG_WDTOSC_PD;
+
+	// Allow access to WDT registers.
+	SYSAHBCLKCTRL |= SYSAHBCLKCTRL_WWDT;
+
+	// Use watchdog oscillator, not the IRC.
+	WDCLKSEL = WDCLKSEL_CLKSEL;
+
+	// Lock our CLKSEL choice. We cannot combine this with the 
+	// previous command due to UM10462 17.7.2.
+	WDCLKSEL = WDCLKSEL_LOCK;
+
+	// UM10462 states: "Remark: The frequency of the watchdog 
+	// oscillator is undefined after reset."
+	WDTOSCCTRL = WDTOSCCTRL_FREQ_9375_HZ;
+
+	// Set timer to 5 seconds.
+	WDTC = 5000 * 9375;
+
+	// Enable the watchdog. This does NOT start it (feeding once 
+	// does).
+	WDMOD =   WDMOD_WDEN
+		| WDMOD_WDRESET
+		//| WDMOD_WDPROTECT
+		//| WDMOD_LOCK
+		;
+}
+
 int main()
 {
 	GPIO_NOT = GPIO_MASK_A | GPIO_MASK_B;	// Set A and B high.
@@ -51,6 +122,7 @@ int main()
 	clear_red();
 	clear_green();
 	clear_blue();
+	watchdog_init();
 
 	set_red();
 	while (GPIO_PBYTE_IN) {}	// Wait for avr to be ready.
@@ -62,6 +134,8 @@ int main()
 	clear_green();
 
 	set_blue();
+	watchdog_start();
+
 	GPIO_NOT = GPIO_MASK_B;
 	asm volatile (
 		NX "loop: cmp %0, %1"

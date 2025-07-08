@@ -1,6 +1,6 @@
 test-lpc.elf:
 
-CFLAGS = -mthumb -specs=nosys.specs -fdata-sections -ffunction-sections
+CFLAGS = -mthumb -mcpu=cortex-m0 -O1 -specs=nosys.specs -fdata-sections -ffunction-sections
 #CFLAGS += -Wl,--gc-sections
 PREFIX = arm-none-eabi-
 
@@ -11,7 +11,7 @@ PREFIX = arm-none-eabi-
 	$(PREFIX)objcopy -O binary $< $@
 
 disasm: test-lpc.elf
-	$(PREFIX)objdump -D $<
+	$(PREFIX)objdump --disassemble $<
 
 upload: test-lpc.elf
 	## Switch LPCXpresso from DFU to CMSIS.
