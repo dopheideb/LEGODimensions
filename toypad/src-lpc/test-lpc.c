@@ -91,7 +91,7 @@ static inline void watchdog_init()
 	// default. Note: active-low logic.
 	PDRUNCFG &= ~PDRUNCFG_WDTOSC_PD;
 
-	// Allow access to WDT registers.
+	// Enable clock for the (windowed) watchdog.
 	SYSAHBCLKCTRL |= SYSAHBCLKCTRL_WWDT;
 
 	// Use watchdog oscillator, not the IRC. And lock our choice.
