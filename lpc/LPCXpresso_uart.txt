@@ -1,0 +1,4 @@
+Arduino header	pin		Label	Instructions
+J1		"14"		GND	Connect to GND of USB2serialTTL
+J2		0		ISP_RX	Connect to TXD of USB2serialTTL
+J2		1		ISP_TX	Connect to RXD of USB2serialTTL
