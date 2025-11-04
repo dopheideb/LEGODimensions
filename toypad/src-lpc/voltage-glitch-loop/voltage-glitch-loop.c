@@ -272,7 +272,7 @@ const struct vectors vectors __attribute__((section (".isr_vector"))) =
 	NULL,			// 4
 	NULL,			// 5
 	NULL,			// 6
-	NULL,			// 7
+	NULL,			// 7 Checksum, see chapter 20.7 of the user manual
 	NULL,			// 8
 	NULL,			// 9
 	NULL,			// 10
