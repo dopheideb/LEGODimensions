@@ -10,8 +10,8 @@
 #define NVIC_ISER	(*(volatile uint32_t*)0xE000E100)
 #define NVIC_ISER_USART	(21)
 
-#define SCB_AIRCR	(*(volatile unsigned int*)0xE000ED0C)
-#define AIRCR_VECTKEY	(0x5FA << 16)
+#define SCB_AIRCR	(*(volatile uint32_t*)0xE000ED0C)
+#define AIRCR_VECTKEY	(0x05FA << 16)
 #define SYSRESETREQ	(1 << 2)
 
 #define SYSPLLCLKSEL	(*(volatile uint32_t*)0x40048040)
