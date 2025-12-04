@@ -256,32 +256,21 @@ int main()
 	}
 }
 
+void hang(){while(1);}
+
 struct vectors {
 	uint32_t stack;
-	void * core_interrupts[15];
-	void * vendor_specific_interrupts[32];
+	void * core_interrupts[1];
 };
 
-void hang(){while(1);}
-const struct vectors vectors __attribute__((section (".isr_vector"))) =
+#define initial_stack 0x10000ffc
+const struct vectors vectors __attribute__((section (".fault_vector"))) =
 {
-	0x10000ffc,		// 0 Initial stack pointer
+	initial_stack,		// 0 Initial stack pointer
 	&main,			// 1 Reset handler
-	NULL,			// 2
-	NULL,			// 3
-	NULL,			// 4
-	NULL,			// 5
-	NULL,			// 6
-	NULL,			// 7 Checksum, see chapter 20.7 of the user manual
-	NULL,			// 8
-	NULL,			// 9
-	NULL,			// 10
-	NULL,			// 11
-	NULL,			// 12
-	NULL,			// 13
-	NULL,			// 14
-	NULL,			// 15
-	// IRQs start here.
+};
+const void * irqs[32] __attribute__((section (".irq_vector"))) =
+{
 	NULL,			// IRQ 0: PIN_INT0
 	NULL,			// IRQ 1: PIN_INT1
 	NULL,			// IRQ 2: PIN_INT2

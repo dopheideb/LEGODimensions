@@ -1,14 +1,20 @@
 MEMORY {
-	VECTORS (r) : ORIGIN = 0, LENGTH = 4 * 48
+	FAULTS (r) : ORIGIN = 0, LENGTH = 4 * 2
+	VECTORS (r) : ORIGIN = 0x40, LENGTH = 4 * 32
 	FLASH (rx) : ORIGIN = 1k LENGTH = 32k
 	RAM (rw) : ORIGIN = 0x10000000 LENGTH = 8k
 }
 
 SECTIONS {
 
-.isr_vector :
+.fault_vector :
 {
-	KEEP(*(.isr_vector))
+	KEEP(*(.fault_vector))
+} > FAULTS
+
+.irq_vector :
+{
+	KEEP(*(.irq_vector))
 } > VECTORS
 
 .text :
