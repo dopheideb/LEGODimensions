@@ -1,0 +1,10 @@
+apt install openocd gdb-multiarch
+
+From http://www.proxmark.org/forum/viewtopic.php?id=2657&p=2:
+
+J2
+X         X         X            X           X         X
+GND(33)   Reset(2)  PIO0_9(18)   SWCLK(19)   SWD(25)   VDD(6)
+
+GND                              SC          SD
+BLACK                            ORANGE      YELLOW
