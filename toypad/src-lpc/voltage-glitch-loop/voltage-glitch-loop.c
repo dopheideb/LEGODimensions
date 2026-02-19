@@ -294,3 +294,9 @@ const void * irqs[32] __attribute__((section (".irq_vector"))) =
 	NULL,			// IRQ 20: SSP0
 	&uart_irq_handler,	// IRQ 21: USART
 };
+
+void _close_r() {}
+void _lseek_r() {}
+void _read_r() {}
+void _write_r() {}
+void _sbrk() {}
