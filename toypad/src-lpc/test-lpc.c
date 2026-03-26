@@ -116,6 +116,7 @@ static inline void watchdog_init()
 
 int main()
 {
+	/*
 	GPIO_NOT = GPIO_MASK_A | GPIO_MASK_B;	// Set A and B high.
 	GPIO_DIR = GPIO_DIR_MASK;	// Set A and B to output.
 	GPIO_LED_DIR |= LEDS_MASK;	// Enable leds output.
@@ -137,6 +138,7 @@ int main()
 	watchdog_start();
 
 	GPIO_NOT = GPIO_MASK_B;
+	*/
 	asm volatile (
 		NX "loop: cmp %0, %1"
 		NT "bne glitch"
@@ -151,14 +153,14 @@ int main()
 		NT "cmp %0, %6"
 		NT "beq loop"
 		NX "glitch:"
-	::
-		"r" (MAGIC),
-		"r" (MAGIC),
-		"r" (MAGIC),
-		"r" (MAGIC),
-		"r" (MAGIC),
-		"r" (MAGIC),
-		"r" (MAGIC)
+	:
+		"=r" (MAGIC),
+		"=r" (MAGIC),
+		"=r" (MAGIC),
+		"=r" (MAGIC),
+		"=r" (MAGIC),
+		"=r" (MAGIC),
+		"=r" (MAGIC)
 	);
 	GPIO_NOT = GPIO_MASK_A;
 	// Glitched! White smoke!

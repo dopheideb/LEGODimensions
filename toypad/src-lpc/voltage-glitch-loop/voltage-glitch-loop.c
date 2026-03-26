@@ -194,6 +194,7 @@ void uart_irq_handler()
 
 int main()
 {
+#if 0
 	// Switch to green LED first, so we know our program at least 
 	// somewhat works.
 	GPIO_PORT_DIR1 |= LEDS_MASK;	// Enable leds output.
@@ -206,7 +207,7 @@ int main()
 	// Send "B", meaning we are done "B"ooting. The voltage 
 	// glitching may commence.
 	uart_send_string("B");
-
+#endif
 	while (1)
 	{
 		volatile uint32_t magic0 = MAGIC;
@@ -240,19 +241,20 @@ int main()
 			"=r" (magic5),
 			"=r" (magic6)
 		: // Input operands.
-			"r" (magic0),
-			"r" (magic1),
-			"r" (magic2),
-			"r" (magic3),
-			"r" (magic4),
-			"r" (magic5),
-			"r" (magic6)
+			"0" (magic0),
+			"1" (magic1),
+			"2" (magic2),
+			"3" (magic3),
+			"4" (magic4),
+			"5" (magic5),
+			"6" (magic6)
 		: "memory"
 		);
 
 		// If we broke free of the asm loop, a glitch happened. 
 		// Report.
 		uart_send_string("!");
+		while (1) {}
 	}
 }
 
