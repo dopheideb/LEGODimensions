@@ -95,9 +95,10 @@ the Code Read Protection (CRP) options.
 > | `CRP2`   | `0x87654321`
 > | `CRP3`   | `0x43218765`
 
-Note that this is a 32-bit value. Only four values out of the possible 
-4294967296 give some sort of protection. This means that any of the 
-other 4294967292 values mean **NO CODE PROTECTION** at all.
+Note that the CRP value is a 32-bit value. A 32-bit integer can have 
+4294967296 different values. But only four have a special meaning. This 
+means that any of the other 4294967292 values mean **NO CODE 
+PROTECTION** at all. A single bit flip is all it takes!
 
 ## Changing the firmware
 
@@ -132,17 +133,21 @@ int main()
 }
 ```
 
-enable_debugging() is the part where SWD is allowed. ISP is a more "manual" protocol for accessing the flash (but not debugging).
+enable_debugging() is the part where SWD is allowed. ISP is a more 
+"manual" protocol for accessing the flash (but not debugging).
 
-We could get access to the flash contents, either through SWD or through ISP.
+We could get access to the flash contents, either through SWD or through 
+ISP.
 
-SWD can be enabled by manipulating swd_option. ISP needs that as well, plus some extra things. So using SWD is easier. It is also more easily accessible on the board.
+SWD can be enabled by manipulating swd_option. ISP needs that as well, 
+plus some extra things. So using SWD is easier. It is also more easily 
+accessible on the board.
 
 ## Manipulate the boot process
 
 The value of the Code Read Protection is stored in the firmware, in 
 location 0x2FC. We don't have the powers of changing the firmware. 
-However, we are some knowledge about (micro)controllers, since we have 
+However, we have some knowledge about (micro)controllers, since we have 
 dealt with AVRs and Z80s in the past. So, we know a thing or two about 
 how a microcontroller functions.
 
@@ -227,13 +232,15 @@ states:
 ## The power of lack of power
 
 Chris Gerlinksy deliberately used a drop in voltage to force a bitflip. 
-This is known as a brownout. See 
+This is drop in voltage is known as a brownout. See 
 <https://en.wikipedia.org/wiki/Brownout_(electricity)>.
 
 Delivering decreased power to the LEGO Dimensions toypad seems like a 
 doable task. The LPC11U35 used on the toypad is only 5mm by 5mm, too 
 small to solder wires to (at least too small for *us*). However, the J2 
-header looks more promising. (Note from Bas: Speak for yourself, I could solder wires to it. :-P But J2 is much more convenient, so we use that. :-D)
+header looks more promising. (Note from Bas: Speak for yourself, I could 
+solder wires to it. :-P But J2 is much more convenient, so we use that. 
+:-D)
 
 ## The J2 header on the toypad 
 
@@ -248,7 +255,9 @@ The pinout is:
 | 5           | 25                        | **`SWDIO`**/`PIO0_15`/`AD4`/`CT32B1_MAT2`
 | 6<br>&nbsp; | 06<br>29                  | `VDD`<br>&nbsp;
 
-The pins on the header have **no resistance** to counterpart on the 
+Closest to the corner is pin 1. Pin 6 is near the writing "J2".
+
+The pins on the header have **no resistance** to the counterpart on the 
 LPC11U35. It seems it is mere wire between header and microcontroller. 
 And that is a good thing; we have direct control, not regulated or 
 impaired.
