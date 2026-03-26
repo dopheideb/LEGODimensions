@@ -275,72 +275,226 @@ mode, then we can use SWD to read the whole firmware.
 We are opportunistic hackers: we will try to build a glitcher with 
 equipment and parts we have laying around:
 - Lab power supplies
-- Atmel AVRs
-- MOSFETs (P-channel)
+- STM32F070F6P6
+- Texas Instruments CD74HC4053
+- Raspberry Pi Debug Probe
+- Rigol DS1102E digital oscilloscope
+- Breadboard
+- Jumper wires
+- Transistors
+- Resistors
 
 Lab power supplies:
-- One power supply to deliver a just enough but very stable voltage.
-- One power supply to deliver just too low yet very stable voltage.
+- One power supply to deliver "a just enough" but very stable voltage.
+- One power supply to deliver "just too low" yet very stable voltage.
 
-2 MOSFETs which will act as switching:
-- 1 MOSFET to turn the "barely enough voltage" on and off.
-- 1 MOSFET to turn the "just too lowh voltage" on and off.
-- We will switch the power *before* the load; we are doing high-side 
-switching
-- High-side switching: so choose P-channel MOSFET
+Rigol DS1102E:
+This is a 2 channel 100 MHz, 1Gsa/s digital oscilloscope. Such a scope 
+is might handy for debugging, checking actual voltages and actual 
+voltage responses, checking the actual width of a pulse.
 
-Atmel AVR:
-- Switching. Use the AVR to switch between both voltages, i.e. drive the 
-MOSFETs.
-- Communication. An AVR can communicate via serial protocol, so we can 
-"talk" to the AVR, bidirectionally.
-- Timing. An AVR typically runs 20 MHz. We can time the reset, the delay 
-before the brownout and the length of the brownout.
+Raspberry Pi Debug Probe:
+This debug probe can talk Serial Wire Debug (SWD) to an ARM processor. 
+More specific, it can talk SWD to the LPC11U35, either the one on the 
+toypad or the ones we bought for development/testing.
 
-## AVR firmware
+This "talking" also means: be able to read memory, registers, set the 
+program counter. The probe is very powerful when combined with gdb (GNU 
+debugger). We can then step/halt/examine the firmware like it is a 
+regular program.
+
+CD74HC4053:
+
+The CD74HC4053 will act as a switch. A switch we control externally 
+(from the STM32). The CD74HC4053 will switch between the "good" and 
+"bad" voltage (both are input), to the output voltage connected to the 
+Vdd pins (plural) of the LPC11U35. The CD74HC4053 is designed for this 
+job, and switches fast enough for us.
+
+STM32F070F6P6:
+- This is a 3V3 chip. Since the LPC11U35 is also 3V3, we don't have to 
+convert voltages. (We tried using an Atmel AVR (5V chip) at first, but 
+the converting of voltage made was annoying and added unnecessary 
+complexity.)
+- Switching. The STM32 controls the CD74HC4053, i.e. when to apply "good" 
+voltage to the LPC11U35, and when and how long to apply "bad" voltage to 
+the toypad.
+- Enabling. The STM32 controls the reset pin of the LPC11U35. The STM32 
+determines when the toypad boots/resets.
+- Communication. The STM32 has a serial port. We connect that port to 
+our server/laptop, so we can interact with the STM32. For instance: 
+control how long to apply the "bad" voltage.
+- Timing. The STM32 can run a timer on 48 MHz. We use that timer to 
+control how long to apply the "bad" voltage.
+
+## STM32 firmware
 
 We think we should build the following state machine for the AVR:
-1. Start
-2. Blocking: Read serial command "GLITCH \<resetdelay\> \<brownoutlength\>"
-3. Reset the LPC11U35X (either via reset pin or by applying 0 voltage)
-4. Stop reset procedure.
-5. Start brownout delay timer (via Output Compare Register, OCRx)
-6. Burn cycles until the Output Compare Flag (OCFx) is set in the TIFRn register.
-7. Switch off "barely enough voltage" and switch on "just too low voltage". This must be done in a single instruction, so the pins must be on the same AVR port.
-8. Deliberately burn a user supplied number CPU cycles
-9. Switch off "just too low voltage" and switch on "barely enough voltage", again using a single instruction.
-10. Write serial output: "DONE"
-11. Back to state 2.
+1. Start.
+2. Blocking: Read serial command "\<delay_between_end_of_reset_and_begin_of_brownout\> \<brownout_length\>".
+3. Configure timers:
+   - Configure timer 1 such that it will give a reset pulse to the LPC11U35 of 1ms.
+   - Configure timer 3 such that it will start when timer 1 stops the reset pulse. (STM32 can chain timers in hardware!)
+   - Configure timer 3 such that it will give a pulse of "brownout length", i.e. that 
+4. Back to state 2.
 
-Step 7 is entered through an interrupt, and the interrupt handler (steps 7, 8, 9) must be naked and pure assembly, to get better timing. There must not be other interrupts enabled. Step 8 is done by selecting one of several code paths, each of which implements a specific number of cycles for the brown-out. This is because it should only last a few cycles, and an interrupt or configurable loop is too slow/too large steps.
+Visualization:
+```
+            Beginning of reset pulse (timer 1).
+            v
+------------.           ,----
+             \         /
+Reset pulse   \       /
+               `-----'
+                     ^-- End of reset pulse (timer 1 overflows), start of delay timer (timer 3).
+                     |
+                     |
+                     v
+LPC timeline         __________________________________
+                     ^               ^             ^
+                     |               |             End of LPC glitch window
+                     |               |
+                     |               Start of LPC glitch window
+                     LPC starts to boot
 
-Atmel AVR130 is an application note called "Setup and Use of AVR 
-Timers".
+                                    v-- End of delay timer (timer 3 overflows), start of voltage glitch.
+good voltage -----------------------.           ,-------------------
+                                     \         /
+Voltage to LPC11U15                   \       /
+                                       \     /
+bad voltage                             `---'
+                                            ^-- End of voltage glitch.
+```
 
 ## Glitch Controller Software
 
-Glitch attempts usually fail. For this reason, it is important to automate the process, so a glitch can be attempted many times in a short time. For this, some software on the main computer is required. This software needs to have the following connections:
+Glitch attempts usually fail. For this reason, it is important to 
+automate the process, so a glitch can be attempted many times in a short 
+time. For this, some software on the main computer is required. This 
+software needs to have the following connections:
 
-1. Serial port to the AVR that does the glitching.
-2. USB port to the AVR that does the glitching (only for programming the firmware; it may be disconnected while it is running. However, it also provides power to the AVR).
-3. USB port to the PicoProbe for the SWD connection.
+1. Serial port to the STM32, to start a new glitch attempt.
+2. USB port to the STM32, to program new firmware.
+3. USB port to the Raspberry Pi Debug Probe for the Serial Wire Debug 
+(SWD) connection.
 
-First, the firmware needs to be programmed into the AVR. After that, the following procure should be used to glitch:
+First, the firmware needs to be programmed into the STM32. After that, 
+the following procure should be used to glitch:
 
-1. Send reset command to AVR firmware. This will hold the LPC11U35X in reset.
-2. Send glitch command to AVR firmware with the current settings. This will stop resetting and then attempt a glitch.
-3. Wait for the AVR firmware to report that the glitch attempt has been completed.
-4. Start gdb and attempt to connect over swd. The outcome is recorded.
-5. Exit gdb, regardless of the outcome.
-5. If the SWD connection could not be made, restart from point 1.
+1. Send glitch command to STM32.
+2. Test if the glitch attempt was successful, using the Raspberry Pi 
+Debug Probe.
+3. If unsuccesful: restart from 1.
+4. If successful: dump the firmware of the LPC11U35/toypad.
 
-After this, the device has been glitched. A new manual SWD connection can be made and a memory dump can be performed.
+## Determine timing and duration
 
-The clean LPC11U35X that is used for testing will initially not be programmed into a CRP mode. For this reason, the SWD connection will never fail. For that test, gdb should instead test where it is executing. This will indicate whether or not a glitch has happened.
+### Determine duration of the reset pulse
 
-For the test, after reporting whether it worked, the program is always restarted from point 1. This way, it is easy to see the probability of a glitch with these settings. The process is repeated a number of times for several glitch lengths or timings.
+The duration of the reset pulse is easy: we use a static 1 millisecond. 
+Only 50 ns is required according to the datasheet, so 1 ms is more than 
+enough. But 1 ms is handy for visualization on the oscilloscope.
+
+### Determine duration of the glitch pulse
+
+The duration of the glitch pulse can be determined by "sweeping" while 
+using a non CRP enabled LPC11U35. Try 100 times a duration of 1 CPU 
+cycle, try 100 times a duration of 2 CPU cycles, etc. With custom 
+firmware, it will be easy to know when a glitch was successful. The 
+number of cycles having the most successful glitches, is the best glitch 
+pulse width.
+
+Our test environment has no capacitors, the toypad does. Capacitor 
+influence how a voltage drops and rises. So the observed optimum glitch 
+pulse width in the test environment is only a starting point/minimum for 
+the pulse width needed for the toypad.
+
+### Determine the glitch window length
+
+After examining the boot ROM, it was clear that there wasn't a single 
+instruction that had to be targeted, but the glitch could happen during 
+several (consecutive) instructions. To be precise: from 0x1fff00a8 upto 
+and including 0x1fff00c2. Converted from instructions to CPU cycles and 
+summing leads to a glitch window of 24 CPU cycles.
+
+Each CPU cyle of the LPC11U35 is 1/12 of a microseconds (since the 
+LPC11U35 runs at 12 MHz during the boot ROM). So 24 CPU cycles represent 
+a window of 2.0 microseconds.
+
+### Determine the start of the glitch window with respect to end of reset
+
+Our glitch firmware starts the glitch pulse after a predetermined number 
+of microseconds. But what should that number be? How long does the 
+LPC11U35 take to boot, and arrive at the start of the glitch window? We 
+couldn't find a direct answer.
+
+However, we were able to measure it *indirectly*. Visualisation:
+```
+LPC timeline:
+
+
+   LPC starts to boot
+   |
+   |              Start of LPC glitch window       Start of custom pulse
+   |              |                                |
+   |              |     End of LPC glitch window   |  End of custom pulse, jump to start of LPC glitch window.
+   |              |     |                          |  |
+   v              v     v                          v  v
+   ----------------------------------------------------------------------
+   |              |                                   |
+   |              |                                   |
+   |<------------>|<--------------------------------->|
+   |    WANTED               MEASUREMENT#2            |
+   |                                                  |
+   |<------------------------------------------------>|
+                       MEASUREMENT#1
+```
+
+Create a custom firmware:
+1. Let the firmware give a pulse on a certain pin.
+2. Hook up the scope:
+   - Channel A to that pin.
+   - Channel B to the reset pulse pin.
+3. Measure (with said scope) the time between the end of the reset pulse 
+(i.e. the start of the LPC11U35) and the end of the custom pulse.
+4. Write down this measurement. This is "MEASUREMENT#1" of the 
+visualisation.
+
+Rewrite the custom firmware. After the custom pulse, have it jump to the 
+boot ROM, to the start of the glitch window. Measure the time from the 
+end of the first pulse to the end of the consecutive pulse. Write down 
+this measurement. This is "MEASUREMENT#2" of the visualisation.
+
+We can now easily calculate the delay between the end of the reset pulse 
+and the start of the glitch window:
+```
+    delay = MEASUREMENT#1 - MEASUREMENT#2
+```
+
+This is the delay that our glitcher firmware must introduce after ending 
+the reset pulse. A small sweep range may be needed, since a voltage drop 
+is not immediate, but may take a some time/some CPU cycles. (Or quite 
+some time if we somehow cannot eliminate large capacitors on the 
+toypad.)
+
+Actual measurements:
+- MEASUREMENT#1: 75.9 microseconds
+- MEASUREMENT#2: 50.4 microseconds
+
+So the delay must be 75.9 - 50.4 = 25.5 microseconds
+
+## Capacitors
+
+The capacitors on the toypad are marked
+1. "74B32 106A" (2 pieces) - Tantalum capacitor, 10 micro Farad, 10V max
+2. "74B32 475C" (1 piece)  - Tantalum capacitor, 4.7 micro Farad, 16V max
+
+Fall time: It takes around 1 millisecond to drop from 2V8 to 1V1. (Roughly 1 RC time.)
+Rise time: It takes around 1 millisecond to rise from 1V1 to 2V8.
 
 # Unsorted
+
+## Unsorted links
 
 - <https://github.com/vekexasia/lpc_voltage_glitch_test>
 - <https://arxiv.org/pdf/2108.06131.pdf>
