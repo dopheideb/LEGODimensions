@@ -44,8 +44,11 @@ if args.list_names:
     sys.exit(0)
 
 
-
-clf = nfc.ContactlessFrontend('usb')
+try:
+    clf = nfc.ContactlessFrontend('usb')
+except IOError:
+    print(f"If the strace shows EBUSY on system call USBDEVFS_CLAIMINTERFACE, then perhaps systemd service pcscd has claimed the device. Workaround: 'sudo systemctl stop pcscd.service'")
+    raise
 logging.debug(f"Found the following NFC device: {clf}")
 
 logging.info("Waiting for a tag.")
