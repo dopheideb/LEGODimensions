@@ -57,8 +57,8 @@ nfctag = clf.connect(rdwr={'on-connect': lambda nfctag: False})
 logging.info(f"Basic tag information: {nfctag}")
 
 ldtag = legodimensions.Tag(uid=nfctag.identifier)
-## LEGO protects the page in which the the character/vehicle ID is 
-## written. However, if one buys an empty NTAG213, there is no need to 
+## LEGO protects the page in which the character/vehicle ID is written. 
+## However, if one buys an empty NTAG213, there is no need to 
 ## authenticate. Moreover, if an empty NTAG213 is written to contain a 
 ## valid LEGO Dimensions character or vehicle, then LEGO Dimensions does 
 ## not REQUIRE that the tag is protected against unwanted reads and 
