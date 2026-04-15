@@ -14,15 +14,27 @@ ags131 for code on/in https://github.com/AlinaNova21/node-ld/
 
 '''
 
+## The LEGO Dimensions toypad firmware implements the rotate left. 
+## ags131 uses an equivalent rotate right:
+## 
+##   Firmware                   ags131
+##   v4 = rotate_left(v2,  7)   v4 = rotr32(v2, 25)
+##   v5 = rotate_left(v2, 22)   v5 = rotr32(v2, 10)
+## 
+## It really doesn't matter value wise, but we prefer to stick to what 
+## the firmware does.
+def _rotate_left(n: int, rotations: int=1, width: int=8):
+    part1 = n << (rotations % width)
+    part2 = n >> ((width - rotations) % width)
+    return (part1 | part2) & ((1 << width) - 1)
+
+def _rotate_left_dword(dword: int, rotations: int):
+    dword_size = 32
+    return _rotate_left(dword, rotations, width=dword_size)
 
 def _rotate_right(n: int, rotations: int=1, width: int=8):
-    part1 = n >> rotations
-    
-    ## Rotating to the right is almost the same as rotating to 
-    ## the left.
-    part2 = n << (width - rotations)
-    return (part1 | part2) & ((1 << width) - 1)
-    
+    return _rotate_left(n=n, rotations=-rotations, width=width)
+
 def _rotate_right_dword(dword: int, rotations: int):
     dword_size = 32
     return _rotate_right(dword, rotations, width=dword_size)
@@ -33,9 +45,18 @@ def swap_endianness_32(data32: bytes) -> bytes:
 
 
 class Tag:
+    ## LEGO sets a password on the NFC tag, so the page containing the 
+    ## character/vehicle ID cannot be read unless the reader has 
+    ## authenticated itself with the correct password.
+    ## 
+    ## Every tag has a different password. The password is derived from 
+    ## the UID and and common phrase. This base password is 32 bytes. 
+    ## The actual password is only 4 bytes.
     password_base = (
         ## Replace "UUUUUUU" with the UID.
         b"UUUUUUU(c) Copyright LEGO 2014\xAA\xAA"
+	##123456789012345678901234567890  1   2
+	##         1         2         3
     )
     
     scramble_base = (
@@ -72,8 +93,8 @@ class Tag:
         v2 = 0
         for n in range(8):
             v2_old = v2
-            v4 = _rotate_right_dword(v2, 25)
-            v5 = _rotate_right_dword(v2, 10)
+            v4 = _rotate_left_dword(v2, 7)
+            v5 = _rotate_left_dword(v2, 22)
             b = int.from_bytes(base[n * 4 : (n + 1) * 4], byteorder='little', signed=False)
             v2 = (b + v4 + v5 - v2) & 0xFFFFFFFF
             logging.debug(f"n={n} v4={v4:08x} v5={v5:08x} b={b:08x} v2={v2:08x}")
@@ -104,8 +125,8 @@ class Tag:
         
         v2 = 0
         for n in range(cnt):
-            v4 = _rotate_right_dword(v2, 25)
-            v5 = _rotate_right_dword(v2, 10)
+            v4 = _rotate_left_dword(v2, 7)
+            v5 = _rotate_left_dword(v2, 22)
             b = int.from_bytes(base[n * 4 : (n + 1) * 4], byteorder='little', signed=False)
             v2 = (b + v4 + v5 - v2) & 0xFFFFFFFF
             logging.debug(f"n={n} v4={v4:08x} v5={v5:08x} b={b:08x} v2={v2:08x}")
