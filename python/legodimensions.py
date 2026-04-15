@@ -83,6 +83,16 @@ class Tag:
         
         self._uid = uid
     
+    def _shuffle_bits_and_derive_4byte_password(self: Self, base: bytes, rounds: int) -> bytes:
+        v2 = 0
+        for n in range(rounds):
+            v4 = _rotate_left_dword(v2, 7)
+            v5 = _rotate_left_dword(v2, 22)
+            b = int.from_bytes(base[n * 4 : (n + 1) * 4], byteorder='little', signed=False)
+            v2 = (b + v4 + v5 - v2) & 0xFFFFFFFF
+            logging.debug(f"n={n} v4={v4:08x} v5={v5:08x} b={b:08x} v2={v2:08x}")
+        return int.to_bytes(v2, length=4, byteorder='little')
+
     @property
     def password(self: Self) -> bytes:
         base = bytearray(Tag.password_base)
@@ -90,16 +100,8 @@ class Tag:
         for n in range(8):
             logging.debug(f"n={n} base[{n * 4:2d}:{(n+1)*4:2d}]={base[n * 4 : (n + 1) * 4].hex()} little_endian={int.from_bytes(base[n * 4 : (n + 1) * 4], byteorder='little', signed=False):08x}")
         
-        v2 = 0
-        for n in range(8):
-            v4 = _rotate_left_dword(v2, 7)
-            v5 = _rotate_left_dword(v2, 22)
-            b = int.from_bytes(base[n * 4 : (n + 1) * 4], byteorder='little', signed=False)
-            v2 = (b + v4 + v5 - v2) & 0xFFFFFFFF
-            logging.debug(f"n={n} v4={v4:08x} v5={v5:08x} b={b:08x} v2={v2:08x}")
-        
-        return int.to_bytes(v2, length=4, byteorder='little')
-    
+        return self._shuffle_bits_and_derive_4byte_password(base=base, rounds=8)
+
     @property
     def tea_key(self: Self) -> bytes:
         s3 = self.scramble(3)
@@ -108,25 +110,17 @@ class Tag:
         s6 = self.scramble(6)
         logging.debug(f"s3={s3.hex()} s4={s4.hex()} s5={s5.hex()} s6={s6.hex()}")
         return s3 + s4 + s5 + s6
-    
-    def scramble(self: Self, cnt: int) -> bytes:
+
+    def scramble(self: Self, rounds: int) -> bytes:
         base = bytearray(Tag.scramble_base)
         base[0:7] = self._uid
-        if cnt <= 0:
-            return int.to_bytes(0, length=4, byteorder='big')
-        base[(cnt * 4) - 1] = 0xAA
-        logging.debug(f"cnt={cnt}, uid={self.uid.hex()} base={base}")
+        base[(rounds * 4) - 1] = 0xAA
+        logging.debug(f"rounds={rounds}, uid={self.uid.hex()} base={base}")
         
-        v2 = 0
-        for n in range(cnt):
-            v4 = _rotate_left_dword(v2, 7)
-            v5 = _rotate_left_dword(v2, 22)
-            b = int.from_bytes(base[n * 4 : (n + 1) * 4], byteorder='little', signed=False)
-            v2 = (b + v4 + v5 - v2) & 0xFFFFFFFF
-            logging.debug(f"n={n} v4={v4:08x} v5={v5:08x} b={b:08x} v2={v2:08x}")
-        
-        return int.to_bytes(v2, length=4, byteorder='big')
-    
+        return swap_endianness_32(
+            self._shuffle_bits_and_derive_4byte_password(base=base, rounds=rounds)
+	)
+
     ## Characters start at 1.
     ## Vehicles/tokens start at 1000.
     def encrypt(self: Self, lego_dimesions_id: int) -> bytes:
