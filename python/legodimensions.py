@@ -92,17 +92,11 @@ class Tag:
         
         v2 = 0
         for n in range(8):
-            v2_old = v2
             v4 = _rotate_left_dword(v2, 7)
             v5 = _rotate_left_dword(v2, 22)
             b = int.from_bytes(base[n * 4 : (n + 1) * 4], byteorder='little', signed=False)
             v2 = (b + v4 + v5 - v2) & 0xFFFFFFFF
             logging.debug(f"n={n} v4={v4:08x} v5={v5:08x} b={b:08x} v2={v2:08x}")
-            #logging.debug(f"n={n} v4=rl(v2,7)=rr({v2_old:032b},7)={v4:032b}={v4:08x} v5=rr(v2,10)=rr({v2_old:032b},10)={v5:032b}={v5:08x} b={b:08x} v2=b+v4+v5-v2={v2:08x}")
-            #logging.debug(f"n={n} v4={v4:032b}")
-            #logging.debug(f"n={n} v5={v5:032b}")
-            #logging.debug(f"n={n}  b={b:032b}")
-            #logging.debug(f"n={n} v2={v2_old:032b}")
         
         return int.to_bytes(v2, length=4, byteorder='little')
     
