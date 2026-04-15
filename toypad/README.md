@@ -478,10 +478,10 @@ some time if we somehow cannot eliminate large capacitors on the
 toypad.)
 
 Actual measurements:
-- MEASUREMENT#1: 75.9 microseconds
-- MEASUREMENT#2: 50.4 microseconds
+- MEASUREMENT#1: 108 microseconds
+- MEASUREMENT#2: 50.6 microseconds
 
-So the delay must be 75.9 - 50.4 = 25.5 microseconds
+So the delay must be 108 - 50.6 = 57 microseconds
 
 ## Capacitors
 
@@ -491,6 +491,12 @@ The capacitors on the toypad are marked
 
 Fall time: It takes around 1 millisecond to drop from 2V8 to 1V1. (Roughly 1 RC time.)
 Rise time: It takes around 1 millisecond to rise from 1V1 to 2V8.
+
+We desoldered those 3 capacitors.
+
+## Inductors
+
+We desoldered 2 inductors, near the NFC chip.
 
 # Unsorted
 
