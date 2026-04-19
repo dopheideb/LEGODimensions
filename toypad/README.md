@@ -19,11 +19,18 @@ has some pointers though.
 
 # Microcontrollers inside the toy pad
 
+## Microcontrollers inside the toy pad: Introduction
+
 There are only a few microcontrollers inside the LEGO Dimensions toy 
 pad. The USB cable is attached to an NXP LPC11U35. Since that 
 microcontroller is a general purpose ARM processor, it is a very good 
 candidate to have the firmware to generate the correct key for an NFC 
 tag.
+
+## Microcontrollers inside the toy pad: NXP MFRC63001
+
+The NXP MFRC630 is, according to the datasheet, a "High-performance 
+frontend for MIFARE and NTAG products".
 
 # NXP LPC11U35
 
