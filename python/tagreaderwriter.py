@@ -148,7 +148,7 @@ if args.write:
         page_0x25 = b"\x00\x00\x00\x00"
     
     ## We cannot switch between vehicle/token with a genuine LEGO 
-    ## Dimensions tag.
+    ## Dimensions tag since page 0x26 is locked.
     if tag['type'] != current_tag_type:
         if authentication_needed:
             raise ValueError(f"This is assumed to be a genuine LEGO Dimensions tag. We cannot alter the tag type from '{current_tag_type}' to '{tag['type']}'.")
