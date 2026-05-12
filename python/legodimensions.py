@@ -79,7 +79,7 @@ class Tag:
     @uid.setter
     def uid(self: Self, uid: bytes) -> None:
         len_uid = len(uid)
-        assert len_uid == 7, "The UID is always 7 bytes, not f{len_uid}."
+        assert len_uid == 7, f"The UID is always 7 bytes, not {len_uid}."
         
         self._uid = uid
     
@@ -109,6 +109,8 @@ class Tag:
         s5 = self.scramble(5)
         s6 = self.scramble(6)
         logging.debug(f"s3={s3.hex()} s4={s4.hex()} s5={s5.hex()} s6={s6.hex()}")
+
+        ## Note: for two bytes objects, "+" means concatenate.
         return s3 + s4 + s5 + s6
 
     def scramble(self: Self, rounds: int) -> bytes:
@@ -127,7 +129,7 @@ class Tag:
         logging.debug(f"tea_key={self.tea_key.hex()}")
         tea = TEA(self.tea_key)
         block = bytearray(8)
-        ## Weird, x86_64 is little Endian.
+        ## Weird, ARM is little Endian.
         block[0:4] = int.to_bytes(lego_dimesions_id, length=4, byteorder='big', signed=False)
         block[4:8] = block[0:4]
         logging.debug(f"block to encrypt={block}")
