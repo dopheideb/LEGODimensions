@@ -21,12 +21,30 @@ with this program; if not, see <https://www.gnu.org/licenses/>.
 ## * https://github.com/woodenphone/lego_dimensions_protocol/blob/master/command%20notes/Special/b0.py
 ## * https://github.com/Ellerbach/LegoDimensions/blob/main/LegoDimensionsProtocol.md
 
-import array
+import argparse
+import logging
 import sys
 import time
 from   typing import Dict, Final, List, Self
 import usb.core
 import usb.util
+
+
+
+parser = argparse.ArgumentParser(
+    prog='LEGO Dimensions toypad reader',
+    description='This toolbox aids in accessing the LEGO Dimensions toypad.',
+)
+parser.add_argument('--verbose', '-v', action='store_true', help='Be more verbose.')
+args = parser.parse_args()
+if args.verbose:
+    logging.basicConfig(level=logging.DEBUG)
+else:
+    logging.basicConfig(level=logging.INFO)
+console_handler = logging.StreamHandler()
+logfmt = logging.Formatter(fmt='[%(asctime)s %(filename)s->%(funcName)s:%(lineno)s] %(message)s')
+logging.getLogger().handlers[0].setFormatter(logfmt)
+
 
 MAGIC_START_BYTE: Final[int] = 0x55
 
@@ -36,7 +54,7 @@ class command:
 		return 0xb0
 	@property
 	def CHANGE_COLOR(self: Self) -> int:
-		return 0xb0
+		return 0xc0
 	@property
 	def CHANGE_COLORS(self: Self) -> int:
 		return 0xc8
@@ -92,11 +110,33 @@ class Toypad:
 			dev = usb.core.find(**kwargs)
 			if dev:
 				self.dev = dev
-				return
+
+				## We need to "try" the device, because 
+				## libusb may have uses cached data 
+				## during usb.core.find, i.e. it may 
+				## have returned an already disconnected 
+				## device.
+				if self.is_alive():
+					return
 
 			if poll is None:
 				raise FileNotFoundError("Could not found toypad.")
 			time.sleep(poll)
+
+	def is_alive(self: Self, timeout_ms: int=100) -> bool:
+		try:
+			self.dev.ctrl_transfer(0x80, 6, (1 << 8), 0, 1, timeout=timeout_ms)
+		except usb.core.USBError as e:
+			##  5: "[Errno 5] Input/Output Error"
+			## 19: "[Errno 19] No such device (it may have been disconnected)"
+			## 32: "[Errno 32] Pipe error"
+			if e.errno in [5, 19, 32]:
+				logging.debug(f"The device is not alive. Error: {e}")
+				return False
+
+			## Unknown error.
+			raise
+		return True
 
 	@property
 	def is_xbox_version(self: Self) -> bool:
@@ -106,8 +146,21 @@ class Toypad:
 		if self.dev.is_kernel_driver_active(0):
 			## Linux: xpad module somehow claims the Xbox 360 toypad.
 			self.dev.detach_kernel_driver(0)
-			self.dev.set_configuration()
 
+		self.dev.reset()
+		self.dev.set_configuration()
+		logging.debug(
+			"iManufacturer=" +
+			usb.util.get_string(self.dev, self.dev.iManufacturer)
+		)
+		logging.debug(
+			"iProduct=" +
+			usb.util.get_string(self.dev, self.dev.iProduct)
+		)
+		logging.debug(
+			"iSerial=" +
+			usb.util.get_string(self.dev, self.dev.iSerialNumber)
+		)
 
 		## Note: The Xbox 360 version has 4(!) interfaces, all 
 		## vendor specific. The PS4/PS4/Wii version has just 1 
@@ -117,21 +170,24 @@ class Toypad:
 		self._is_xbox_version = False
 		for configuration in self.dev:
 			for interface in configuration:
+				for ep_candidate in interface:
+					addr = ep_candidate.bEndpointAddress
+					if addr == self.bEndpointAddress:
+						assert self.wMaxPacketSize == ep_candidate.wMaxPacketSize
+
 				idx = interface.iInterface
 				if self._must_claim_interface:
 					usb.util.claim_interface(self.dev, interface.bInterfaceNumber)
+
 				str = usb.util.get_string(self.dev, idx)
 				if str is None:
 					continue
 
+				logging.debug("iInterface=" + str)
 				if str.startswith('Xbox Security Method 3'):
 					self._is_xbox_version = True
 
-				for ep_candidate in interface:
-					addr = ep_candidate.bEndpointAddress
-					if addr == self.bEndpointAddress:
-						assert self.wMaxPacketSize == ep.wMaxPacketSize
-
+		logging.info(f"Sending start command.")
 		self.send_command(
 			command=COMMAND.START,
 			message_id=0x01,
@@ -142,7 +198,6 @@ class Toypad:
 	def read(self: Self, timeout_ms=None):
 		data = None
 		try:
-			#self.dev.clear_halt(ep.bEndpointAddress)
 			data = self.dev.read(
 				endpoint=self.bEndpointAddress,
 				size_or_buffer=self.wMaxPacketSize,
@@ -158,6 +213,8 @@ class Toypad:
 		return data
 
 	def send_command(self: Self, command: int, message_id: int, payload: bytes) -> int:
+		logging.debug(f"Sending command={command:#04x}, message_id={message_id:#04x}, payload={payload.hex(':')}.")
+
 		command_id_payload = bytes([command, message_id]) + payload
 		length = len(command_id_payload)
 		data = bytes([MAGIC_START_BYTE, length]) + command_id_payload
@@ -176,6 +233,7 @@ class Toypad:
 	def write(self: Self, raw_message) -> int:
 		msg = bytes(raw_message)
 		padded_msg = msg.ljust(32, b'\x00')
+		logging.debug(f"Sending {padded_msg.hex(':')}")
 		return self.dev.write(endpoint=0x01, data=padded_msg)
 
 
@@ -202,45 +260,69 @@ class Toypad:
 		)
 
 
-def main():
-	toypad = Toypad()
-	print('Waiting for LEGO Dimensions toypad.')
-	found = False
-	while not found:
-		for item in vid_pids:
-			try:
-				toypad.find(poll=None, **item)
-			except FileNotFoundError:
-				time.sleep(0.1)
-				continue
-			found = True
 
-	toypad.init()
-	print('Connected!')
-	print(f"This toypad is {'' if toypad.is_xbox_version else 'NOT '}an Xbox 360 version.")
-
-	toypad.change_color(
-		message_id=42,
-		color=(0x08,0x08,0x08),
-		pad=PAD.ALL
-	)
-
+def keeping_reading_toypad_endpoint(toypad):
 	count = 0
 	while True:
 		data = toypad.read(timeout_ms=1000);
-		if data is not None:
-			count += 1
-			print(f"Received data from toypad (EP1IN): {bytes(data).hex(':')}")
+		if data is None:
+			continue
 
-			if count == 5:
-				center = (0x00, 0x08, 0x00)
-				left   = (0x08, 0x00, 0x00)
-				right  = (0x00, 0x00, 0x08)
-				toypad.change_colors(
-					message_id=0x42,
-					colors=(center, left, right),
-				)
+		count += 1
+		logging.info(f"Received data from toypad: {bytes(data).hex(':')}")
+
+		if count != 5:
+			continue
+
+		center = (0x00, 0x08, 0x00)
+		left   = (0x08, 0x00, 0x00)
+		right  = (0x00, 0x00, 0x08)
+		toypad.change_colors(
+			message_id=0x42,
+			colors=(center, left, right),
+		)
+
+
+
+def main():
+	toypad = Toypad()
+
+	while True:
+		logging.info('Waiting for LEGO Dimensions toypad.')
+		found = False
+		while not found:
+			for item in vid_pids:
+				try:
+					toypad.find(poll=None, **item)
+				except FileNotFoundError:
+					time.sleep(0.1)
+					continue
+				found = True
+		logging.info('Connected.')
+
+		toypad.init()
+		logging.info('Initialized.')
+		logging.debug(f"This toypad is {'' if toypad.is_xbox_version else 'NOT '}an Xbox 360 version.")
+
+		toypad.change_color(
+			message_id=0x01,
+			color=(0x08,0x08,0x08),
+			pad=PAD.ALL
+		)
+
+		keeping_reading_toypad_endpoint(toypad)
+
 
 
 if __name__ == '__main__':
-	main()
+	## In order to allow a device to disconnect and reconnect, we 
+	## must either try to catch all sorts of USB errors at various 
+	## methods/functions, or be practical and use 1 catch all. We 
+	## tried the former, but it keeps failing. So switch to being 
+	## practical then.
+	while True:
+		try:
+			main()
+		except usb.core.USBError as e:
+			logging.info(f'USB error received. Assuming toypad got disconnected. Error: "{e}"')
+		time.sleep(0.1)
