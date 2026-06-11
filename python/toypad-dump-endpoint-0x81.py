@@ -268,18 +268,32 @@ def keeping_reading_toypad_endpoint(toypad):
 		if data is None:
 			continue
 
-		count += 1
 		logging.info(f"Received data from toypad: {bytes(data).hex(':')}")
-
-		if count != 5:
+		type = data[0]
+		if type != 0x56:
 			continue
 
-		center = (0x00, 0x08, 0x00)
-		left   = (0x08, 0x00, 0x00)
-		right  = (0x00, 0x00, 0x08)
-		toypad.change_colors(
+		length = data[1]
+		assert length == 0x0b
+
+		pad = data[2]
+		status = data[3]
+		index = data[4]
+		removed = data[5] != 0
+		present = data[5] == 0
+		uuid = data[6:6+7]
+		logging.debug(f"pad={pad}, status={status}, index={index} present={present} uuid={bytes(uuid).hex(':')}")
+
+		color = (0x08, 0x08, 0x08)
+		if present:
+			color = (0xff, 0xff, 0x00)
+			if status == 0x00:
+				color = (0x00, 0x20, 0x00)
+
+		toypad.change_color(
 			message_id=0x42,
-			colors=(center, left, right),
+			color=color,
+			pad=pad,
 		)
 
 
