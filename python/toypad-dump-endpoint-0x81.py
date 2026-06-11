@@ -22,6 +22,7 @@ with this program; if not, see <https://www.gnu.org/licenses/>.
 ## * https://github.com/Ellerbach/LegoDimensions/blob/main/LegoDimensionsProtocol.md
 
 import argparse
+import array
 import logging
 import sys
 import time
@@ -58,6 +59,9 @@ class command:
 	@property
 	def CHANGE_COLORS(self: Self) -> int:
 		return 0xc8
+	@property
+	def READ_PAGE(self: Self) -> int:
+		return 0xd2
 ## Instantiate a command object.
 COMMAND = command()
 
@@ -196,7 +200,6 @@ class Toypad:
 
 
 	def read(self: Self, timeout_ms=None):
-		data = None
 		try:
 			data = self.dev.read(
 				endpoint=self.bEndpointAddress,
@@ -206,11 +209,14 @@ class Toypad:
 		except usb.core.USBError as e:
 			if e.errno is None or e.errno == 110:
 				## Timeout.
-				pass
+				return None
 			else:
 				raise
-
-		return data
+		if not self._is_xbox_version:
+			return data
+		assert data[0] == 11
+		assert data[1] == 22
+		return data[2:]
 
 	def send_command(self: Self, command: int, message_id: int, payload: bytes) -> int:
 		logging.debug(f"Sending command={command:#04x}, message_id={message_id:#04x}, payload={payload.hex(':')}.")
@@ -259,6 +265,17 @@ class Toypad:
 			payload=payload,
 		)
 
+	def read_page(self: Self, message_id: int, index: int, page: int) -> array:
+		self.send_command(
+			command=COMMAND.READ_PAGE,
+			message_id=message_id,
+			payload=bytes([index, page]),
+		)
+		data = self.read(timeout_ms=1000);
+		logging.debug(f"data={bytes(data).hex(':')}")
+		page = data[4:4+16]
+		return page
+
 
 
 def keeping_reading_toypad_endpoint(toypad):
@@ -284,11 +301,25 @@ def keeping_reading_toypad_endpoint(toypad):
 		uuid = data[6:6+7]
 		logging.debug(f"pad={pad}, status={status}, index={index} present={present} uuid={bytes(uuid).hex(':')}")
 
-		color = (0x08, 0x08, 0x08)
-		if present:
-			color = (0xff, 0xff, 0x00)
-			if status == 0x00:
-				color = (0x00, 0x20, 0x00)
+		page = toypad.read_page(
+			message_id=0x77,
+			index=index,
+			page=0x24,
+		)
+		logging.debug(f"page={bytes(page).hex(':')}")
+		if not present:
+			color = (0x08, 0x08, 0x08)
+		else:
+			if status != 0x00:
+				## Unaccepted tag: bright red.
+				color = (0xff, 0x00, 0x00)
+			else:
+				if page[9] == 0x00:
+					## Character.
+					color = (0x40, 0x00, 0x80)
+				else:
+					## Vehicle
+					color = (0x00, 0x80, 0x40)
 
 		toypad.change_color(
 			message_id=0x42,
