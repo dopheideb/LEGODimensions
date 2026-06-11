@@ -216,6 +216,8 @@ class Toypad:
 			return data
 		assert data[0] == 11
 		assert data[1] == 22
+		## Strip the first to bytes since those two are not in 
+		## the PS3/PS4/WiiU version.
 		return data[2:]
 
 	def send_command(self: Self, command: int, message_id: int, payload: bytes) -> int:
