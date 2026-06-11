@@ -212,6 +212,12 @@ class Toypad:
 				return None
 			else:
 				raise
+
+		## The toypad sometimes return an empty packet. Fudge 
+		## it.
+		if len(data) == 0:
+			return None
+
 		if not self._is_xbox_version:
 			return data
 		assert data[0] == 11
