@@ -47,6 +47,124 @@ Use tools like openocd and gdb-multiarch to connect to the LPC11U35 and
 extract the firmware. The toypad does **not** use CRP (code read 
 protection).
 
+# Fysical aspects
+
+## Bottom label
+
+### Bottom label (Xbox 360)
+
+Our label on the bottom reads:
+```
+©2015 The LEGO Group.    This device complies with Part 15 of
+LEGO DIMENSIONS          the FCC Rules. Operation is subject to
+Tracking #: 3000061480   the following two conditions: (1) this
+IFETEL: RCPLE3015-0602   device may not cause harmful
+                         interference, and (2) this device must
+                         accept any interference received,
+5V ⎓                     including interference that may cause
+                         undesired operation.
+  ____ _____    ___ _________  ___  
+ / ___| ____|  / _ \___ / ___|/ _ \ 
+| |   |  _|   | | | ||_ \___ \ (_) |
+| |___| |___  | |_| |__) |__) \__, |
+ \____|_____|  \___/____/____/  /_/ 
+(CE 0359)
+FCC ID: 2ADL5-3000061480
+IC: 12514A-3000061480 Warner
+Model/Modelo No.: 3000061480 for X360
+WBIE, Burbank, CA 91522 USA                              China
+```
+
+### Bottom label (PS3/PS4/WiiU)
+
+Our label on the bottom reads:
+```
+©2015 The LEGO Group.    This device complies with Part 15 of
+LEGO DIMENSIONS          the FCC Rules. Operation is subject to
+Tracking #: 3000061482   the following two conditions: (1) this
+                         device may not cause harmful
+                         interference, and (2) this device must
+                         accept any interference received,
+5V ⎓                     including interference that may cause
+                         undesired operation.
+  ____ _____    ___ _________  ___  
+ / ___| ____|  / _ \___ / ___|/ _ \ 
+| |   |  _|   | | | ||_ \___ \ (_) |
+| |___| |___  | |_| |__) |__) \__, |
+ \____|_____|  \___/____/____/  /_/ 
+(CE 0359)
+FCC ID: 2ADL5-3000061482
+IC: 12514A-3000061482 Warner
+Model No: 3000061482 for PS3/PS4/WiiU
+WBIE, Burbank, CA 91522 USA                              China
+```
+
+## Main IC: LPC11Uxx
+
+### Main IC: LPC11U35 (Xbox 360)
+
+### Main IC: LPC11U24 (PS3/PS4/WiiU)
+
+## Crystals
+
+The crystals are the same for both Xbox 360 version and PS3/PS4/WiiU version.
+
+The writings on the crystal for the LPC11Uxx chip:
+```
+CMT-XDAG32
+```
+
+The writings on the crystal for the MF63001 chip:
+```
+CMT-XDAJ32
+```
+
+Both are assumed to be 32 MHz quartz crystal oscillators.
+
+## NFC IC: MFRC63001
+
+The writings on the chip:
+```
+NXP        NXP
+63001      63001
+46 11      67 08
+ZSD518     ZSD446
+```
+
+These are MFRC630 chips.
+
+## Hex inverting buffer: HEF4049BT
+
+The writings on the chip:
+```
+NXP           NXP
+HEF4049BT     HEF4049BT
+CEX54004      CHE99112
+TnD15054      TnD15184
+```
+
+The LEDs on the left and right pad probably draw too much current for 
+the LPC11Uxx to feed the LEDs directly.
+
+## Xbox security chip
+
+### Xbox security chip (Xbox version)
+
+Writings on the chip:
+```
+XBOX 2
+859815
+H1533
+```
+
+### Xbox security chip (PS3/PS4/WiiU)
+
+The Xbox security chip is not present on the PS3/PS4/WiiU version. 
+However, some space is reserved for a chip.
+
+Since the PCB also states "XBONE VERSION", it is reckoned that 
+PS3/PS4/WiiU is a stripped down Xbox One version.
+
 # Pinout LPC11U35
 
 The pinout is the following:
