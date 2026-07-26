@@ -8,9 +8,9 @@ from   typing import Self
 
 
 '''
-TEA stands for "Tiny Encryption Algorithm. 
+TEA stands for "Tiny Encryption Algorithm". 
 https://en.wikipedia.org/wiki/Tiny_Encryption_Algorithm (on 2024-02-13) 
-write this about TEA:
+writes this about TEA:
 
     In cryptography, the Tiny Encryption Algorithm (TEA) is a block 
     cipher notable for its simplicity of description and implementation, 
