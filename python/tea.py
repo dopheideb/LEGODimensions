@@ -81,17 +81,19 @@ class TEA:
         if len(block) != 8:
             raise ValueError(f"The block to encrypt must be exactly 64 bit (8 bytes), not {len(block)} bytes.")
         
-        def bytes_to_uint32(bytes):
+        def bytes_to_np_uint32(bytes):
             return np.uint32(int.from_bytes(bytes=bytes, byteorder=byteorder))
+        def uint32_to_bytes(uint32):
+            return uint32.to_bytes(length=4, byteorder=byteorder)
         
-        v0 = bytes_to_uint32(bytes=block[0:4])
-        v1 = bytes_to_uint32(bytes=block[4:8])
+        v0 = bytes_to_np_uint32(bytes=block[0:4])
+        v1 = bytes_to_np_uint32(bytes=block[4:8])
         sum = np.array(0).astype(dtype=np.uint32)
         
-        k0 = bytes_to_uint32(bytes=self._key[0:4])
-        k1 = bytes_to_uint32(bytes=self._key[4:8])
-        k2 = bytes_to_uint32(bytes=self._key[8:12])
-        k3 = bytes_to_uint32(bytes=self._key[12:16])
+        k0 = bytes_to_np_uint32(bytes=self._key[0:4])
+        k1 = bytes_to_np_uint32(bytes=self._key[4:8])
+        k2 = bytes_to_np_uint32(bytes=self._key[8:12])
+        k3 = bytes_to_np_uint32(bytes=self._key[12:16])
         
         for _ in range(rounds):
             logging.debug(f"_={_:02x} sum={sum:08x} v0={v0:08x} v1={v1:08x} k0={k0:08x} k1={k1:08x} k2={k2:08x} k3={k3:08x}")
@@ -99,7 +101,10 @@ class TEA:
             v0  = np.array(v0 + (((v1 << 4) + k0) ^ (v1 + sum) ^ ((v1 >> 5) + k1))).astype(dtype=np.uint32)
             v1  = np.array(v1 + (((v0 << 4) + k2) ^ (v0 + sum) ^ ((v0 >> 5) + k3))).astype(dtype=np.uint32)
         logging.debug(f"_={_+1:02x} sum={sum:08x} v0={v0:08x} v1={v1:08x} k0={k0:08x} k1={k1:08x} k2={k2:08x} k3={k3:08x}")
-        return int(v0).to_bytes(4) + int(v1).to_bytes(4)
+        
+        v0_bytes = uint32_to_bytes(int(v0))
+        v1_bytes = uint32_to_bytes(int(v1))
+        return v0_bytes + v1_bytes
     
     def decrypt(self: Self, block: bytes, rounds: int=32, byteorder: str='big'):
         if len(block) != 8:
@@ -107,6 +112,8 @@ class TEA:
         
         def bytes_to_uint32(bytes):
             return np.uint32(int.from_bytes(bytes=bytes, byteorder=byteorder))
+        def uint32_to_bytes(uint32):
+            return uint32.to_bytes(length=4, byteorder=byteorder)
         
         v0 = bytes_to_uint32(bytes=block[0:4])
         v1 = bytes_to_uint32(bytes=block[4:8])
@@ -123,7 +130,10 @@ class TEA:
             
             sum = np.array(sum - self._delta).astype(dtype=np.uint32)
         logging.debug(f"_={_+1:02x} sum={sum:08x} v0={v0:08x} v1={v1:08x} k0={k0:08x} k1={k1:08x} k2={k2:08x} k3={k3:08x}")
-        return int(v0).to_bytes(4) + int(v1).to_bytes(4)
+        
+        v0_bytes = uint32_to_bytes(int(v0))
+        v1_bytes = uint32_to_bytes(int(v1))
+        return v0_bytes + v1_bytes
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
