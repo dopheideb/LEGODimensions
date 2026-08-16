@@ -26,7 +26,7 @@ class TestTEA(unittest.TestCase):
         
         ##             12345678
         block = bytes("a phrase", "utf-8")
-        encrypted_block = t.encrypt(block)
+        encrypted_block = t.encrypt(block, byteorder='big')
         answer = bytes.fromhex('f9 3f 19 64 00 ab e7 59')
         self.assertEqual(encrypted_block, answer)
 
