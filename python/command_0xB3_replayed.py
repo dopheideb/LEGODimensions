@@ -15,8 +15,8 @@ import usb.util
 
 
 seed = bytes(16)
-TEA_KEY_in_firmware = bytes.fromhex("55 fe f6 30   62 bf 0b c1   c9 b3 7c 34   97 3e 29 fb")
-TEA_KEY             = bytes.fromhex("30 f6 fe 55   c1 0b bf 62   34 7c b3 c9   fb 29 3e 97")
+## This TEA key was found in the Xbox 360 firmware.
+TEA_KEY = bytes.fromhex("55 fe f6 30   62 bf 0b c1   c9 b3 7c 34   97 3e 29 fb")
 
 def main():
 	global seed
@@ -59,22 +59,19 @@ def main():
 	T = tea.TEA(TEA_KEY)
 
 	## Decrypt the challenge.
-	challenge_payload_byteswapped = swap_endianness_per_4_bytes(challenge_payload)
-	decrypted_challenge = T.decrypt(challenge_payload_byteswapped)
-	decrypted_challenge_byteswapped = swap_endianness_per_4_bytes(decrypted_challenge)
+	decrypted_challenge = T.decrypt(challenge_payload, byteorder='little')
 
 	seed_excerpt = toypad_shuffle(seed)[12:16]
 
 	v = bytearray(8)
-	v[4:8] = decrypted_challenge_byteswapped[0:4]
+	#v[4:8] = decrypted_challenge_byteswapped[0:4]
+	v[4:8] = decrypted_challenge[0:4]
 	v[0:4] = seed_excerpt
 
-	v_swapped = swap_endianness_per_4_bytes(v)
-	reply_payload_computed = T.encrypt(v_swapped, byteorder='big')
-	reply_payload_computed_byteswapped = swap_endianness_per_4_bytes(reply_payload_computed)
-	print(f"reply_payload_computed_byteswapped={reply_payload_computed_byteswapped.hex(':')}")
+	reply_payload_computed = T.encrypt(v, byteorder='little')
+	print(f"reply_payload_computed={reply_payload_computed.hex(':')}")
 
-	print(f"Are the computed reply payload and the actual reply payload the same? {reply_payload_computed_byteswapped == reply_payload}")
+	print(f"Are the computed reply payload and the actual reply payload the same? {reply_payload_computed == reply_payload}")
 
 
 
