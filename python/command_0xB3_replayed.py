@@ -145,7 +145,6 @@ def set_seed(payload: bytes) -> None:
 	print(f"[set_seed] decrypted v[1]={v1.hex(':')}")
 
 	scrambled = toypad_scramble(v0)
-	#scrambled = toypad_scramble(decrypted[0:4])
 	seed = scrambled
 
 	if payload == bytes.fromhex("de ad be ef   ca fe b0 0b"):
