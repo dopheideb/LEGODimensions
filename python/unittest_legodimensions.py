@@ -10,7 +10,7 @@ class TestTEA(unittest.TestCase):
 		uid_bytes = uid_int.to_bytes(7)
 
 		password_int = 0x4bef3621
-		password_bytes = password_int.to_bytes(4)
+		password_bytes = password_int.to_bytes(4, byteorder='big')
 
 		self.assertEqual(Tag(uid=uid_bytes).password, password_bytes)
 
@@ -19,7 +19,7 @@ class TestTEA(unittest.TestCase):
 		uid_bytes = uid_int.to_bytes(7)
 
 		tea_key_int = 0x33ef82233a56082f78f06c7c246c3710
-		tea_key_bytes = tea_key_int.to_bytes(16)
+		tea_key_bytes = tea_key_int.to_bytes(16, byteorder='big')
 
 		self.assertEqual(Tag(uid=uid_bytes).tea_key, tea_key_bytes)
 
