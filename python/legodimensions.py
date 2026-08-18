@@ -2,7 +2,7 @@ import logging
 import struct
 from   tea import TEA
 from   typing import Self
-
+import utils
 
 
 '''
@@ -14,61 +14,7 @@ ags131 for code on/in https://github.com/AlinaNova21/node-ld/
 
 '''
 
-## The LEGO Dimensions toypad firmware implements the rotate left. 
-## ags131 uses an equivalent rotate right:
-## 
-##   Firmware                   ags131
-##   v4 = rotate_left(v2,  7)   v4 = rotr32(v2, 25)
-##   v5 = rotate_left(v2, 22)   v5 = rotr32(v2, 10)
-## 
-## It really doesn't matter value wise, but we prefer to stick to what 
-## the firmware does.
-def _rotate_left(n: int, rotations: int=1, width: int=8):
-    part1 = n << (rotations % width)
-    part2 = n >> ((width - rotations) % width)
-    return (part1 | part2) & ((1 << width) - 1)
-
-def _rotate_left_dword(dword: int, rotations: int):
-    dword_size = 32
-    return _rotate_left(dword, rotations, width=dword_size)
-
-def _rotate_right(n: int, rotations: int=1, width: int=8):
-    return _rotate_left(n=n, rotations=-rotations, width=width)
-
-def _rotate_right_dword(dword: int, rotations: int):
-    dword_size = 32
-    return _rotate_right(dword, rotations, width=dword_size)
-
-def swap_endianness_32(data32: bytes) -> bytes:
-    return int.from_bytes(bytes=data32, byteorder='little').to_bytes(length=4, byteorder='big', signed=False)
-
-
-
 class Tag:
-    ## LEGO sets a password on the NFC tag, so the page containing the 
-    ## character/vehicle ID cannot be read unless the reader has 
-    ## authenticated itself with the correct password.
-    ## 
-    ## Every tag has a different password. The password is derived from 
-    ## the UID and and common phrase. This base password is 32 bytes. 
-    ## The actual password is only 4 bytes.
-    password_base = (
-        ## Replace "UUUUUUU" with the UID.
-        b"UUUUUUU(c) Copyright LEGO 2014\xAA\xAA"
-	##123456789012345678901234567890  1   2
-	##         1         2         3
-    )
-    
-    scramble_base = (
-        b"\x00\x00\x00\x00" +
-        b"\x00\x00\x00"     +
-                    b"\xB7" +
-        b"\xD5\xD7\xE6\xE7" +
-        b"\xBA\x3C\xA8\xD8" +
-        b"\x75\x47\x68\xCF" +
-        b"\x23\xE9\xFE\xAA"
-    )
-    
     def __init__(self: Self, uid: bytes) -> None:
         self.uid = uid
     
@@ -84,19 +30,43 @@ class Tag:
         self._uid = uid
     
     def _shuffle_bits_and_derive_4byte_password(self: Self, base: bytes, rounds: int) -> bytes:
-        v2 = 0
+        show_bits = False
+        password = 0
         for n in range(rounds):
-            v4 = _rotate_left_dword(v2, 7)
-            v5 = _rotate_left_dword(v2, 22)
+            prev_password = password
+            rot7  = utils.rotate_left_dword(password, 7)
+            rot22 = utils.rotate_left_dword(password, 22)
             b = int.from_bytes(base[n * 4 : (n + 1) * 4], byteorder='little', signed=False)
-            v2 = (b + v4 + v5 - v2) & 0xFFFFFFFF
-            logging.debug(f"n={n} v4={v4:08x} v5={v5:08x} b={b:08x} v2={v2:08x}")
-        return int.to_bytes(v2, length=4, byteorder='little')
+            password = (b + rot7 + rot22 - password) & 0xFFFFFFFF
+            logging.debug(f"n={n} prev_password={prev_password:08x} rot7={rot7:08x} rot22={rot22:08x} b={b:08x} current_password={password:08x}")
+            
+            if show_bits:
+                logging.debug(f"n={n} prev_password={prev_password >> 25:07b}.{prev_password & 0x1ffffff:025b} rot7 ={rot7 >> 7:025b}.{rot7 & 0x7F:07b}")
+                logging.debug(f"n={n} prev_password={prev_password >> 10:022b}.{prev_password & 0x3ff:010b} rot22={rot22 >> 22:010b}.{rot22 & 0x3FFFFF:022b}")
+        return password.to_bytes(length=4, byteorder='little')
 
     @property
     def password(self: Self) -> bytes:
-        base = bytearray(Tag.password_base)
-        base[0:7] = self._uid
+        """ Compute the NFC tag password.
+        
+        Every genuine LEGO Dimensions NFC tag has a password. The 
+        password is unique for each tag, as it it based on the UID.
+        
+        This password is needed to access the character ID, or vehicle 
+        ID of the toy tag.
+        """
+        ## The password is derived from 32 bytes, consisting of:
+        ## 
+        ##   1. [7] The 7-byte UUID.
+        ##   2. [22] The magic copyright string.
+        ##   3. [2] Two trailing bytes (alternating bit pattern 0xAA).
+        ##
+	##                       1         2
+        ##             01234567890123456789012
+        base = (self._uid
+            + "(c) Copyright LEGO 2014".encode('utf-8')
+            + bytes([0xaa, 0xaa])
+        )
         for n in range(8):
             logging.debug(f"n={n} base[{n * 4:2d}:{(n+1)*4:2d}]={base[n * 4 : (n + 1) * 4].hex()} little_endian={int.from_bytes(base[n * 4 : (n + 1) * 4], byteorder='little', signed=False):08x}")
         
@@ -114,40 +84,28 @@ class Tag:
         return s3 + s4 + s5 + s6
 
     def scramble(self: Self, rounds: int) -> bytes:
-        base = bytearray(Tag.scramble_base)
-        base[0:7] = self._uid
-        base[(rounds * 4) - 1] = 0xAA
-        logging.debug(f"rounds={rounds}, uid={self.uid.hex()} base={base}")
+        ## The firmware contains 16 bytes of random bytes.
+        ## 
+        ##                                  0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
+        static_randomness = bytes.fromhex("b7 d5 d7 e6 e7 ba 3c a8 d8 75 47 68 cf 23 e9 fe")
+        padding_byte = bytes.fromhex("aa")
+
+        base = self._uid + static_randomness[0:4 * (rounds - 2)] + padding_byte
+        logging.debug(f"rounds={rounds}, uid={self.uid.hex(':')} base={base.hex(':')}")
         
-        return swap_endianness_32(
-            self._shuffle_bits_and_derive_4byte_password(base=base, rounds=rounds)
-	)
+        return self._shuffle_bits_and_derive_4byte_password(base=base, rounds=rounds)
 
     ## Characters start at 1.
     ## Vehicles/tokens start at 1000.
     def encrypt(self: Self, lego_dimesions_id: int) -> bytes:
         logging.debug(f"tea_key={self.tea_key.hex()}")
-        tea = TEA(self.tea_key)
-        block = bytearray(8)
-        ## Weird, ARM is little Endian.
-        block[0:4] = int.to_bytes(lego_dimesions_id, length=4, byteorder='big', signed=False)
-        block[4:8] = block[0:4]
+        tea = TEA(self.tea_key, byteorder='little')
+        block = lego_dimesions_id.to_bytes(length=4, byteorder='little') * 2
         logging.debug(f"block to encrypt={block}")
         
-        encrypted_block = tea.encrypt(block=block, rounds=32, byteorder='big')
-        
-        ## Note: for two bytes objects, "+" means concatenate.
-        shuffled_encrypted_block = swap_endianness_32(encrypted_block[0:4]) \
-                                 + swap_endianness_32(encrypted_block[4:8])
-        return shuffled_encrypted_block
+        return tea.encrypt(block=block, rounds=32)
     
     def decrypt(self: Self, data: bytes) -> bytes:
         logging.debug(f"tea_key={self.tea_key.hex()}")
-        tea = TEA(self.tea_key)
-        
-        ## Note: for two bytes objects, "+" means concatenate.
-        shuffled_data = swap_endianness_32(data[0:4]) \
-                      + swap_endianness_32(data[4:8])
-        
-        buf = tea.decrypt(block=shuffled_data, rounds=32, byteorder='big')
-        return buf
+        tea = TEA(self.tea_key, byteorder='little')
+        return tea.decrypt(block=data, rounds=32)
