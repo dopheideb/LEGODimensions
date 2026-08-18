@@ -30,31 +30,30 @@ class TestTEA(unittest.TestCase):
     
     def test_encrypt(self):
         key = bytes.fromhex("deadbeefcafebabeb00bfeedc0deacdc")
-        t = TEA(key)
+        t = TEA(key=key, byteorder='big')
         
         ##             12345678
         block = bytes("a phrase", "utf-8")
-        encrypted_block = t.encrypt(block, byteorder='big')
+        encrypted_block = t.encrypt(block)
         answer = bytes.fromhex('f9 3f 19 64 00 ab e7 59')
         self.assertEqual(encrypted_block, answer)
 
     def test_encrypt_big_or_little_endian_does_not_matter(self):
         ## We want reproducable results.
         random.seed(42)
-
-        key_be = random.randbytes(16)
-        key_le = swap_endianness_per_4_bytes(key_be)
         
-        t_be = TEA(key_be)
-        t_le = TEA(key_le)
+        ## Create a TEA key: 4 uint32_t values.
+        key = [random.randrange(0, 2**32) for _ in range(4)]
+        tea_be = TEA(key=struct.pack('>4I', *key), byteorder='big')
+        tea_le = TEA(key=struct.pack('<4I', *key), byteorder='little')
 	
-        block_be = random.randbytes(8)
-        block_le = swap_endianness_per_4_bytes(block_be)
-        #key = bytes.fromhex("ef be ad de   be ba fe ca   ed fe 0b b0   dc ac de c0")
-
-        encrypted_block_le = t_le.encrypt(block_le, byteorder='little')
-        encrypted_block_be = t_be.encrypt(block_be, byteorder='big')
-        self.assertEqual(encrypted_block_le, swap_endianness_per_4_bytes(encrypted_block_be))
+        msg = [random.randrange(0, 2**32) for _ in range(2)]
+        msg_bin_be = struct.pack('>2I', *msg)
+        msg_bin_le = struct.pack('<2I', *msg)
+        
+        msg_enc_be = struct.unpack('>2I', tea_be.encrypt(msg_bin_be))
+        msg_enc_le = struct.unpack('<2I', tea_le.encrypt(msg_bin_le))
+        self.assertEqual(msg_enc_be, msg_enc_le)
 
 
 

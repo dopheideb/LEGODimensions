@@ -3,6 +3,8 @@
 import logging
 import math
 import numpy as np
+import struct
+import sys
 from   typing import Self
 
 
@@ -54,7 +56,42 @@ The reference code (also on Wikipedia):
 
 '''
 class TEA:
-    def __init__(self: Self, key: bytes=bytes(16)):
+    """ TEA - Tiny Encryption Algorithm
+    
+    This is an implementation of the Tiny Encryption Algorithm.
+    
+    Note that the actual TEA has no binary key nor does the 
+    encryption/decryption operate on binary messages. TEA uses 32-bit 
+    integers, and is therefore byteorder indepent.
+    
+    This module does, however, use the bytes type for the TEA key and 
+    for the input of encrypt()/decrypt(). Why? Implementation is easier.
+    
+    If you need to convert a TEA key to bytes, try this:
+        import struct
+        key = (0xdeadbeef, 0xcafebabe, 0xb00cc0de, 0xfeedacdc)
+
+        ## Little endian version:
+        tea_LE = TEA(key=struct.pack('<4I', *key), byteorder='little')
+
+        ## Big endian version:
+        tea_BE = TEA(key=struct.pack('>4I', *key), byteorder='big')
+    """
+
+    def __init__(
+            self: Self,
+            key: bytes=bytes(16),
+            byteorder: str=sys.byteorder,
+    ):
+        """ Initialize self.
+        
+        Keyword arguments:
+            - key: the 16 bytes TEA key to use for encryption and/or 
+              decryption.
+            - byteorder: Set the byteorder of the key. Either 'little' 
+              or 'big'.
+        """
+        self._byteorder = byteorder
         self.key = key
         
         ## Golden ratio. See https://en.wikipedia.org/wiki/Golden_ratio.
@@ -77,14 +114,14 @@ class TEA:
     def delta(self: Self) -> int:
         return self._delta
     
-    def encrypt(self: Self, block: bytes, rounds: int=32, byteorder: str='big'):
+    def encrypt(self: Self, block: bytes, rounds: int=32):
         if len(block) != 8:
             raise ValueError(f"The block to encrypt must be exactly 64 bit (8 bytes), not {len(block)} bytes.")
         
         def bytes_to_np_uint32(bytes):
-            return np.uint32(int.from_bytes(bytes=bytes, byteorder=byteorder))
+            return np.uint32(int.from_bytes(bytes=bytes, byteorder=self._byteorder))
         def uint32_to_bytes(uint32):
-            return uint32.to_bytes(length=4, byteorder=byteorder)
+            return uint32.to_bytes(length=4, byteorder=self._byteorder)
         
         v0 = bytes_to_np_uint32(bytes=block[0:4])
         v1 = bytes_to_np_uint32(bytes=block[4:8])
@@ -106,14 +143,14 @@ class TEA:
         v1_bytes = uint32_to_bytes(int(v1))
         return v0_bytes + v1_bytes
     
-    def decrypt(self: Self, block: bytes, rounds: int=32, byteorder: str='big'):
+    def decrypt(self: Self, block: bytes, rounds: int=32):
         if len(block) != 8:
             raise ValueError(f"The block to decrypt must be exactly 64 bit (8 bytes), not {len(block)} bytes.")
         
         def bytes_to_uint32(bytes):
-            return np.uint32(int.from_bytes(bytes=bytes, byteorder=byteorder))
+            return np.uint32(int.from_bytes(bytes=bytes, byteorder=self._byteorder))
         def uint32_to_bytes(uint32):
-            return uint32.to_bytes(length=4, byteorder=byteorder)
+            return uint32.to_bytes(length=4, byteorder=self._byteorder)
         
         v0 = bytes_to_uint32(bytes=block[0:4])
         v1 = bytes_to_uint32(bytes=block[4:8])
@@ -135,19 +172,22 @@ class TEA:
         v1_bytes = uint32_to_bytes(int(v1))
         return v0_bytes + v1_bytes
 
+
+
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
     
+    byteorder = 'little'
     ## This is the actual TEA key for NFC tag with serial number 
     ## 04:13:BB:1A:99:40:80, a tag for LEGO Dimensions's Wyldstyle (ID 
     ## 3).
-    tea_key = 0x33ef82233a56082f78f06c7c246c3710
+    tea_key = struct.pack('<4I', 0x33ef8223, 0x3a56082f, 0x78f06c7c, 0x246c3710)
     
-    tea = TEA(tea_key.to_bytes(length=16, byteorder='big', signed=False))
-    block_uncrypted = int.to_bytes(3, length=4) * 2
+    tea = TEA(key=tea_key, byteorder='little')
+    block_uncrypted = struct.pack('<I', 3) * 2
     print(f"block_uncrypted={block_uncrypted.hex()}")
-    block_encrypted = tea.encrypt(block_uncrypted, byteorder='big', rounds=32)
+    block_encrypted = tea.encrypt(block_uncrypted)
     print(f"block_encrypted={block_encrypted.hex()}")
     
-    block_decrypted = tea.decrypt(block_encrypted, byteorder='big', rounds=32)
+    block_decrypted = tea.decrypt(block_encrypted)
     print(f"block_decrypted={block_decrypted.hex()}")
