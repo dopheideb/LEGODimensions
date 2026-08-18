@@ -6,12 +6,13 @@ import legodimensions
 import logging
 import nfc		## pip install nfcpy, source ~/venv/bin/activate
 import re
+import struct
 import sys
 
 
 parser = argparse.ArgumentParser(
     prog='LEGO Dimensions tag reader/writer',
-    description='This toolbox aids in changing a LEGO Dimensions vehicle into any other.',
+    description='This toolbox aids in reading a LEGO Dimensions tag, changing a LEGO Dimensions vehicle into any other, writing a character or vehicle to a blank NTAG213 tag',
 )
 parser.add_argument('--list-ids', action='store_true', help='List all known IDs.')
 parser.add_argument('--list-names', action='store_true', help='List all known names.')
@@ -93,11 +94,25 @@ page0x24 = page[0:4]
 page0x25 = page[4:8]
 page0x26 = page[8:12]
 page0x27 = page[12:16]
+logging.debug(f"page 0x24={page0x24.hex(':')}")
+logging.debug(f"page 0x25={page0x25.hex(':')}")
+logging.debug(f"page 0x26={page0x26.hex(':')}")
+logging.debug(f"page 0x27={page0x27.hex(':')}")
 
 ## A vehicle (type 0x00010000) is handled differently from a 
 ## character.
 current_tag_type = None
-if page0x26 == b"\x00\x01\x00\x00":
+if (
+        page0x24 == bytes(4)
+        and
+        page0x25 == bytes(4)
+        and
+        page0x26 == bytes(4)
+        and
+        page0x27 == bytes(4)
+):
+    logging.info("This is an empty tag, because pages 0x24, 0x25, 0x26 and 0x27 are all zeros.")
+elif page0x26 == b"\x00\x01\x00\x00":
     current_tag_type = 'token'
     word = page0x24[0:2]
     vehicle_id = int.from_bytes(word, byteorder='little')
@@ -108,13 +123,13 @@ elif page0x26 == b"\x00\x00\x00\x00":
     character1 = character_doubled[0:4]
     character2 = character_doubled[4:8]
     if character1 != character2:
-        logging.error(f"Decryption error: Character IDs differ ({character1} != ${character2}).")
-    character_id = int.from_bytes(character1, byteorder='big')
+        logging.error(f"Decryption error: Character IDs differ ({character1.hex(':')} != ${character2.hex(':')}).")
+    character_id = int.from_bytes(character1, byteorder='little')
     try:
         character_name = taglist[str(character_id)]['name']
         logging.info(f"Character with id {character_id} ({character_name}).")
     except KeyError:
-        logging.error(f"Character ID {character_id} could not be converted to a name.")
+        logging.error(f"Character ID {character_id} ({character1.hex(':')}) could not be converted to a name.")
         if character1 != character2:
             logging.error(f"Is this an empty tag perhaps?")
 else:
@@ -139,10 +154,9 @@ if args.write:
         page_0x25 = encrypted_character[4:8]
     elif tag['type'] == 'token':
         logging.info(f"Converting this tag to ID {tag['id']} ({tag['name']}).")
-        type_bytes = b"\x00\x01\x00\x00"
         
         ## Page 0x24 contains the vehicle/token ID.
-        page_0x24 = int.to_bytes(tag['id'], length=4, byteorder='little')
+        page_0x24 = tag['id'].to_bytes(length=4, byteorder='little')
         
         ## Page 0x25 needs to be zeroed.
         page_0x25 = b"\x00\x00\x00\x00"
