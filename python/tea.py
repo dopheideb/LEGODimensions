@@ -133,10 +133,10 @@ class TEA:
             sum += self._delta
             sum &= mask32bit
 
-            v0 = v0 + (((v1 << 4) + k0) ^ (v1 + sum) ^ ((v1 >> 5) + k1))
+            v0 += ((v1 << 4) + k0) ^ (v1 + sum) ^ ((v1 >> 5) + k1)
             v0 &= mask32bit
 
-            v1  = v1 + (((v0 << 4) + k2) ^ (v0 + sum) ^ ((v0 >> 5) + k3))
+            v1 += ((v0 << 4) + k2) ^ (v0 + sum) ^ ((v0 >> 5) + k3)
             v1 &= mask32bit
         logging.debug(f"_={_+1:02x} sum={sum:08x} v0={v0:08x} v1={v1:08x} k0={k0:08x} k1={k1:08x} k2={k2:08x} k3={k3:08x}")
         
@@ -148,29 +148,32 @@ class TEA:
         if len(block) != 8:
             raise ValueError(f"The block to decrypt must be exactly 64 bit (8 bytes), not {len(block)} bytes.")
         
-        def bytes_to_uint32(bytes):
-            return np.uint32(int.from_bytes(bytes=bytes, byteorder=self._byteorder))
-        def uint32_to_bytes(uint32):
-            return uint32.to_bytes(length=4, byteorder=self._byteorder)
+        mask32bit = (1 << 32) - 1
         
-        v0 = bytes_to_uint32(bytes=block[0:4])
-        v1 = bytes_to_uint32(bytes=block[4:8])
-        sum = np.array(self._delta * rounds).astype(dtype=np.uint32)
-        k0 = bytes_to_uint32(bytes=self._key[0:4])
-        k1 = bytes_to_uint32(bytes=self._key[4:8])
-        k2 = bytes_to_uint32(bytes=self._key[8:12])
-        k3 = bytes_to_uint32(bytes=self._key[12:16])
+        v0 = int.from_bytes(bytes=block[0:4], byteorder=self._byteorder)
+        v1 = int.from_bytes(bytes=block[4:8], byteorder=self._byteorder)
+        sum = self._delta * rounds
+        sum &= mask32bit
+
+        k0 = int.from_bytes(bytes=self._key[0:4], byteorder=self._byteorder)
+        k1 = int.from_bytes(bytes=self._key[4:8], byteorder=self._byteorder)
+        k2 = int.from_bytes(bytes=self._key[8:12], byteorder=self._byteorder)
+        k3 = int.from_bytes(bytes=self._key[12:16], byteorder=self._byteorder)
         
         for _ in range(rounds):
             logging.debug(f"_={_:02x} sum={sum:08x} v0={v0:08x} v1={v1:08x} k0={k0:08x} k1={k1:08x} k2={k2:08x} k3={k3:08x}")
-            v1  = np.array(v1 - (((v0 << 4) + k2) ^ (v0 + sum) ^ ((v0 >> 5) + k3))).astype(dtype=np.uint32)
-            v0  = np.array(v0 - (((v1 << 4) + k0) ^ (v1 + sum) ^ ((v1 >> 5) + k1))).astype(dtype=np.uint32)
+            v1 -= ((v0 << 4) + k2) ^ (v0 + sum) ^ ((v0 >> 5) + k3)
+            v1 &= mask32bit
             
-            sum = np.array(sum - self._delta).astype(dtype=np.uint32)
+            v0 -= ((v1 << 4) + k0) ^ (v1 + sum) ^ ((v1 >> 5) + k1)
+            v0 &= mask32bit
+            
+            sum -= self._delta
+            sum &= mask32bit
         logging.debug(f"_={_+1:02x} sum={sum:08x} v0={v0:08x} v1={v1:08x} k0={k0:08x} k1={k1:08x} k2={k2:08x} k3={k3:08x}")
         
-        v0_bytes = uint32_to_bytes(int(v0))
-        v1_bytes = uint32_to_bytes(int(v1))
+        v0_bytes = v0.to_bytes(length=4, byteorder=self._byteorder)
+        v1_bytes = v1.to_bytes(length=4, byteorder=self._byteorder)
         return v0_bytes + v1_bytes
 
 
