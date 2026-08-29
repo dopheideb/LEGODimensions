@@ -179,19 +179,77 @@ class TEA:
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.DEBUG)
-    
-    byteorder = 'little'
-    ## This is the actual TEA key for NFC tag with serial number 
-    ## 04:13:BB:1A:99:40:80, a tag for LEGO Dimensions's Wyldstyle (ID 
-    ## 3).
-    tea_key = struct.pack('<4I', 0x33ef8223, 0x3a56082f, 0x78f06c7c, 0x246c3710)
-    
-    tea = TEA(key=tea_key, byteorder='little')
-    block_uncrypted = struct.pack('<I', 3) * 2
-    print(f"block_uncrypted={block_uncrypted.hex()}")
-    block_encrypted = tea.encrypt(block_uncrypted)
-    print(f"block_encrypted={block_encrypted.hex()}")
-    
-    block_decrypted = tea.decrypt(block_encrypted)
-    print(f"block_decrypted={block_decrypted.hex()}")
+    import argparse
+    import re
+
+    class Formatter(
+        argparse.ArgumentDefaultsHelpFormatter,
+        argparse.RawDescriptionHelpFormatter,
+    ):
+        pass
+
+    epilog = '''
+Examples:
+
+    The following two commands yield the same outcome, because they both 
+    use the same key and message. The difference is input format: big or 
+    little endian.
+
+        %(prog)s --key='23:82:ef:33   2f:08:56:3a   7c:6c:f0:78   10:37:6c:24' --message='03:00:00:00 03:00:00:00' --byteorder='little'
+        %(prog)s --key='33:ef:82:23   3a:56:08:2f   78:f0:6c:7c   24:6c:37:10' --message='00:00:00:03 00:00:00:03' --byteorder='big'
+
+    Decryption:
+
+        %(prog)s --decrypt --key='23:82:ef:33   2f:08:56:3a   7c:6c:f0:78   10:37:6c:24' --message='01:39:ed:60 e4:be:30:7c' --byteorder='little'
+        %(prog)s --decrypt --key='33:ef:82:23   3a:56:08:2f   78:f0:6c:7c   24:6c:37:10' --message='60:ed:39:01 7c:30:be:e4' --byteorder='big'
+
+'''
+    parser = argparse.ArgumentParser(
+        description='This program can encrypt and decrypt with TEA, Tiny Encryption Algorithm.',
+        epilog=epilog,
+        #formatter_class=argparse.RawDescriptionHelpFormatter,
+        #formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        formatter_class=Formatter,
+    )
+    parser.add_argument('--verbose', '-v', action='store_true', help='Be more verbose.')
+
+    parser.add_argument('--key', '-k', required=True, help='The TEA key, in hex format.')
+
+    crypt_group = parser.add_mutually_exclusive_group()
+    crypt_group.add_argument('--decrypt', '-d', action='store_true', help='Decrypt instead of encrypt.')
+
+    parser.add_argument('--byteorder', '-b', help='The byte order. Either "little", or "big".')
+    parser.set_defaults(byteorder='little')
+
+    parser.add_argument('--message', '-m', required=True, help='The message to encrypt/decrypt, in hex format.')
+    parser.set_defaults(message=None)
+
+    args = parser.parse_args()
+    if args.verbose:
+        logging.basicConfig(level=logging.DEBUG)
+    else:
+        logging.basicConfig(level=logging.INFO)
+    logging.debug(f"byteorder={args.byteorder}")
+    logging.debug(f"decrypt={args.decrypt}")
+    logging.debug(f"encrypt={not args.decrypt}")
+
+    logging.debug(f"key={args.key}")
+    stripped_key = re.sub('[^0-9A-Fa-f]', '', args.key)
+    logging.debug(f"stripped_key={stripped_key}")
+    key = bytes.fromhex(stripped_key)
+    logging.debug(f"key={key.hex(':')}")
+
+    logging.debug(f"message={args.message}")
+    stripped_message = re.sub('[^0-9A-Fa-f]', '', args.message)
+    logging.debug(f"stripped_message={stripped_message}")
+    message = bytes.fromhex(stripped_message)
+    logging.debug(f"message={message.hex(':')}")
+
+    tea = TEA(key=key, byteorder=args.byteorder)
+    if args.decrypt:
+        result = tea.decrypt(message)
+    else:
+        result = tea.encrypt(message)
+    print(f"hex={result.hex(':')}")
+    print(f"v0=0x{int.from_bytes(result[0:4], byteorder=args.byteorder):08x}")
+    print(f"v1=0x{int.from_bytes(result[4:8], byteorder=args.byteorder):08x}")
