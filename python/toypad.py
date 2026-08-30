@@ -55,7 +55,7 @@ logging.getLogger().handlers[0].setFormatter(logfmt)
 
 MAGIC_START_BYTE: Final[int] = 0x55
 ## The following TEA key was found in the Xbox 360 toypad firmware, 
-## offset 0x928.
+## offset 0x9028 (almost at the end of the firmware).
 SEED_TEA_KEY = bytes.fromhex('55 fe f6 30   62 bf 0b c1   c9 b3 7c 34   97 3e 29 fb')
 
 class command:
