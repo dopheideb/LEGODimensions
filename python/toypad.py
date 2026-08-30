@@ -475,7 +475,7 @@ class RNG:
             seed = tea.decrypt(seed)[0:4]
 
         ## "f1ea 5eed" is actually in the firmware. It is 
-        ## leetspeak for "fleaseed".
+        ## leetspeak for "flea seed".
         length: Final[int] = 4
         s0 = 0xf1ea5eed.to_bytes(length, self.byteorder)
         s1 = seed
