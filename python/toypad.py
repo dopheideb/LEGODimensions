@@ -363,14 +363,14 @@ class Toypad:
         return self.dev.write(endpoint=0x01, data=padded_msg)
 
 
-    def change_color(self: Self, message_id: int, color: List[int], pad: int) -> int:
-        return self.send_command(
+    async def change_color(self: Self, message_id: int, color: List[int], pad: int) -> int:
+        return await self.send_command(
             command=COMMAND.CHANGE_COLOR,
             message_id=message_id,
             payload=bytes((pad,) + color)
         )
 
-    def change_colors(self: Self, message_id: int, colors: List[List[int]]) -> int:
+    async def change_colors(self: Self, message_id: int, colors: List[List[int]]) -> int:
         (center, left, right) = colors
 
         payload = bytes(
@@ -544,18 +544,20 @@ class RNG:
         return self.state[12:16]
 
 
-def keeping_reading_toypad_endpoint(toypad):
+
+async def keeping_reading_toypad_endpoint(toypad):
+    logging.info(f"Changing the color of all pad, to show the toypad is in operation.")
+    await toypad.change_color(
+        message_id=0x01,
+        color=(0x08,0x08,0x08),
+        pad=PAD.ALL
+    )
     count = 0
     while True:
-        data = toypad.read(timeout_ms=1000)
-        if data is None:
-            continue
+        data = await toypad.events.get()
+        assert data is not None
 
         logging.info(f"Received data from toypad: {bytes(data).hex(':')}")
-        type = data[0]
-        if type != 0x56:
-            continue
-
         length = data[1]
         assert length == 0x0b
 
@@ -567,7 +569,7 @@ def keeping_reading_toypad_endpoint(toypad):
         uuid = data[6:6+7]
         logging.debug(f"pad={pad}, status={status}, index={index} present={present} uuid={bytes(uuid).hex(':')}")
 
-        page = toypad.read_page(
+        page = await toypad.read_page(
             index=index,
             page=0x24,
         )
@@ -586,7 +588,7 @@ def keeping_reading_toypad_endpoint(toypad):
                     ## Vehicle
                     color = (0x00, 0x80, 0x40)
 
-        toypad.change_color(
+        await toypad.change_color(
             message_id=0x42,
             color=color,
             pad=pad,
@@ -594,7 +596,7 @@ def keeping_reading_toypad_endpoint(toypad):
 
 
 
-def main():
+async def main():
     toypad = Toypad()
 
     while True:
@@ -614,67 +616,17 @@ def main():
         logging.info('Initialized.')
         logging.debug(f"This toypad is {'' if toypad.is_xbox_version else 'NOT '}an Xbox 360 version.")
 
-        toypad.change_color(
-            message_id=0x01,
-            color=(0x08,0x08,0x08),
-            pad=PAD.ALL
-        )
-
-        #def swap_endianness_32(data32: bytes) -> bytes:
-        #	return int.from_bytes(bytes=data32, byteorder='little').to_bytes(length=4, byteorder='big', signed=False)
-        def swap_endianness_per_4_bytes(data: bytes) -> bytes:
-            num = len(data) // 4
-            return struct.pack(f'>{num}I', *struct.unpack(f'<{num}I', data))
-
-
-        ## Set seed.
-        payload=bytes.fromhex("de ad be ef   ca fe b0 0b")
-        logging.warning(f"Setting seed with payload={payload.hex(':')}")
-        toypad.send_command(
-            command=0xb1,
-            message_id=0x04,
-            payload=payload,
-        )
-        reply = toypad.read(timeout_ms=500);
-        logging.warning(f"reply={bytes(reply).hex(':')}")
-
-
-
-        TEA_key_in_firmware = bytes.fromhex("55 fe f6 30   62 bf 0b c1   c9 b3 7c 34   97 3e 29 fb")
-        TEA_key_byteswapped = swap_endianness_per_4_bytes(TEA_key_in_firmware)
-        T = tea.TEA(TEA_key_byteswapped)
-        data = toypad.read(timeout_ms=25);
-
-        payload=bytes.fromhex("0d 00 00 00   00 00 00 00")
-        logging.warning(f"Sending payload={payload.hex(':')}")
-        toypad.send_command(
-            command=0xb3,
-            message_id=0x03,
-            payload=payload,
-        )
-        reply = toypad.read(timeout_ms=500);
-        logging.warning(f"reply={bytes(reply).hex(':')}")
-
-        #reply = bytes.fromhex("55 09 03 55 0e b8 f6 64 71 fc 5d a0 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00")
-        #enc = reply[3:3+8]
-
-        enc = swap_endianness_per_4_bytes(payload)
-        logging.warning(f"enc={enc.hex(':')}")
-
-        dec = T.decrypt(enc, byteorder='big')
-        x = swap_endianness_per_4_bytes(dec)
-        logging.warning(f"dec (swapped)={x.hex(':')}")
-        v = bytearray(8)
-        v[4:8] = x[0:4]
-        v[0:4] = bytes(4)	## FIXME: must use non-zero seed and shuffle bits.
-        logging.warning(f"v={v.hex(':')}")
-        v_swapped = swap_endianness_per_4_bytes(v)
-        logging.warning(f"v (swapped)={v_swapped.hex(':')}")
-        result = T.encrypt(v_swapped, byteorder='big')
-        logging.warning(f"result={result.hex(':')}")
-        logging.warning(f"result (swapped)={swap_endianness_per_4_bytes(result).hex(':')}")
-
-        keeping_reading_toypad_endpoint(toypad)
+        try:
+            async with asyncio.TaskGroup() as group:
+                reader_task = await toypad.start(group)
+                application_task = group.create_task(
+                    keeping_reading_toypad_endpoint(toypad),
+                    name="application",
+                )
+                await reader_task
+                #await application_task
+        finally:
+            await toypad.stop()
 
 
 
@@ -686,7 +638,7 @@ if __name__ == '__main__':
     ## practical then.
     while True:
         try:
-            main()
-        except usb.core.USBError as e:
-            logging.info(f'USB error received. Assuming toypad got disconnected. Error: "{e}"')
+            asyncio.run(main())
+        except* usb.core.USBError as error:
+            logging.info(f'USB error received. Assuming toypad got disconnected. Error: "{error}"')
         time.sleep(0.1)
