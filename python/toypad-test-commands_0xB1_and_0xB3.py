@@ -46,14 +46,8 @@ async def application_loop(toypad: _toypad.Toypad):
 		logging.debug(f"rng.state={rng.state.hex(':')}")
 
 		for n in range(NUM_CHALLENGES_PER_SEED):
-			static_challenge = False
-			if static_challenge:
-				challenge_message_id = 0x03
-				challenge_payload = bytes(8)
-			else:
-				challenge_message_id = random.randrange(256)
-				challenge_payload = random.randbytes(8)
-
+			challenge_message_id = random.randrange(256)
+			challenge_payload = random.randbytes(8)
 			challenge_reply = await toypad.send_command(
 				command=_toypad.COMMAND.CHALLENGE,
 				message_id=challenge_message_id,
