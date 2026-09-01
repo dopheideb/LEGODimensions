@@ -160,6 +160,9 @@ if args.write:
         
         ## Page 0x25 needs to be zeroed.
         page_0x25 = b"\x00\x00\x00\x00"
+
+        ## Page 0x26 says this is a vehicle/token.
+        page_0x26 = b"\x00\x01\x00\x00"
     
     ## We cannot switch between vehicle/token with a genuine LEGO 
     ## Dimensions tag since page 0x26 is locked.
